@@ -16,9 +16,9 @@ export default function TabsLayoutWeb() {
       }}
     >
       <Tabs.Screen name="index" options={{ title: 'Hoje' }} />
-      <Tabs.Screen name="checkin" options={{ title: 'Check-in' }} />
+      <Tabs.Screen name="comida" options={{ title: 'Comida' }} />
+      <Tabs.Screen name="corpo" options={{ title: 'Corpo' }} />
       <Tabs.Screen name="plano" options={{ title: 'Plano' }} />
-      <Tabs.Screen name="ajustes" options={{ title: 'Ajustes' }} />
     </Tabs>
   );
 }

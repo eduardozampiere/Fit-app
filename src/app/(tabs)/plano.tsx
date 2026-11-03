@@ -36,9 +36,19 @@ export default function PlanScreen() {
   return (
     <SafeAreaView edges={['top']} style={{ flex: 1, backgroundColor: t.bg }}>
       <ScrollView contentContainerStyle={styles.body} contentInsetAdjustmentBehavior="automatic">
-        <Text style={[styles.title, { color: t.text }]} accessibilityRole="header">
-          {cycle.name}
-        </Text>
+        <View style={{ flexDirection: 'row', alignItems: 'flex-start', gap: 10 }}>
+          <Text style={[styles.title, { color: t.text, flex: 1 }]} accessibilityRole="header">
+            {cycle.name}
+          </Text>
+          <Pressable
+            accessibilityRole="button"
+            accessibilityLabel="Ajustes"
+            onPress={() => router.push('/ajustes')}
+            style={[styles.gear, { backgroundColor: t.chip }]}
+          >
+            <Text style={{ fontSize: 22 }}>⚙︎</Text>
+          </Pressable>
+        </View>
         {cycle.goal ? <Text style={{ color: t.muted, fontSize: 15 }}>{cycle.goal}</Text> : null}
 
         {coach.pending.length ? <SectionTitle>Sugestões pendentes ({coach.pending.length})</SectionTitle> : null}
@@ -142,6 +152,7 @@ export default function PlanScreen() {
 const styles = StyleSheet.create({
   body: { padding: 16, gap: 12, paddingBottom: 40 },
   title: { fontSize: 24, fontWeight: '800' },
+  gear: { width: 48, height: 48, borderRadius: 14, alignItems: 'center', justifyContent: 'center' },
   weekHeader: { flexDirection: 'row', alignItems: 'center', gap: 10, minHeight: 48 },
   weekTitle: { fontSize: 18, fontWeight: '800' },
   session: { borderTopWidth: StyleSheet.hairlineWidth, paddingTop: 8, gap: 8 },

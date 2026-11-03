@@ -1,23 +1,23 @@
 import * as Notifications from 'expo-notifications';
 import { useSQLiteContext } from 'expo-sqlite';
 import { useEffect, useState } from 'react';
-import { getSetting, setSetting } from '../../db/repo';
+import { getSetting, setSetting } from '../db/repo';
 import { Alert, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { BigButton, Card, Chip, SectionTitle, Stepper } from '../../components/ui';
-import { formatKg, formatNumber } from '../../domain/format';
-import { LIFT_LABEL } from '../../domain/plan';
-import type { Lift, Maxes } from '../../domain/types';
-import { useAppData } from '../../state/AppData';
-import { applyCheckinReminder, DEFAULT_REMINDER, type ReminderSettings } from '../../state/reminders';
-import { useTheme } from '../../ui/theme';
+import { BigButton, Card, Chip, SectionTitle, Stepper } from '../components/ui';
+import { formatKg, formatNumber } from '../domain/format';
+import { LIFT_LABEL } from '../domain/plan';
+import type { Lift, Maxes } from '../domain/types';
+import { useAppData } from '../state/AppData';
+import { applyCheckinReminder, DEFAULT_REMINDER, type ReminderSettings } from '../state/reminders';
+import { useTheme } from '../ui/theme';
 
 const ALL_PLATES = [25, 20, 15, 10, 5, 2.5, 1.25];
 const LIFTS: Lift[] = ['squat', 'bench', 'deadlift'];
 
 export default function SettingsScreen() {
   const t = useTheme();
-  const { cycle, maxes, gym, setGym } = useAppData();
+  const { cycle, maxes, gym, setGym, targets } = useAppData();
   if (!cycle || !maxes) return null;
 
   const testNotification = async () => {
@@ -34,11 +34,8 @@ export default function SettingsScreen() {
   };
 
   return (
-    <SafeAreaView edges={['top']} style={{ flex: 1, backgroundColor: t.bg }}>
+    <SafeAreaView edges={[]} style={{ flex: 1, backgroundColor: t.bg }}>
       <ScrollView contentContainerStyle={styles.body} contentInsetAdjustmentBehavior="automatic">
-        <Text style={[styles.title, { color: t.text }]} accessibilityRole="header">
-          Ajustes
-        </Text>
 
         <SectionTitle>Máximos de referência</SectionTitle>
         <MaxesEditor key={JSON.stringify(maxes)} />
@@ -65,6 +62,9 @@ export default function SettingsScreen() {
           </View>
         </Card>
 
+        <SectionTitle>Alimentação</SectionTitle>
+        <TargetsEditor key={JSON.stringify(targets)} />
+
         <SectionTitle>Lembrete do check-in</SectionTitle>
         <ReminderEditor />
 
@@ -81,6 +81,22 @@ export default function SettingsScreen() {
         </Text>
       </ScrollView>
     </SafeAreaView>
+  );
+}
+
+function TargetsEditor() {
+  const { targets, setTargets } = useAppData();
+  const [d, setD] = useState(targets);
+  const changed = JSON.stringify(d) !== JSON.stringify(targets);
+  const fmt = (unit: string) => (v: number | null) => `${formatNumber(v ?? 0, 0)} ${unit}`;
+  return (
+    <Card>
+      <Stepper label="Calorias em dia de treino" value={d.trainingKcal} step={50} onChange={(v) => setD({ ...d, trainingKcal: v })} format={fmt('kcal')} />
+      <Stepper label="Calorias em dia de descanso" value={d.restKcal} step={50} onChange={(v) => setD({ ...d, restKcal: v })} format={fmt('kcal')} />
+      <Stepper label="Proteína por dia" value={d.protein} step={5} onChange={(v) => setD({ ...d, protein: v })} format={fmt('g')} />
+      <Stepper label="Óleo de preparo (por colher)" value={d.oilKcalPerSpoon} step={5} onChange={(v) => setD({ ...d, oilKcalPerSpoon: v })} format={fmt('kcal')} />
+      <BigButton label="Salvar alvos" disabled={!changed} onPress={() => setTargets(d)} />
+    </Card>
   );
 }
 

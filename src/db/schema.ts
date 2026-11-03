@@ -1,8 +1,9 @@
 import type { SQLiteDatabase } from 'expo-sqlite';
 import bundledCycle from '../../assets/plan/ciclo_out26_jan27.json';
+import { DEFAULT_FAVORITES, DEFAULT_FOODS } from '../domain/nutrition';
 import type { Cycle } from '../domain/types';
 
-const DATABASE_VERSION = 2;
+const DATABASE_VERSION = 3;
 
 /** Migrações por PRAGMA user_version. Nunca editar uma migração já publicada: criar a próxima. */
 export async function migrateDbIfNeeded(db: SQLiteDatabase) {
@@ -89,6 +90,63 @@ CREATE TABLE IF NOT EXISTS alert_decisions (
 );
 `);
     version = 2;
+  }
+
+  if (version === 2) {
+    await db.execAsync(`
+CREATE TABLE IF NOT EXISTS foods (
+  id TEXT PRIMARY KEY NOT NULL,
+  name TEXT NOT NULL,
+  kcal REAL NOT NULL,              -- por 100 g
+  protein REAL NOT NULL,
+  carbs REAL NOT NULL,
+  fat REAL NOT NULL
+);
+CREATE TABLE IF NOT EXISTS meal_entries (
+  id TEXT PRIMARY KEY NOT NULL,
+  date TEXT NOT NULL,
+  meal TEXT NOT NULL,
+  kind TEXT NOT NULL,              -- food | oil | custom
+  label TEXT NOT NULL,
+  food_id TEXT,
+  grams REAL,
+  kcal REAL NOT NULL,
+  protein REAL NOT NULL,
+  carbs REAL NOT NULL,
+  fat REAL NOT NULL,
+  created_at TEXT NOT NULL
+);
+CREATE INDEX IF NOT EXISTS idx_meal_entries_date ON meal_entries(date);
+CREATE TABLE IF NOT EXISTS favorite_meals (
+  id TEXT PRIMARY KEY NOT NULL,
+  name TEXT NOT NULL,
+  data TEXT NOT NULL               -- JSON { items, oilSpoons }
+);
+CREATE TABLE IF NOT EXISTS body_weights (
+  date TEXT PRIMARY KEY NOT NULL,
+  kg REAL NOT NULL,
+  note TEXT
+);
+CREATE TABLE IF NOT EXISTS measurements (
+  date TEXT PRIMARY KEY NOT NULL,
+  arm_cm REAL,
+  thigh_cm REAL,
+  waist_cm REAL
+);
+`);
+    for (const f of DEFAULT_FOODS) {
+      await db.runAsync(
+        'INSERT OR IGNORE INTO foods (id, name, kcal, protein, carbs, fat) VALUES (?, ?, ?, ?, ?, ?)',
+        f.id, f.name, f.kcal, f.protein, f.carbs, f.fat,
+      );
+    }
+    for (const fav of DEFAULT_FAVORITES) {
+      await db.runAsync(
+        'INSERT OR IGNORE INTO favorite_meals (id, name, data) VALUES (?, ?, ?)',
+        fav.id, fav.name, JSON.stringify({ items: fav.items, oilSpoons: fav.oilSpoons }),
+      );
+    }
+    version = 3;
   }
 
   await db.execAsync(`PRAGMA user_version = ${DATABASE_VERSION}`);

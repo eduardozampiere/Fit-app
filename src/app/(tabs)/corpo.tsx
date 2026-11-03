@@ -3,6 +3,7 @@ import { useState } from 'react';
 import { ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { checkinLine } from '../../components/CheckinSummary';
+import { MeasurementsSection, WeightSection } from '../../components/BodySections';
 import { RedFlagModal } from '../../components/RedFlagModal';
 import { BigButton, Card, Chip, SectionTitle, Stepper } from '../../components/ui';
 import { saveCheckin } from '../../db/repo';
@@ -26,9 +27,12 @@ const FLAGS: { key: keyof RedFlags; label: string }[] = [
   { key: 'legWeakness', label: 'Fraqueza nas pernas' },
 ];
 
-export default function CheckinScreen() {
+type Section = 'checkin' | 'peso' | 'medidas';
+
+export default function BodyScreen() {
   const t = useTheme();
   const coach = useCoach();
+  const [section, setSection] = useState<Section>('checkin');
   const [date, setDate] = useState(coach.today);
   const [alarm, setAlarm] = useState(false);
   if (!coach.ready) return <SafeAreaView style={{ flex: 1, backgroundColor: t.bg }} />;
@@ -41,8 +45,17 @@ export default function CheckinScreen() {
     <SafeAreaView edges={['top']} style={{ flex: 1, backgroundColor: t.bg }}>
       <ScrollView contentContainerStyle={styles.body} contentInsetAdjustmentBehavior="automatic" keyboardShouldPersistTaps="handled">
         <Text style={[styles.title, { color: t.text }]} accessibilityRole="header">
-          Check-in
+          Corpo
         </Text>
+        <View style={styles.wrap}>
+          <Chip label="Check-in" selected={section === 'checkin'} onPress={() => setSection('checkin')} />
+          <Chip label="Peso" selected={section === 'peso'} onPress={() => setSection('peso')} />
+          <Chip label="Medidas" selected={section === 'medidas'} onPress={() => setSection('medidas')} />
+        </View>
+        {section === 'peso' ? <WeightSection /> : null}
+        {section === 'medidas' ? <MeasurementsSection /> : null}
+        {section === 'checkin' ? (
+        <>
         <View style={styles.wrap}>
           <Chip label={`Hoje ${formatDateShort(coach.today)}`} selected={date === coach.today} onPress={() => setDate(coach.today)} />
           <Chip label={`Ontem ${formatDateShort(yesterday)}`} selected={date === yesterday} onPress={() => setDate(yesterday)} />
@@ -68,6 +81,8 @@ export default function CheckinScreen() {
           </Card>
         ))}
         {coach.checkins.length === 0 ? <Text style={{ color: t.muted }}>Nenhum check-in ainda.</Text> : null}
+        </>
+        ) : null}
       </ScrollView>
       <RedFlagModal visible={alarm} onClose={() => setAlarm(false)} />
     </SafeAreaView>

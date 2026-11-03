@@ -24,7 +24,10 @@ export default function RootLayout() {
           <AppDataProvider>
             <RestTimerProvider>
               <StatusBar style="auto" />
-              <Stack screenOptions={{ headerShown: false }} />
+              <Stack screenOptions={{ headerShown: false }}>
+                <Stack.Screen name="(tabs)" />
+                <Stack.Screen name="ajustes" options={{ headerShown: true, title: 'Ajustes', presentation: 'modal' }} />
+              </Stack>
             </RestTimerProvider>
           </AppDataProvider>
         </SQLiteProvider>

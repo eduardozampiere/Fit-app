@@ -2,6 +2,7 @@ import { useSQLiteContext } from 'expo-sqlite';
 import { createContext, useCallback, useContext, useEffect, useState, type ReactNode } from 'react';
 import { getActiveCycle, getMaxes, getSetting, maxesKey, saveCycleData, setSetting } from '../db/repo';
 import { DEFAULT_BAR_KG, DEFAULT_PLATES_KG } from '../domain/plates';
+import { DEFAULT_TARGETS, type NutritionTargets } from '../domain/nutrition';
 import type { Cycle, Maxes } from '../domain/types';
 
 export interface GymSettings {
@@ -15,6 +16,8 @@ interface AppDataValue {
   cycle: Cycle | null;
   maxes: Maxes | null;
   gym: GymSettings;
+  targets: NutritionTargets;
+  setTargets: (t: NutritionTargets) => Promise<void>;
   /** Incrementa a cada gravação: telas usam como dependência para recarregar. */
   version: number;
   bump: () => void;
@@ -32,6 +35,7 @@ export function AppDataProvider({ children }: { children: ReactNode }) {
   const [maxes, setMaxesState] = useState<Maxes | null>(null);
   const [gym, setGymState] = useState<GymSettings>(DEFAULT_GYM);
   const [version, setVersion] = useState(0);
+  const [targets, setTargetsState] = useState<NutritionTargets>(DEFAULT_TARGETS);
 
   useEffect(() => {
     (async () => {
@@ -39,6 +43,7 @@ export function AppDataProvider({ children }: { children: ReactNode }) {
       setCycle(c);
       if (c) setMaxesState(await getMaxes(db, c));
       setGymState(await getSetting(db, 'gym', DEFAULT_GYM));
+      setTargetsState({ ...DEFAULT_TARGETS, ...(await getSetting(db, 'nutritionTargets', DEFAULT_TARGETS)) });
     })();
   }, [db]);
 
@@ -61,6 +66,14 @@ export function AppDataProvider({ children }: { children: ReactNode }) {
     [db],
   );
 
+  const setTargets = useCallback(
+    async (tg: NutritionTargets) => {
+      await setSetting(db, 'nutritionTargets', tg);
+      setTargetsState(tg);
+    },
+    [db],
+  );
+
   const updateCycle = useCallback(
     async (c: Cycle) => {
       await saveCycleData(db, c);
@@ -71,7 +84,7 @@ export function AppDataProvider({ children }: { children: ReactNode }) {
   );
 
   return (
-    <Ctx.Provider value={{ cycle, maxes, gym, version, bump, setMaxes, setGym, updateCycle }}>{children}</Ctx.Provider>
+    <Ctx.Provider value={{ cycle, maxes, gym, targets, setTargets, version, bump, setMaxes, setGym, updateCycle }}>{children}</Ctx.Provider>
   );
 }
 

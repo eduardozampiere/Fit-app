@@ -14,7 +14,7 @@ export function checkinLine(c: CheckIn): string {
 export function CheckinSummary({ checkin }: { checkin: CheckIn | null }) {
   const t = useTheme();
   if (!checkin) {
-    return <BigButton label="Fazer check-in (10 s)" variant="neutral" onPress={() => router.navigate('/checkin')} />;
+    return <BigButton label="Fazer check-in (10 s)" variant="neutral" onPress={() => router.navigate('/corpo')} />;
   }
   return (
     <Card style={{ paddingVertical: 10 }}>

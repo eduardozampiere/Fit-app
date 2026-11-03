@@ -28,7 +28,9 @@
       "expo-status-bar",
       [
         "expo-notifications",
-        {}
+        {
+          "enableRemoteNotifications": false
+        }
       ]
     ],
     "scheme": "fitapp",

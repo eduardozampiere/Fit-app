@@ -4,7 +4,12 @@ App de iPhone (Expo + React Native) para o ciclo de powerlifting: plano por %, r
 séries, cronômetro de descanso e, nos próximos incrementos, check-in, regras de segurança, alimentação,
 análises e integração com o Claude (treinador). Offline: tudo fica no aparelho (SQLite).
 
-## Rodar no iPhone (Expo Go, sem conta de desenvolvedor)
+## Instalar no iPhone para usar na academia
+
+Ver **[docs/instalar-no-iphone.md](docs/instalar-no-iphone.md)**: Apple ID gratuito, renovação a cada 7 dias
+(`npm run iphone` pelo Mac, ou `npm run ipa` para SideStore/AltStore).
+
+## Testar durante o desenvolvimento (Expo Go)
 
 Pré-requisitos no Mac: Node 20+ e o app **Expo Go** instalado no iPhone (App Store).
 

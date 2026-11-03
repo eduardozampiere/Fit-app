@@ -36,7 +36,9 @@
     "test:import": "python3 -m unittest discover -s tools",
     "typecheck": "tsc --noEmit",
     "import-plan": "python3 tools/import_plan.py data/ciclo_out26_jan27.xlsx assets/plan/ciclo_out26_jan27.json",
-    "lint": "expo lint"
+    "lint": "expo lint",
+    "iphone": "expo run:ios --device --configuration Release",
+    "ipa": "bash tools/build-ipa.sh"
   },
   "private": true
 }

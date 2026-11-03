@@ -42,3 +42,6 @@ yarn-error.*
 
 # python
 __pycache__/
+
+# builds locais (ipa)
+/build

@@ -1,0 +1,99 @@
+import type { SQLiteDatabase } from 'expo-sqlite';
+import bundledCycle from '../../assets/plan/ciclo_out26_jan27.json';
+import type { Cycle } from '../domain/types';
+
+const DATABASE_VERSION = 1;
+
+/** Migrações por PRAGMA user_version. Nunca editar uma migração já publicada: criar a próxima. */
+export async function migrateDbIfNeeded(db: SQLiteDatabase) {
+  const row = await db.getFirstAsync<{ user_version: number }>('PRAGMA user_version');
+  let version = row?.user_version ?? 0;
+  if (version >= DATABASE_VERSION) return;
+
+  if (version === 0) {
+    await db.execAsync(`
+PRAGMA journal_mode = 'wal';
+CREATE TABLE IF NOT EXISTS cycles (
+  id TEXT PRIMARY KEY NOT NULL,
+  name TEXT NOT NULL,
+  start_date TEXT NOT NULL,
+  end_date TEXT NOT NULL,
+  status TEXT NOT NULL,            -- planned | active | done
+  data TEXT NOT NULL,              -- JSON fitapp.cycle/v1 (editável)
+  imported_at TEXT NOT NULL
+);
+CREATE TABLE IF NOT EXISTS exercises (
+  id TEXT PRIMARY KEY NOT NULL,
+  name TEXT NOT NULL,
+  lift TEXT,
+  category TEXT NOT NULL
+);
+CREATE TABLE IF NOT EXISTS session_logs (
+  id TEXT PRIMARY KEY NOT NULL,
+  cycle_id TEXT NOT NULL,
+  week INTEGER NOT NULL,
+  session_id TEXT NOT NULL,
+  date TEXT NOT NULL,
+  status TEXT NOT NULL,            -- in_progress | done
+  note TEXT,
+  created_at TEXT NOT NULL
+);
+CREATE INDEX IF NOT EXISTS idx_session_logs_cycle ON session_logs(cycle_id, session_id);
+CREATE INDEX IF NOT EXISTS idx_session_logs_date ON session_logs(date);
+CREATE TABLE IF NOT EXISTS set_logs (
+  id TEXT PRIMARY KEY NOT NULL,
+  session_log_id TEXT NOT NULL REFERENCES session_logs(id) ON DELETE CASCADE,
+  item_id TEXT,
+  exercise_id TEXT NOT NULL,
+  set_index INTEGER NOT NULL,
+  load_kg REAL,
+  reps INTEGER,
+  duration_sec INTEGER,
+  rpe REAL,
+  grip TEXT,
+  belt INTEGER,
+  failed INTEGER NOT NULL DEFAULT 0,
+  as_planned INTEGER NOT NULL DEFAULT 0,
+  note TEXT,
+  done_at TEXT NOT NULL
+);
+CREATE INDEX IF NOT EXISTS idx_set_logs_session ON set_logs(session_log_id);
+CREATE INDEX IF NOT EXISTS idx_set_logs_exercise ON set_logs(exercise_id);
+CREATE TABLE IF NOT EXISTS settings (
+  key TEXT PRIMARY KEY NOT NULL,
+  value TEXT NOT NULL
+);
+`);
+    await importCycle(db, bundledCycle as unknown as Cycle, 'active');
+    version = 1;
+  }
+
+  await db.execAsync(`PRAGMA user_version = ${DATABASE_VERSION}`);
+}
+
+/** Grava um ciclo e mescla seus exercícios no catálogo global. */
+export async function importCycle(db: SQLiteDatabase, cycle: Cycle, status: 'planned' | 'active' | 'done') {
+  await db.withTransactionAsync(async () => {
+    if (status === 'active') await db.runAsync("UPDATE cycles SET status = 'done' WHERE status = 'active'");
+    await db.runAsync(
+      `INSERT OR REPLACE INTO cycles (id, name, start_date, end_date, status, data, imported_at)
+       VALUES (?, ?, ?, ?, ?, ?, ?)`,
+      cycle.id,
+      cycle.name,
+      cycle.startDate,
+      cycle.endDate,
+      status,
+      JSON.stringify(cycle),
+      new Date().toISOString(),
+    );
+    for (const e of cycle.exercises) {
+      await db.runAsync(
+        'INSERT OR IGNORE INTO exercises (id, name, lift, category) VALUES (?, ?, ?, ?)',
+        e.id,
+        e.name,
+        e.lift,
+        e.category,
+      );
+    }
+  });
+}

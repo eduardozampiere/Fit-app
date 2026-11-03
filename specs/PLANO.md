@@ -38,6 +38,10 @@ feature está no `spec.md` dela.
 | App do Apple Watch (registrar série, ver descanso) | conversa sobre Swift | Só em Swift, ao lado do app atual. |
 | Aviso de validade da instalação (7 dias) | feature 02 | iOS não expõe a data com facilidade; hoje a sugestão é um lembrete semanal no iPhone. |
 | Fase 2 do prompt original: CloudKit, HealthKit, widgets | prompt original | ⛔ Exigem a conta paga da Apple. |
+| **DRY:** `slug` duplicado em `src/domain/adjustments.ts` → usar `slugify` | regras do CLAUDE.md | Mover `slugify` para um módulo de texto (ex.: `src/domain/text.ts`) e importar nos dois. |
+| **DRY:** `addDaysIso` em `src/domain/importers.ts` → usar `addDays` de `dates.ts` | regras do CLAUDE.md | |
+| **DRY:** `LIFTS` declarado em 5 arquivos | regras do CLAUDE.md | Exportar de `src/domain/plan.ts` junto com `LIFT_LABEL`. |
+| **DRY:** estilo de campo de texto copiado em 5 telas | regras do CLAUDE.md | Criar `TextField` em `src/components/ui.tsx`. |
 
 ## Decisões em aberto (o usuário pode querer revisar)
 
@@ -56,4 +60,5 @@ feature está no `spec.md` dela.
 | 03/11/2026 | Liquid Glass | `99ca017` |
 | 03/11/2026 | Incremento 2 | `3e0477c` |
 | 03/11/2026 | Incrementos 3, 4 e 5 | `11b4a12`, `fd90e02`, `96411c0` |
-| 03/11/2026 | Pasta `specs/` criada (contexto, plano, uma spec por feature) | este commit |
+| 03/11/2026 | Pasta `specs/` criada (contexto, plano, uma spec por feature) | `46f64c8` |
+| 03/11/2026 | CLAUDE.md com padrões de projeto e DRY; duplicações atuais no backlog | este commit |

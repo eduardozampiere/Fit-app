@@ -15,6 +15,10 @@ const light = {
   danger: '#C5221F',
   dangerBg: '#FCE8E6',
   chip: '#ECEDEF',
+  // Gráficos: categóricas 1–3 da paleta de referência (validadas para daltonismo, modo claro)
+  series: ['#2a78d6', '#eb6834', '#1baf7a'],
+  grid: '#E6E6E3',
+  reference: '#A3A29C',
 };
 
 const dark: typeof light = {
@@ -32,6 +36,9 @@ const dark: typeof light = {
   danger: '#FF6B61',
   dangerBg: '#3A1715',
   chip: '#262930',
+  series: ['#3987e5', '#d95926', '#199e70'],
+  grid: '#2B2D33',
+  reference: '#6E6D68',
 };
 
 export type Theme = typeof light;

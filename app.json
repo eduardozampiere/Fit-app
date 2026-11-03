@@ -31,7 +31,8 @@
         {
           "enableRemoteNotifications": false
         }
-      ]
+      ],
+      "expo-sharing"
     ],
     "scheme": "fitapp",
     "experiments": {

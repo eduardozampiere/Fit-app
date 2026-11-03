@@ -3,23 +3,30 @@ import { useSQLiteContext } from 'expo-sqlite';
 import { useEffect, useState } from 'react';
 import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { AlertCard } from '../../components/AlertCard';
 import { prescriptionLine } from '../../components/ExerciseCard';
+import { ItemEditor } from '../../components/ItemEditor';
 import { Badge, Card, SectionTitle } from '../../components/ui';
 import { listSessionLogs } from '../../db/repo';
 import { toISODate } from '../../domain/dates';
 import { formatDateShort, WEEKDAY_NAMES } from '../../domain/format';
+import { applyAdjustments, type AdjustmentOp } from '../../domain/adjustments';
 import { currentLoad, sessionDate, weekForDate } from '../../domain/plan';
-import type { SessionLog } from '../../domain/types';
+import type { PrescribedItem, SessionLog } from '../../domain/types';
 import { useAppData } from '../../state/AppData';
+import { useCoach } from '../../state/useCoach';
 import { TOUCH, useTheme } from '../../ui/theme';
 
 export default function PlanScreen() {
   const t = useTheme();
   const db = useSQLiteContext();
-  const { cycle, maxes, version } = useAppData();
+  const { cycle, maxes, version, updateCycle } = useAppData();
   const [logs, setLogs] = useState<SessionLog[]>([]);
   const [open, setOpen] = useState<number | null>(null);
   const [openSession, setOpenSession] = useState<string | null>(null);
+  const [showHistory, setShowHistory] = useState(false);
+  const [editing, setEditing] = useState<{ sessionId: string; item: PrescribedItem | null } | null>(null);
+  const coach = useCoach();
 
   useEffect(() => {
     if (cycle) listSessionLogs(db, cycle.id).then(setLogs);
@@ -28,14 +35,55 @@ export default function PlanScreen() {
   if (!cycle || !maxes) return null;
   const openWeek = open ?? weekForDate(cycle, toISODate(new Date()))?.number ?? 1;
   const done = new Set(logs.filter((l) => l.status === 'done').map((l) => l.sessionId));
+  const apply = async (op: AdjustmentOp) => {
+    await updateCycle(applyAdjustments(cycle, maxes, [op]).cycle);
+    setEditing(null);
+  };
 
   return (
     <SafeAreaView edges={['top']} style={{ flex: 1, backgroundColor: t.bg }}>
-      <ScrollView contentContainerStyle={styles.body}>
-        <Text style={[styles.title, { color: t.text }]} accessibilityRole="header">
-          {cycle.name}
-        </Text>
+      <ScrollView contentContainerStyle={styles.body} contentInsetAdjustmentBehavior="automatic">
+        <View style={{ flexDirection: 'row', alignItems: 'flex-start', gap: 10 }}>
+          <Text style={[styles.title, { color: t.text, flex: 1 }]} accessibilityRole="header">
+            {cycle.name}
+          </Text>
+          <Pressable
+            accessibilityRole="button"
+            accessibilityLabel="Dados e Claude"
+            onPress={() => router.push('/dados')}
+            style={[styles.dataBtn, { backgroundColor: t.chip }]}
+          >
+            <Text style={{ color: t.text, fontWeight: '700', fontSize: 15 }}>Claude</Text>
+          </Pressable>
+          <Pressable
+            accessibilityRole="button"
+            accessibilityLabel="Ajustes"
+            onPress={() => router.push('/ajustes')}
+            style={[styles.gear, { backgroundColor: t.chip }]}
+          >
+            <Text style={{ fontSize: 22 }}>⚙︎</Text>
+          </Pressable>
+        </View>
         {cycle.goal ? <Text style={{ color: t.muted, fontSize: 15 }}>{cycle.goal}</Text> : null}
+
+        {coach.pending.length ? <SectionTitle>Sugestões pendentes ({coach.pending.length})</SectionTitle> : null}
+        {coach.pending.map((a) => (
+          <AlertCard key={a.key} alert={a} onDecide={(status) => coach.decide(a, status)} />
+        ))}
+        {coach.decisions.size ? (
+          <Pressable accessibilityRole="button" onPress={() => setShowHistory(!showHistory)} style={{ minHeight: 44, justifyContent: 'center' }}>
+            <Text style={{ color: t.accent, fontSize: 15, fontWeight: '700' }}>
+              {showHistory ? 'Esconder' : 'Ver'} decisões anteriores ({coach.decisions.size})
+            </Text>
+          </Pressable>
+        ) : null}
+        {showHistory
+          ? coach.alerts
+              .filter((a) => coach.decisions.has(a.key))
+              .map((a) => <AlertCard key={a.key} alert={a} decision={coach.decisions.get(a.key)} />)
+          : null}
+
+        <SectionTitle>Semanas</SectionTitle>
 
         {cycle.weeks.map((w) => {
           const isOpen = openWeek === w.number;
@@ -80,12 +128,29 @@ export default function PlanScreen() {
                         {sOpen ? (
                           <View style={{ gap: 6 }}>
                             {s.items.map((it) => (
-                              <Text key={it.id} style={{ color: t.text, fontSize: 15, marginLeft: it.parentId ? 14 : 0 }}>
-                                <Text style={{ fontWeight: '700' }}>{it.name}</Text>
-                                {'  '}
-                                <Text style={{ color: t.muted }}>{prescriptionLine(it, currentLoad(cycle, it, maxes))}</Text>
-                              </Text>
+                              <Pressable
+                                key={it.id}
+                                accessibilityRole="button"
+                                accessibilityLabel={`${it.name}. Toque para editar`}
+                                onPress={() => setEditing({ sessionId: s.id, item: it })}
+                                style={{ minHeight: 40, justifyContent: 'center', marginLeft: it.parentId ? 14 : 0 }}
+                              >
+                                <Text style={{ color: t.text, fontSize: 15 }}>
+                                  <Text style={{ fontWeight: '700' }}>{it.name}</Text>
+                                  {'  '}
+                                  <Text style={{ color: t.muted }}>{prescriptionLine(it, currentLoad(cycle, it, maxes))}</Text>
+                                  {'  '}
+                                  <Text style={{ color: t.accent }}>✎</Text>
+                                </Text>
+                              </Pressable>
                             ))}
+                            <Pressable
+                              accessibilityRole="button"
+                              onPress={() => setEditing({ sessionId: s.id, item: null })}
+                              style={{ minHeight: 40, justifyContent: 'center' }}
+                            >
+                              <Text style={{ color: t.accent, fontWeight: '700', fontSize: 15 }}>+ Adicionar exercício</Text>
+                            </Pressable>
                             <Pressable
                               accessibilityRole="button"
                               onPress={() => router.navigate({ pathname: '/', params: { sessionId: s.id, at: String(Date.now()) } })}
@@ -112,6 +177,20 @@ export default function PlanScreen() {
           ))}
         </Card>
       </ScrollView>
+      {editing ? (
+        <ItemEditor
+          item={editing.item}
+          onClose={() => setEditing(null)}
+          onSave={(patch) =>
+            apply(
+              editing.item
+                ? { op: 'edit_item', itemId: editing.item.id, patch }
+                : { op: 'add_item', sessionId: editing.sessionId, item: patch },
+            )
+          }
+          onDelete={editing.item ? () => apply({ op: 'remove_item', itemId: editing.item!.id }) : undefined}
+        />
+      ) : null}
     </SafeAreaView>
   );
 }
@@ -119,6 +198,8 @@ export default function PlanScreen() {
 const styles = StyleSheet.create({
   body: { padding: 16, gap: 12, paddingBottom: 40 },
   title: { fontSize: 24, fontWeight: '800' },
+  dataBtn: { height: 48, borderRadius: 14, paddingHorizontal: 14, alignItems: 'center', justifyContent: 'center' },
+  gear: { width: 48, height: 48, borderRadius: 14, alignItems: 'center', justifyContent: 'center' },
   weekHeader: { flexDirection: 'row', alignItems: 'center', gap: 10, minHeight: 48 },
   weekTitle: { fontSize: 18, fontWeight: '800' },
   session: { borderTopWidth: StyleSheet.hairlineWidth, paddingTop: 8, gap: 8 },

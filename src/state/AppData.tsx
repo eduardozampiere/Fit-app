@@ -1,7 +1,8 @@
 import { useSQLiteContext } from 'expo-sqlite';
 import { createContext, useCallback, useContext, useEffect, useState, type ReactNode } from 'react';
-import { getActiveCycle, getMaxes, getSetting, maxesKey, setSetting } from '../db/repo';
+import { getActiveCycle, getMaxes, getSetting, maxesKey, saveCycleData, setSetting } from '../db/repo';
 import { DEFAULT_BAR_KG, DEFAULT_PLATES_KG } from '../domain/plates';
+import { DEFAULT_TARGETS, type NutritionTargets } from '../domain/nutrition';
 import type { Cycle, Maxes } from '../domain/types';
 
 export interface GymSettings {
@@ -15,11 +16,17 @@ interface AppDataValue {
   cycle: Cycle | null;
   maxes: Maxes | null;
   gym: GymSettings;
+  targets: NutritionTargets;
+  setTargets: (t: NutritionTargets) => Promise<void>;
   /** Incrementa a cada gravação: telas usam como dependência para recarregar. */
   version: number;
   bump: () => void;
   setMaxes: (m: Maxes) => Promise<void>;
   setGym: (g: GymSettings) => Promise<void>;
+  /** Grava uma versão editada do plano (ex.: sugestão aceita). */
+  updateCycle: (c: Cycle) => Promise<void>;
+  /** Relê tudo do banco (depois de restaurar backup ou trocar o ciclo ativo). */
+  reload: () => void;
 }
 
 const Ctx = createContext<AppDataValue | null>(null);
@@ -30,6 +37,8 @@ export function AppDataProvider({ children }: { children: ReactNode }) {
   const [maxes, setMaxesState] = useState<Maxes | null>(null);
   const [gym, setGymState] = useState<GymSettings>(DEFAULT_GYM);
   const [version, setVersion] = useState(0);
+  const [targets, setTargetsState] = useState<NutritionTargets>(DEFAULT_TARGETS);
+  const [reloadKey, setReloadKey] = useState(0);
 
   useEffect(() => {
     (async () => {
@@ -37,8 +46,9 @@ export function AppDataProvider({ children }: { children: ReactNode }) {
       setCycle(c);
       if (c) setMaxesState(await getMaxes(db, c));
       setGymState(await getSetting(db, 'gym', DEFAULT_GYM));
+      setTargetsState({ ...DEFAULT_TARGETS, ...(await getSetting(db, 'nutritionTargets', DEFAULT_TARGETS)) });
     })();
-  }, [db]);
+  }, [db, reloadKey]);
 
   const bump = useCallback(() => setVersion((v) => v + 1), []);
 
@@ -59,7 +69,31 @@ export function AppDataProvider({ children }: { children: ReactNode }) {
     [db],
   );
 
-  return <Ctx.Provider value={{ cycle, maxes, gym, version, bump, setMaxes, setGym }}>{children}</Ctx.Provider>;
+  const setTargets = useCallback(
+    async (tg: NutritionTargets) => {
+      await setSetting(db, 'nutritionTargets', tg);
+      setTargetsState(tg);
+    },
+    [db],
+  );
+
+  const reload = useCallback(() => {
+    setReloadKey((k) => k + 1);
+    setVersion((v) => v + 1);
+  }, []);
+
+  const updateCycle = useCallback(
+    async (c: Cycle) => {
+      await saveCycleData(db, c);
+      setCycle(c);
+      setVersion((v) => v + 1);
+    },
+    [db],
+  );
+
+  return (
+    <Ctx.Provider value={{ cycle, maxes, gym, targets, setTargets, version, bump, setMaxes, setGym, updateCycle, reload }}>{children}</Ctx.Provider>
+  );
 }
 
 export function useAppData(): AppDataValue {

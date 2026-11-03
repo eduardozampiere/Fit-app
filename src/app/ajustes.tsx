@@ -1,20 +1,22 @@
 import * as Notifications from 'expo-notifications';
-import { useState } from 'react';
+import { useSQLiteContext } from 'expo-sqlite';
+import { useEffect, useState } from 'react';
+import { getSetting, setSetting } from '../db/repo';
 import { Alert, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { BigButton, Card, Chip, SectionTitle, Stepper } from '../../components/ui';
-import { formatKg, formatNumber } from '../../domain/format';
-import { LIFT_LABEL } from '../../domain/plan';
-import type { Lift, Maxes } from '../../domain/types';
-import { useAppData } from '../../state/AppData';
-import { useTheme } from '../../ui/theme';
+import { BigButton, Card, Chip, SectionTitle, Stepper } from '../components/ui';
+import { formatKg, formatNumber } from '../domain/format';
+import { LIFT_LABEL, LIFTS } from '../domain/plan';
+import type { Maxes } from '../domain/types';
+import { useAppData } from '../state/AppData';
+import { applyCheckinReminder, DEFAULT_REMINDER, type ReminderSettings } from '../state/reminders';
+import { useTheme } from '../ui/theme';
 
 const ALL_PLATES = [25, 20, 15, 10, 5, 2.5, 1.25];
-const LIFTS: Lift[] = ['squat', 'bench', 'deadlift'];
 
 export default function SettingsScreen() {
   const t = useTheme();
-  const { cycle, maxes, gym, setGym } = useAppData();
+  const { cycle, maxes, gym, setGym, targets } = useAppData();
   if (!cycle || !maxes) return null;
 
   const testNotification = async () => {
@@ -31,11 +33,8 @@ export default function SettingsScreen() {
   };
 
   return (
-    <SafeAreaView edges={['top']} style={{ flex: 1, backgroundColor: t.bg }}>
-      <ScrollView contentContainerStyle={styles.body}>
-        <Text style={[styles.title, { color: t.text }]} accessibilityRole="header">
-          Ajustes
-        </Text>
+    <SafeAreaView edges={[]} style={{ flex: 1, backgroundColor: t.bg }}>
+      <ScrollView contentContainerStyle={styles.body} contentInsetAdjustmentBehavior="automatic">
 
         <SectionTitle>Máximos de referência</SectionTitle>
         <MaxesEditor key={JSON.stringify(maxes)} />
@@ -62,6 +61,12 @@ export default function SettingsScreen() {
           </View>
         </Card>
 
+        <SectionTitle>Alimentação</SectionTitle>
+        <TargetsEditor key={JSON.stringify(targets)} />
+
+        <SectionTitle>Lembrete do check-in</SectionTitle>
+        <ReminderEditor />
+
         <SectionTitle>Cronômetro de descanso</SectionTitle>
         <Card>
           <Text style={{ color: t.muted, fontSize: 14 }}>
@@ -75,6 +80,57 @@ export default function SettingsScreen() {
         </Text>
       </ScrollView>
     </SafeAreaView>
+  );
+}
+
+function TargetsEditor() {
+  const { targets, setTargets } = useAppData();
+  const [d, setD] = useState(targets);
+  const changed = JSON.stringify(d) !== JSON.stringify(targets);
+  const fmt = (unit: string) => (v: number | null) => `${formatNumber(v ?? 0, 0)} ${unit}`;
+  return (
+    <Card>
+      <Stepper label="Calorias em dia de treino" value={d.trainingKcal} step={50} onChange={(v) => setD({ ...d, trainingKcal: v })} format={fmt('kcal')} />
+      <Stepper label="Calorias em dia de descanso" value={d.restKcal} step={50} onChange={(v) => setD({ ...d, restKcal: v })} format={fmt('kcal')} />
+      <Stepper label="Proteína por dia" value={d.protein} step={5} onChange={(v) => setD({ ...d, protein: v })} format={fmt('g')} />
+      <Stepper label="Óleo de preparo (por colher)" value={d.oilKcalPerSpoon} step={5} onChange={(v) => setD({ ...d, oilKcalPerSpoon: v })} format={fmt('kcal')} />
+      <BigButton label="Salvar alvos" disabled={!changed} onPress={() => setTargets(d)} />
+    </Card>
+  );
+}
+
+function ReminderEditor() {
+  const t = useTheme();
+  const db = useSQLiteContext();
+  const [r, setR] = useState<ReminderSettings | null>(null);
+  useEffect(() => {
+    getSetting(db, 'checkinReminder', DEFAULT_REMINDER).then(setR);
+  }, [db]);
+  if (!r) return null;
+  const save = async (next: ReminderSettings) => {
+    const ok = await applyCheckinReminder(next);
+    if (!ok) {
+      Alert.alert('Notificações bloqueadas', 'Libere as notificações do app nos Ajustes do iPhone.');
+      return;
+    }
+    await setSetting(db, 'checkinReminder', next);
+    setR(next);
+  };
+  const two = (n: number) => String(n).padStart(2, '0');
+  return (
+    <Card>
+      <View style={styles.wrap}>
+        <Chip label="Ligado" selected={r.enabled} onPress={() => save({ ...r, enabled: true })} />
+        <Chip label="Desligado" selected={!r.enabled} onPress={() => save({ ...r, enabled: false })} />
+      </View>
+      {r.enabled ? (
+        <>
+          <Stepper label="Hora" value={r.hour} step={1} onChange={(v) => save({ ...r, hour: ((v % 24) + 24) % 24 })} format={(v) => two(v ?? 0)} />
+          <Stepper label="Minuto" value={r.minute} step={15} onChange={(v) => save({ ...r, minute: ((v % 60) + 60) % 60 })} format={(v) => two(v ?? 0)} />
+          <Text style={{ color: t.muted, fontSize: 14 }}>Todo dia às {two(r.hour)}:{two(r.minute)}.</Text>
+        </>
+      ) : null}
+    </Card>
   );
 }
 

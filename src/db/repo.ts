@@ -1,5 +1,6 @@
 import type { SQLiteDatabase } from 'expo-sqlite';
 import type { SetDraft } from '../domain/logging';
+import { NO_RED_FLAGS, type CheckIn, type LoggedSession } from '../domain/rules';
 import type { Cycle, Maxes, SessionLog, SetLog } from '../domain/types';
 
 export function newId(): string {
@@ -201,4 +202,110 @@ export async function updateSet(db: SQLiteDatabase, s: SetLog): Promise<void> {
 
 export async function deleteSet(db: SQLiteDatabase, id: string): Promise<void> {
   await db.runAsync('DELETE FROM set_logs WHERE id = ?', id);
+}
+
+// ---- Check-in ----
+
+type CheckInRow = {
+  date: string;
+  low_back: number | null;
+  knee: number | null;
+  wrist: number | null;
+  foot: number | null;
+  sleep_h: number | null;
+  red_flags: string;
+  note: string | null;
+};
+
+function toCheckIn(r: CheckInRow): CheckIn {
+  let redFlags = NO_RED_FLAGS;
+  try {
+    redFlags = { ...NO_RED_FLAGS, ...JSON.parse(r.red_flags) };
+  } catch {
+    // mantém sem sinais
+  }
+  return { date: r.date, lowBack: r.low_back, knee: r.knee, wrist: r.wrist, foot: r.foot, sleepH: r.sleep_h, redFlags, note: r.note };
+}
+
+export async function listCheckins(db: SQLiteDatabase, limit = 400): Promise<CheckIn[]> {
+  const rows = await db.getAllAsync<CheckInRow>('SELECT * FROM checkins ORDER BY date DESC LIMIT ?', limit);
+  return rows.map(toCheckIn);
+}
+
+export async function saveCheckin(db: SQLiteDatabase, c: CheckIn): Promise<void> {
+  await db.runAsync(
+    `INSERT OR REPLACE INTO checkins (date, low_back, knee, wrist, foot, sleep_h, red_flags, note, updated_at)
+     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+    c.date,
+    c.lowBack,
+    c.knee,
+    c.wrist,
+    c.foot,
+    c.sleepH,
+    JSON.stringify(c.redFlags),
+    c.note,
+    new Date().toISOString(),
+  );
+}
+
+// ---- Alertas ----
+
+export type AlertDecision = 'accepted' | 'dismissed';
+
+export async function listAlertDecisions(db: SQLiteDatabase, cycleId: string): Promise<Map<string, AlertDecision>> {
+  const rows = await db.getAllAsync<{ key: string; status: AlertDecision }>(
+    'SELECT key, status FROM alert_decisions WHERE cycle_id = ?',
+    cycleId,
+  );
+  return new Map(rows.map((r) => [r.key, r.status]));
+}
+
+export async function decideAlert(db: SQLiteDatabase, cycleId: string, key: string, status: AlertDecision) {
+  await db.runAsync(
+    'INSERT OR REPLACE INTO alert_decisions (key, cycle_id, status, decided_at) VALUES (?, ?, ?, ?)',
+    key,
+    cycleId,
+    status,
+    new Date().toISOString(),
+  );
+}
+
+/** Todas as sessões do ciclo com suas séries (entrada do motor de regras). */
+export async function listLoggedSessions(db: SQLiteDatabase, cycleId: string): Promise<LoggedSession[]> {
+  const logs = await listSessionLogs(db, cycleId);
+  const rows = await db.getAllAsync<SetLogRow>(
+    `SELECT s.* FROM set_logs s JOIN session_logs l ON l.id = s.session_log_id WHERE l.cycle_id = ? ORDER BY s.set_index`,
+    cycleId,
+  );
+  const bySession = new Map<string, SetLog[]>();
+  for (const r of rows) {
+    const list = bySession.get(r.session_log_id) ?? [];
+    list.push(toSetLog(r));
+    bySession.set(r.session_log_id, list);
+  }
+  return logs.map((log) => ({ log, sets: bySession.get(log.id) ?? [] }));
+}
+
+export interface CycleRow {
+  cycle: Cycle;
+  status: 'planned' | 'active' | 'done';
+}
+
+export async function listCycles(db: SQLiteDatabase): Promise<CycleRow[]> {
+  const rows = await db.getAllAsync<{ data: string; status: CycleRow['status'] }>(
+    'SELECT data, status FROM cycles ORDER BY start_date DESC',
+  );
+  return rows.map((r) => ({ cycle: JSON.parse(r.data) as Cycle, status: r.status }));
+}
+
+export async function setActiveCycle(db: SQLiteDatabase, id: string): Promise<void> {
+  await db.withTransactionAsync(async () => {
+    await db.runAsync("UPDATE cycles SET status = 'done' WHERE status = 'active'");
+    await db.runAsync("UPDATE cycles SET status = 'active' WHERE id = ?", id);
+  });
+}
+
+export async function exerciseNames(db: SQLiteDatabase): Promise<Map<string, string>> {
+  const rows = await db.getAllAsync<{ id: string; name: string }>('SELECT id, name FROM exercises');
+  return new Map(rows.map((r) => [r.id, r.name]));
 }

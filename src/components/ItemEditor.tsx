@@ -1,10 +1,10 @@
 import { useState } from 'react';
-import { KeyboardAvoidingView, Modal, Platform, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
+import { KeyboardAvoidingView, Modal, Platform, ScrollView, StyleSheet, Text, View } from 'react-native';
 import type { ItemPatch } from '../domain/adjustments';
 import { KIND_LABEL } from '../domain/plan';
 import type { ItemKind, PrescribedItem } from '../domain/types';
 import { useTheme } from '../ui/theme';
-import { BigButton, Chip } from './ui';
+import { BigButton, Chip, TextField } from './ui';
 
 const KINDS: ItemKind[] = ['main', 'variation', 'activation_single', 'walkout', 'backoff', 'accessory', 'core'];
 
@@ -32,17 +32,7 @@ export function ItemEditor({
   });
   const valid = f.name.trim().length > 1 && /^\d+(-\d+)?\s*[x×]/i.test(f.setsText.trim());
   const field = (key: 'name' | 'setsText' | 'load' | 'rpe' | 'rest' | 'notes', label: string, hint?: string) => (
-    <View style={{ gap: 4 }}>
-      <Text style={{ color: t.muted, fontSize: 14, fontWeight: '600' }}>{label}</Text>
-      <TextInput
-        value={f[key]}
-        onChangeText={(v) => setF({ ...f, [key]: v })}
-        placeholder={hint}
-        placeholderTextColor={t.muted}
-        style={[styles.input, { color: t.text, backgroundColor: t.card, borderColor: t.border }]}
-        accessibilityLabel={label}
-      />
-    </View>
+    <TextField label={label} value={f[key]} onChangeText={(v) => setF({ ...f, [key]: v })} placeholder={hint} />
   );
   return (
     <Modal visible animationType="slide" presentationStyle="pageSheet" onRequestClose={onClose}>
@@ -86,6 +76,5 @@ export function ItemEditor({
 
 const styles = StyleSheet.create({
   body: { padding: 20, gap: 12, paddingBottom: 48 },
-  input: { minHeight: 52, borderRadius: 12, borderWidth: StyleSheet.hairlineWidth, paddingHorizontal: 14, fontSize: 17 },
   wrap: { flexDirection: 'row', flexWrap: 'wrap', gap: 8 },
 });

@@ -6,14 +6,13 @@ import { Alert, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { BigButton, Card, Chip, SectionTitle, Stepper } from '../components/ui';
 import { formatKg, formatNumber } from '../domain/format';
-import { LIFT_LABEL } from '../domain/plan';
-import type { Lift, Maxes } from '../domain/types';
+import { LIFT_LABEL, LIFTS } from '../domain/plan';
+import type { Maxes } from '../domain/types';
 import { useAppData } from '../state/AppData';
 import { applyCheckinReminder, DEFAULT_REMINDER, type ReminderSettings } from '../state/reminders';
 import { useTheme } from '../ui/theme';
 
 const ALL_PLATES = [25, 20, 15, 10, 5, 2.5, 1.25];
-const LIFTS: Lift[] = ['squat', 'bench', 'deadlift'];
 
 export default function SettingsScreen() {
   const t = useTheme();

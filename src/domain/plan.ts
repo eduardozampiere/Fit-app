@@ -100,4 +100,7 @@ export const KIND_LABEL: Record<ItemKind, string> = {
   core: 'Core / mobilidade',
 };
 
+/** Os três movimentos, na ordem fixa usada em telas e gráficos (a cor segue o movimento). */
+export const LIFTS: readonly Lift[] = ['squat', 'bench', 'deadlift'];
+
 export const LIFT_LABEL: Record<Lift, string> = { squat: 'Agacho', bench: 'Supino', deadlift: 'Terra' };

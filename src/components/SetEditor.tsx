@@ -1,10 +1,10 @@
 import { useState } from 'react';
-import { KeyboardAvoidingView, Modal, Platform, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
+import { KeyboardAvoidingView, Modal, Platform, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { formatKg, formatNumber } from '../domain/format';
 import { RPE_CHOICES } from '../domain/rpe';
 import type { Grip, SetLog } from '../domain/types';
 import { useTheme } from '../ui/theme';
-import { BigButton, Chip, SectionTitle, Stepper } from './ui';
+import { BigButton, Chip, SectionTitle, Stepper, TextField } from './ui';
 
 export type EditableSet = Omit<SetLog, 'id' | 'sessionLogId' | 'doneAt'> & { id?: string };
 
@@ -97,12 +97,10 @@ export function SetEditor({
           </View>
 
           <SectionTitle>Observação</SectionTitle>
-          <TextInput
+          <TextField
             value={s.note ?? ''}
             onChangeText={(v) => set({ note: v || null })}
             placeholder="ex.: lombar tensa, subiu lento"
-            placeholderTextColor={t.muted}
-            style={[styles.input, { color: t.text, backgroundColor: t.card, borderColor: t.border }]}
             maxLength={140}
             accessibilityLabel="Observação da série"
           />
@@ -121,5 +119,4 @@ const styles = StyleSheet.create({
   title: { fontSize: 22, fontWeight: '800' },
   sub: { fontSize: 15, marginTop: -8 },
   wrap: { flexDirection: 'row', flexWrap: 'wrap', gap: 8 },
-  input: { minHeight: 52, borderRadius: 12, borderWidth: StyleSheet.hairlineWidth, paddingHorizontal: 14, fontSize: 17 },
 });

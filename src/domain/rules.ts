@@ -4,7 +4,7 @@
 import { addDays, diffDays } from './dates';
 import { formatNumber } from './format';
 import { roundTo } from './loads';
-import { LIFT_LABEL, liftOf } from './plan';
+import { LIFT_LABEL, LIFTS, liftOf, weekForDate } from './plan';
 import type { Cycle, Lift, OpenRange, PlanSession, PlanWeek, PrescribedItem, SessionLog, SetLog } from './types';
 
 // ---------------------------------------------------------------------------
@@ -60,7 +60,6 @@ export interface LoggedSession {
   sets: SetLog[];
 }
 
-const LIFTS: Lift[] = ['squat', 'bench', 'deadlift'];
 
 // ---------------------------------------------------------------------------
 // Auxiliares
@@ -354,10 +353,7 @@ export function pain24hAlert(cycle: Cycle, checkins: CheckIn[], date: string): A
   if ((today.lowBack ?? 0) > (prev.lowBack ?? 0)) worse.push(`lombar ${prev.lowBack ?? 0}→${today.lowBack}`);
   if ((today.knee ?? 0) > (prev.knee ?? 0)) worse.push(`joelho ${prev.knee ?? 0}→${today.knee}`);
   if (!worse.length) return null;
-  const week = cycle.weeks.find((w) => {
-    const d = diffDays(date, w.start);
-    return d >= 0 && d < 7;
-  });
+  const week = weekForDate(cycle, date);
   return {
     key: `pain_24h:${date}`,
     rule: 'pain_24h',

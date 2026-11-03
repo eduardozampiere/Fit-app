@@ -1,9 +1,10 @@
 // Ajustes vindos do Claude (treinador) e edições do plano feitas no app.
 // Formato: fitapp.adjustments/v1 — ver docs/claude-treinador.md.
 
-import { liftOf } from './plan';
+import { LIFTS, liftOf } from './plan';
 import { parseLoadText, parseRestText, parseRpeText, parseSetsText } from './parsing';
 import { applySuggestion } from './rules';
+import { slugify } from './text';
 import type { Cycle, ItemKind, Lift, Maxes, PlanWeek, PrescribedItem } from './types';
 
 export interface ItemPatch {
@@ -33,7 +34,6 @@ export interface Adjustments {
   operations: AdjustmentOp[];
 }
 
-const LIFTS: Lift[] = ['squat', 'bench', 'deadlift'];
 const LIFT_PT: Record<Lift, string> = { squat: 'agacho', bench: 'supino', deadlift: 'terra' };
 const KINDS: ItemKind[] = ['main', 'variation', 'activation_single', 'walkout', 'backoff', 'volume_doubles', 'accessory', 'core'];
 
@@ -149,15 +149,6 @@ function mapSessions(cycle: Cycle, fn: (week: PlanWeek, items: PrescribedItem[],
   };
 }
 
-function slug(text: string): string {
-  return text
-    .normalize('NFKD')
-    .replace(/[̀-ͯ]/g, '')
-    .toLowerCase()
-    .replace(/[^a-z0-9]+/g, '-')
-    .replace(/^-|-$/g, '');
-}
-
 /** Aplica as operações em ordem. Retorna o novo ciclo e os máximos (set_max). */
 export function applyAdjustments(cycle: Cycle, maxes: Maxes, ops: AdjustmentOp[]): { cycle: Cycle; maxes: Maxes } {
   let c = cycle;
@@ -186,7 +177,7 @@ export function applyAdjustments(cycle: Cycle, maxes: Maxes, ops: AdjustmentOp[]
         c = mapSessions(c, (_w, items) => items.filter((it) => it.id !== o.itemId).map((it) => (it.parentId === o.itemId ? { ...it, parentId: null } : it)));
         break;
       case 'add_item': {
-        const exerciseId = slug(o.item.name);
+        const exerciseId = slugify(o.item.name);
         const base: PrescribedItem = {
           id: `${o.sessionId}-c${Date.now().toString(36)}${Math.random().toString(36).slice(2, 5)}`,
           exerciseId,

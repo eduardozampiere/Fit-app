@@ -8,9 +8,9 @@ import {
   kcalTarget,
   macrosFor,
   oilMacros,
-  slugify,
   sumMacros,
 } from '../nutrition';
+import { slugify } from '../text';
 
 const food = (id: string) => DEFAULT_FOODS.find((f) => f.id === id)!;
 

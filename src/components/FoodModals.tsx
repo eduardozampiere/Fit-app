@@ -1,9 +1,10 @@
 import { useState } from 'react';
-import { FlatList, KeyboardAvoidingView, Modal, Platform, Pressable, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
+import { FlatList, KeyboardAvoidingView, Modal, Platform, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { formatNumber, parseDecimal } from '../domain/format';
-import { macrosFor, slugify, type FavoriteMeal, type Food, type MealEntry, type MealType } from '../domain/nutrition';
+import { macrosFor, type FavoriteMeal, type Food, type MealEntry, type MealType } from '../domain/nutrition';
+import { slugify } from '../domain/text';
 import { TOUCH, useTheme } from '../ui/theme';
-import { BigButton, Card, Chip, Stepper } from './ui';
+import { BigButton, Card, Chip, Stepper, TextField } from './ui';
 
 const GRAM_CHIPS = [30, 50, 100, 150, 200, 300, 400];
 
@@ -65,13 +66,11 @@ export function FoodPicker({
         ) : (
           <View style={{ flex: 1, padding: 16, gap: 12 }}>
             <Text style={[styles.title, { color: t.text }]}>Adicionar alimento</Text>
-            <TextInput
+            <TextField
               value={query}
               onChangeText={setQuery}
               placeholder="Buscar"
-              placeholderTextColor={t.muted}
               autoFocus
-              style={[styles.input, { color: t.text, backgroundColor: t.card, borderColor: t.border }]}
               accessibilityLabel="Buscar alimento"
             />
             <FlatList
@@ -145,27 +144,21 @@ export function FoodEditor({
         <ScrollView contentContainerStyle={styles.body} keyboardShouldPersistTaps="handled">
           <Text style={[styles.title, { color: t.text }]}>{initial ? 'Editar alimento' : 'Novo alimento'}</Text>
           <Text style={{ color: t.muted, fontSize: 14 }}>Valores por 100 g (veja o rótulo).</Text>
-          <TextInput
+          <TextField
             value={name}
             onChangeText={setName}
             placeholder="Nome"
-            placeholderTextColor={t.muted}
-            style={[styles.input, { color: t.text, backgroundColor: t.card, borderColor: t.border }]}
             accessibilityLabel="Nome do alimento"
           />
           {fields.map((f) => (
-            <View key={f.key} style={{ gap: 4 }}>
-              <Text style={{ color: t.muted, fontSize: 14, fontWeight: '600' }}>{f.label}</Text>
-              <TextInput
-                value={vals[f.key]}
-                onChangeText={(v) => setVals({ ...vals, [f.key]: v })}
-                keyboardType="decimal-pad"
-                placeholder="0"
-                placeholderTextColor={t.muted}
-                style={[styles.input, { color: t.text, backgroundColor: t.card, borderColor: t.border }]}
-                accessibilityLabel={f.label}
-              />
-            </View>
+            <TextField
+              key={f.key}
+              label={f.label}
+              value={vals[f.key]}
+              onChangeText={(v) => setVals({ ...vals, [f.key]: v })}
+              keyboardType="decimal-pad"
+              placeholder="0"
+            />
           ))}
           <BigButton
             label="Salvar"
@@ -281,13 +274,12 @@ export function NamePrompt({ title, onSave, onClose }: { title: string; onSave: 
       <View style={styles.backdrop}>
         <Card style={{ width: '88%' }}>
           <Text style={{ color: t.text, fontSize: 18, fontWeight: '800' }}>{title}</Text>
-          <TextInput
+          <TextField
             value={name}
             onChangeText={setName}
             autoFocus
             placeholder="ex.: Almoço padrão"
-            placeholderTextColor={t.muted}
-            style={[styles.input, { color: t.text, backgroundColor: t.bg, borderColor: t.border }]}
+            surface="bg"
           />
           <BigButton label="Salvar" compact disabled={name.trim().length < 2} onPress={() => onSave(name.trim())} />
           <BigButton label="Cancelar" compact variant="neutral" onPress={onClose} />
@@ -301,7 +293,6 @@ const styles = StyleSheet.create({
   body: { padding: 20, gap: 14, paddingBottom: 48 },
   title: { fontSize: 22, fontWeight: '800' },
   wrap: { flexDirection: 'row', flexWrap: 'wrap', gap: 8, alignItems: 'center' },
-  input: { minHeight: 52, borderRadius: 12, borderWidth: StyleSheet.hairlineWidth, paddingHorizontal: 14, fontSize: 17 },
   row: { minHeight: TOUCH, borderRadius: 12, borderWidth: StyleSheet.hairlineWidth, padding: 12, gap: 2 },
   del: { minHeight: 48, borderRadius: 12, paddingHorizontal: 14, justifyContent: 'center' },
   backdrop: { flex: 1, backgroundColor: 'rgba(0,0,0,0.45)', alignItems: 'center', justifyContent: 'center' },

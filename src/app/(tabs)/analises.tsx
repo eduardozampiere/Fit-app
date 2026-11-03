@@ -24,13 +24,11 @@ import { movingAverageSeries, type WeightEntry } from '../../domain/body';
 import { isoWeekday, toISODate } from '../../domain/dates';
 import { formatDateShort, formatKg, formatNumber, WEEKDAY_NAMES } from '../../domain/format';
 import { MEAL_LABEL, sumMacros, type MealEntry } from '../../domain/nutrition';
-import { LIFT_LABEL } from '../../domain/plan';
+import { LIFT_LABEL, LIFTS } from '../../domain/plan';
 import type { CheckIn } from '../../domain/rules';
-import type { Lift } from '../../domain/types';
 import { useAppData } from '../../state/AppData';
 import { useTheme } from '../../ui/theme';
 
-const LIFTS: Lift[] = ['squat', 'bench', 'deadlift'];
 type Mode = 'graficos' | 'grupos' | 'dias';
 
 export default function AnalysisScreen() {

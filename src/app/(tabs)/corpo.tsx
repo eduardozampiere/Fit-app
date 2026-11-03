@@ -1,11 +1,11 @@
 import { useSQLiteContext } from 'expo-sqlite';
 import { useState } from 'react';
-import { ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
+import { ScrollView, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { checkinLine } from '../../components/CheckinSummary';
 import { MeasurementsSection, WeightSection } from '../../components/BodySections';
 import { RedFlagModal } from '../../components/RedFlagModal';
-import { BigButton, Card, Chip, SectionTitle, Stepper } from '../../components/ui';
+import { BigButton, Card, Chip, SectionTitle, Stepper, TextField } from '../../components/ui';
 import { saveCheckin } from '../../db/repo';
 import { addDays } from '../../domain/dates';
 import { formatDateShort, formatNumber } from '../../domain/format';
@@ -144,12 +144,11 @@ function CheckinForm({
           onChange={(v) => setC({ ...c, sleepH: Math.min(14, v) })}
           format={(v) => (v === null ? '—' : `${formatNumber(v)} h`)}
         />
-        <TextInput
+        <TextField
           value={c.note ?? ''}
           onChangeText={(v) => setC({ ...c, note: v || null })}
           placeholder="Observação (opcional)"
-          placeholderTextColor={t.muted}
-          style={[styles.input, { color: t.text, backgroundColor: t.bg, borderColor: t.border }]}
+          surface="bg"
           maxLength={200}
           accessibilityLabel="Observação do check-in"
         />
@@ -182,5 +181,4 @@ const styles = StyleSheet.create({
   body: { padding: 16, gap: 12, paddingBottom: 40 },
   title: { fontSize: 28, fontWeight: '800' },
   wrap: { flexDirection: 'row', flexWrap: 'wrap', gap: 8 },
-  input: { minHeight: 52, borderRadius: 12, borderWidth: StyleSheet.hairlineWidth, paddingHorizontal: 14, fontSize: 17 },
 });

@@ -2,10 +2,11 @@
 
 import type { WeightEntry } from './body';
 import { normalizeHeader, parseCsvObjects } from './csv';
-import { slugify, type MealEntry, type MealType } from './nutrition';
+import type { MealEntry, MealType } from './nutrition';
 import { extractNumber, parseDateLoose, parseNumberLoose, parseSetsText } from './parsing';
-import { sessionForDate } from './plan';
+import { sessionForDate, weekForDate } from './plan';
 import { NO_RED_FLAGS, type CheckIn } from './rules';
+import { slugify } from './text';
 import type { Cycle, Exercise, Grip } from './types';
 
 export interface ImportedSet {
@@ -319,10 +320,7 @@ export function planWorkoutImport(
     const exIds = list.map((s) => resolveId(s.exerciseName));
     const attach =
       planned && !loggedSessionIds.has(planned.session.id) && planned.session.items.some((it) => exIds.includes(it.exerciseId));
-    const week =
-      planned?.week.number ??
-      cycle.weeks.find((w) => date >= w.start && date < addDaysIso(w.start, 7))?.number ??
-      0;
+    const week = planned?.week.number ?? weekForDate(cycle, date)?.number ?? 0;
     sessions.push({
       date,
       title: attach ? planned!.session.title : title,
@@ -347,9 +345,4 @@ export function planWorkoutImport(
     });
   }
   return { sessions: sessions.sort((a, b) => a.date.localeCompare(b.date)), newExercises: [...newExercises.values()], duplicates, ignored };
-}
-
-function addDaysIso(iso: string, days: number): string {
-  const [y, m, d] = iso.split('-').map(Number);
-  return new Date(Date.UTC(y, m - 1, d) + days * 86_400_000).toISOString().slice(0, 10);
 }

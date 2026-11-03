@@ -1,3 +1,5 @@
+import { slugify } from './text';
+
 // CSV: leitura tolerante (aspas, CRLF, BOM, separador , ou ;) e escrita.
 
 export function detectDelimiter(headerLine: string): ',' | ';' | '\t' {
@@ -57,13 +59,7 @@ export function parseCsvObjects(text: string): { header: string[]; rows: Record<
 }
 
 export function normalizeHeader(h: string): string {
-  return h
-    .trim()
-    .normalize('NFKD')
-    .replace(/[̀-ͯ]/g, '')
-    .toLowerCase()
-    .replace(/[^a-z0-9]+/g, '_')
-    .replace(/^_|_$/g, '');
+  return slugify(h, '_');
 }
 
 function esc(v: unknown): string {

@@ -5,9 +5,9 @@ import { e1rmSeries } from './analytics';
 import { movingAverage7, weeklyTrend, type WeightEntry } from './body';
 import { addDays, diffDays } from './dates';
 import { formatDateShort, formatNumber, WEEKDAY_NAMES } from './format';
-import { LIFT_LABEL, sessionDate } from './plan';
+import { LIFT_LABEL, LIFTS, sessionDate } from './plan';
 import type { Alert, CheckIn } from './rules';
-import type { Cycle, Lift, Maxes, PrescribedItem } from './types';
+import type { Cycle, Maxes, PrescribedItem } from './types';
 
 export interface ReportInput {
   cycle: Cycle;
@@ -23,7 +23,6 @@ export interface ReportInput {
   today: string;
 }
 
-const LIFTS: Lift[] = ['squat', 'bench', 'deadlift'];
 const n1 = (v: number) => formatNumber(v, 1);
 const dm = formatDateShort;
 

@@ -1,5 +1,5 @@
 import type { ReactNode } from 'react';
-import { Pressable, StyleSheet, Text, View, type StyleProp, type ViewStyle } from 'react-native';
+import { Pressable, StyleSheet, Text, TextInput, View, type StyleProp, type TextInputProps, type ViewStyle } from 'react-native';
 import { TOUCH, useTheme } from '../ui/theme';
 
 export function Card({ children, style }: { children: ReactNode; style?: StyleProp<ViewStyle> }) {
@@ -144,6 +144,41 @@ export function Stepper({
   );
 }
 
+/**
+ * Campo de texto padrão. `surface`: fundo do cartão (padrão) ou da tela, para quando o campo está
+ * dentro de um cartão. `area`: várias linhas. `label`: rótulo acima do campo.
+ */
+export function TextField({
+  label,
+  surface = 'card',
+  area,
+  style,
+  accessibilityLabel,
+  ...props
+}: TextInputProps & { label?: string; surface?: 'card' | 'bg'; area?: boolean }) {
+  const t = useTheme();
+  const input = (
+    <TextInput
+      placeholderTextColor={t.muted}
+      multiline={area || props.multiline}
+      accessibilityLabel={accessibilityLabel ?? label}
+      {...props}
+      style={[
+        area ? styles.area : styles.input,
+        { color: t.text, backgroundColor: surface === 'bg' ? t.bg : t.card, borderColor: t.border },
+        style,
+      ]}
+    />
+  );
+  if (!label) return input;
+  return (
+    <View style={{ gap: 4 }}>
+      <Text style={[styles.fieldLabel, { color: t.muted }]}>{label}</Text>
+      {input}
+    </View>
+  );
+}
+
 export function SectionTitle({ children }: { children: ReactNode }) {
   const t = useTheme();
   return <Text style={[styles.section, { color: t.muted }]}>{children}</Text>;
@@ -165,5 +200,8 @@ const styles = StyleSheet.create({
   stepBtn: { width: TOUCH, height: TOUCH, borderRadius: 14, alignItems: 'center', justifyContent: 'center' },
   stepBtnText: { fontSize: 28, fontWeight: '600' },
   stepValue: { flex: 1, textAlign: 'center', fontSize: 26, fontWeight: '700', fontVariant: ['tabular-nums'] },
+  input: { minHeight: 52, borderRadius: 12, borderWidth: StyleSheet.hairlineWidth, paddingHorizontal: 14, fontSize: 17 },
+  area: { minHeight: 120, maxHeight: 260, borderRadius: 12, borderWidth: StyleSheet.hairlineWidth, padding: 12, fontSize: 14, textAlignVertical: 'top' },
+  fieldLabel: { fontSize: 14, fontWeight: '600' },
   section: { fontSize: 13, fontWeight: '700', textTransform: 'uppercase', letterSpacing: 0.6, marginTop: 8 },
 });

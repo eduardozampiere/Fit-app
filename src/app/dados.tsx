@@ -1,9 +1,9 @@
 import * as Clipboard from 'expo-clipboard';
 import { useSQLiteContext } from 'expo-sqlite';
 import { useEffect, useMemo, useState } from 'react';
-import { Alert, FlatList, Modal, Pressable, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
+import { Alert, FlatList, Modal, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { BigButton, Card, Chip, SectionTitle } from '../components/ui';
+import { BigButton, Card, Chip, SectionTitle, TextField } from '../components/ui';
 import {
   applyWorkoutImport,
   exportBackup,
@@ -45,7 +45,7 @@ import {
   type ImportedSet,
   type MappingChoice,
 } from '../domain/importers';
-import { slugify } from '../domain/nutrition';
+import { slugify } from '../domain/text';
 import { weekForDate } from '../domain/plan';
 import { buildCoachReport } from '../domain/report';
 import { evaluateCycle } from '../domain/rules';
@@ -253,13 +253,12 @@ export default function DataScreen() {
         <Card>
           <Text style={{ color: t.text, fontSize: 16, fontWeight: '700' }}>2. Aplicar a resposta</Text>
           <Text style={{ color: t.muted, fontSize: 14 }}>Cole a resposta do Claude (ajustes ou ciclo novo em JSON). Você revisa antes de aplicar.</Text>
-          <TextInput
+          <TextField
             value={reply}
             onChangeText={setReply}
-            multiline
             placeholder='```json { "format": "fitapp.adjustments/v1", … }'
-            placeholderTextColor={t.muted}
-            style={[styles.textarea, { color: t.text, backgroundColor: t.bg, borderColor: t.border }]}
+            area
+            surface="bg"
             accessibilityLabel="Resposta do Claude"
           />
           <View style={styles.row2}>
@@ -421,12 +420,10 @@ function MappingModal({
         {picking ? (
           <View style={{ flex: 1, padding: 16, gap: 10 }}>
             <Text style={{ color: t.text, fontSize: 20, fontWeight: '800' }}>{picking}</Text>
-            <TextInput
+            <TextField
               value={query}
               onChangeText={setQuery}
               placeholder="Buscar exercício do plano"
-              placeholderTextColor={t.muted}
-              style={[styles.input, { color: t.text, backgroundColor: t.card, borderColor: t.border }]}
             />
             <View style={styles.row2}>
               <View style={{ flex: 1 }}>
@@ -495,7 +492,5 @@ const styles = StyleSheet.create({
   body: { padding: 16, gap: 12, paddingBottom: 48 },
   wrap: { flexDirection: 'row', flexWrap: 'wrap', gap: 8 },
   row2: { flexDirection: 'row', gap: 8 },
-  textarea: { minHeight: 120, maxHeight: 260, borderRadius: 12, borderWidth: StyleSheet.hairlineWidth, padding: 12, fontSize: 14, textAlignVertical: 'top' },
-  input: { minHeight: 52, borderRadius: 12, borderWidth: StyleSheet.hairlineWidth, paddingHorizontal: 14, fontSize: 17 },
   pick: { minHeight: TOUCH, borderRadius: 12, borderWidth: StyleSheet.hairlineWidth, padding: 12, gap: 2 },
 });

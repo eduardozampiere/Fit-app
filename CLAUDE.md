@@ -45,14 +45,14 @@ generalize o que existe em vez de copiar. Ao precisar da mesma coisa em um segun
 | Número, kg, faixa, data `dd/MM`, segundos (pt-BR) | `src/domain/format.ts` |
 | Ler texto do plano ("4x4", "205-210", "≤8", "5 min") e valores soltos de CSV | `src/domain/parsing.ts` |
 | Ler/escrever CSV | `src/domain/csv.ts` |
-| Slug sem acento | `slugify` em `src/domain/nutrition.ts` |
+| Tirar acento, slug, cabeçalho de CSV | `stripAccents` / `slugify` em `src/domain/text.ts` |
 | Carga por % e arredondamento | `src/domain/loads.ts` |
-| Sessão do dia, carga atual, descanso, rótulos de tipo e movimento | `src/domain/plan.ts` (`KIND_LABEL`, `LIFT_LABEL`) |
+| Sessão do dia, semana de uma data, carga atual, descanso, lista e rótulos dos movimentos e tipos | `src/domain/plan.ts` (`weekForDate`, `LIFTS`, `LIFT_LABEL`, `KIND_LABEL`) |
 | e1RM / tabela RTS | `src/domain/rpe.ts` |
 | Tonelagem, séries "conforme o plano" | `src/domain/logging.ts` |
 | Editar o plano (qualquer origem: tela, Claude, regra) | `applyAdjustments` / `patchItem` em `src/domain/adjustments.ts` |
 | Cores, alvo de toque | `src/ui/theme.ts` (`useTheme`, `TOUCH`) |
-| Botão, chip, cartão, stepper, título de seção | `src/components/ui.tsx` |
+| Botão, chip, cartão, stepper, campo de texto, título de seção | `src/components/ui.tsx` (`TextField` com `label`, `surface`, `area`) |
 | Gráficos | `src/components/charts.tsx` |
 | Abrir/compartilhar arquivo | `src/state/files.ts` |
 | Ler/gravar ajuste | `getSetting` / `setSetting` em `src/db/repo.ts` |
@@ -69,7 +69,7 @@ Regras de DRY:
   validador, o doc em `docs/` e os testes juntos.
 - **DRY não é abstração precoce:** duas coisas parecidas por acaso, com motivos diferentes para mudar,
   ficam separadas. A pergunta é "se uma mudar, a outra tem que mudar junto?".
-- Duplicações conhecidas a remover estão no backlog do `specs/PLANO.md`.
+- Duplicação encontrada e não corrigida na hora vai para o backlog do `specs/PLANO.md`.
 
 ## 4. Padrões de código
 

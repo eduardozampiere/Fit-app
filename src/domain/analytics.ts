@@ -12,6 +12,8 @@ export interface SetRow {
   week: number | null;
   block: string | null;
   sessionLogId: string;
+  sessionId: string;
+  itemId: string | null;
   sessionTitle: string;
   date: string;
   exerciseId: string;
@@ -48,6 +50,8 @@ export function flattenSets(cycle: Cycle, logged: LoggedSession[], exerciseNames
         week: sess?.week ?? ls.log.week ?? null,
         block: sess?.block ?? null,
         sessionLogId: ls.log.id,
+        sessionId: ls.log.sessionId,
+        itemId: s.itemId,
         sessionTitle: sess?.title ?? 'Treino avulso',
         date: ls.log.date,
         exerciseId: s.exerciseId,

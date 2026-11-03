@@ -1,8 +1,8 @@
 # Formato de ciclo — `fitapp.cycle/v1`
 
 Um ciclo é um JSON único. O importador da planilha gera esse formato e o app importa qualquer arquivo que o siga.
-A ideia é que o Claude, como treinador, monte os próximos ciclos direto nele. A versão final destas
-instruções, pronta para colar no projeto do Claude, entra no incremento 5.
+A ideia é que o Claude, como treinador, monte os próximos ciclos direto nele. As instruções prontas para colar no
+projeto do Claude estão em [claude-treinador.md](claude-treinador.md).
 
 ## Estrutura
 

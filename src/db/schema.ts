@@ -3,7 +3,7 @@ import bundledCycle from '../../assets/plan/ciclo_out26_jan27.json';
 import { DEFAULT_FAVORITES, DEFAULT_FOODS } from '../domain/nutrition';
 import type { Cycle } from '../domain/types';
 
-const DATABASE_VERSION = 3;
+const DATABASE_VERSION = 4;
 
 /** Migrações por PRAGMA user_version. Nunca editar uma migração já publicada: criar a próxima. */
 export async function migrateDbIfNeeded(db: SQLiteDatabase) {
@@ -147,6 +147,17 @@ CREATE TABLE IF NOT EXISTS measurements (
       );
     }
     version = 3;
+  }
+
+  if (version === 3) {
+    // Origem da importação (Hevy/CSV antigo): evita duplicar ao importar de novo.
+    await db.execAsync(`
+ALTER TABLE set_logs ADD COLUMN source_key TEXT;
+ALTER TABLE meal_entries ADD COLUMN source_key TEXT;
+CREATE INDEX IF NOT EXISTS idx_set_logs_source ON set_logs(source_key);
+CREATE INDEX IF NOT EXISTS idx_meal_entries_source ON meal_entries(source_key);
+`);
+    version = 4;
   }
 
   await db.execAsync(`PRAGMA user_version = ${DATABASE_VERSION}`);

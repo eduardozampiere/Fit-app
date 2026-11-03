@@ -25,6 +25,8 @@ interface AppDataValue {
   setGym: (g: GymSettings) => Promise<void>;
   /** Grava uma versão editada do plano (ex.: sugestão aceita). */
   updateCycle: (c: Cycle) => Promise<void>;
+  /** Relê tudo do banco (depois de restaurar backup ou trocar o ciclo ativo). */
+  reload: () => void;
 }
 
 const Ctx = createContext<AppDataValue | null>(null);
@@ -36,6 +38,7 @@ export function AppDataProvider({ children }: { children: ReactNode }) {
   const [gym, setGymState] = useState<GymSettings>(DEFAULT_GYM);
   const [version, setVersion] = useState(0);
   const [targets, setTargetsState] = useState<NutritionTargets>(DEFAULT_TARGETS);
+  const [reloadKey, setReloadKey] = useState(0);
 
   useEffect(() => {
     (async () => {
@@ -45,7 +48,7 @@ export function AppDataProvider({ children }: { children: ReactNode }) {
       setGymState(await getSetting(db, 'gym', DEFAULT_GYM));
       setTargetsState({ ...DEFAULT_TARGETS, ...(await getSetting(db, 'nutritionTargets', DEFAULT_TARGETS)) });
     })();
-  }, [db]);
+  }, [db, reloadKey]);
 
   const bump = useCallback(() => setVersion((v) => v + 1), []);
 
@@ -74,6 +77,11 @@ export function AppDataProvider({ children }: { children: ReactNode }) {
     [db],
   );
 
+  const reload = useCallback(() => {
+    setReloadKey((k) => k + 1);
+    setVersion((v) => v + 1);
+  }, []);
+
   const updateCycle = useCallback(
     async (c: Cycle) => {
       await saveCycleData(db, c);
@@ -84,7 +92,7 @@ export function AppDataProvider({ children }: { children: ReactNode }) {
   );
 
   return (
-    <Ctx.Provider value={{ cycle, maxes, gym, targets, setTargets, version, bump, setMaxes, setGym, updateCycle }}>{children}</Ctx.Provider>
+    <Ctx.Provider value={{ cycle, maxes, gym, targets, setTargets, version, bump, setMaxes, setGym, updateCycle, reload }}>{children}</Ctx.Provider>
   );
 }
 

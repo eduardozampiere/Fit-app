@@ -1,8 +1,16 @@
 # Diário de Treino (Fit-app)
 
-App de iPhone (Expo + React Native) para o ciclo de powerlifting: plano por %, registro de séries entre as
-séries, cronômetro de descanso e, nos próximos incrementos, check-in, regras de segurança, alimentação,
-análises e integração com o Claude (treinador). Offline: tudo fica no aparelho (SQLite).
+App de iPhone (Expo + React Native) para o ciclo de powerlifting. Offline: tudo fica no aparelho (SQLite).
+
+- **Hoje:** treino do dia, "feito conforme o plano" em 1 toque, registro série a série, cronômetro de
+  descanso (Liquid Glass), anilhas, alertas das regras, check-in do dia.
+- **Comida:** alimentos por 100 g, favoritas, óleo de preparo, totais contra o alvo do tipo de dia.
+- **Corpo:** check-in (dor, sono, sinais de alarme), peso com média de 7 dias, medidas.
+- **Análises:** gráficos (cargas, e1RM, termômetro do single, planejado × feito, calorias, proteína,
+  peso), agrupamentos por ciclo/bloco/semana/treino/exercício e cartões por dia.
+- **Plano:** semanas editáveis, sugestões das regras (aceitar/ignorar), regras do ciclo.
+- **Claude:** pacote para o treinador, aplicar ajustes/ciclo novo vindos do Claude, importar Hevy e
+  CSVs antigos, exportar CSV/JSON, backup e histórico de ciclos.
 
 ## Instalar no iPhone para usar na academia
 
@@ -25,7 +33,7 @@ iPhone e Mac na mesma rede Wi‑Fi. Se a rede bloquear, use `npx expo start --tu
 
 | Comando | O que faz |
 |---|---|
-| `npm test` | testes do domínio (Vitest): RPE/e1RM, cargas, anilhas, plano, registro |
+| `npm test` | testes do domínio (Vitest): RPE/e1RM, cargas, anilhas, plano, regras, alimentação, peso, análises, importação/exportação, ajustes do Claude |
 | `npm run test:import` | testes do importador da planilha (Python) |
 | `npm run typecheck` | TypeScript |
 | `npx expo lint` | lint |
@@ -42,5 +50,7 @@ src/db/               SQLite: migrações e consultas
 src/state/            dados do app e cronômetro de descanso
 src/components/       cartões, editor de série, anilhas, cronômetro
 src/app/              telas (Expo Router): Hoje, Plano, Ajustes
-docs/formato-ciclo.md formato de ciclo (o mesmo que o Claude vai gerar)
+docs/formato-ciclo.md formato de ciclo (o mesmo que o Claude gera)
+docs/claude-treinador.md instruções para colar no projeto do Claude
+docs/instalar-no-iphone.md instalação com Apple ID gratuito
 ```

@@ -31,6 +31,10 @@ export default function TabsLayout() {
         <NativeTabs.Trigger.Label>Corpo</NativeTabs.Trigger.Label>
         <NativeTabs.Trigger.Icon sf={{ default: 'heart.text.square', selected: 'heart.text.square.fill' }} md="monitor_heart" />
       </NativeTabs.Trigger>
+      <NativeTabs.Trigger name="analises">
+        <NativeTabs.Trigger.Label>Análises</NativeTabs.Trigger.Label>
+        <NativeTabs.Trigger.Icon sf="chart.xyaxis.line" md="monitoring" />
+      </NativeTabs.Trigger>
       <NativeTabs.Trigger name="plano">
         <NativeTabs.Trigger.Label>Plano</NativeTabs.Trigger.Label>
         <NativeTabs.Trigger.Icon sf="calendar" md="calendar_month" />

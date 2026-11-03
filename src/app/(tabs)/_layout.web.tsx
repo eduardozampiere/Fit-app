@@ -18,6 +18,7 @@ export default function TabsLayoutWeb() {
       <Tabs.Screen name="index" options={{ title: 'Hoje' }} />
       <Tabs.Screen name="comida" options={{ title: 'Comida' }} />
       <Tabs.Screen name="corpo" options={{ title: 'Corpo' }} />
+      <Tabs.Screen name="analises" options={{ title: 'Análises' }} />
       <Tabs.Screen name="plano" options={{ title: 'Plano' }} />
     </Tabs>
   );

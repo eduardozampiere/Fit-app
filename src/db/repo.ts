@@ -285,3 +285,27 @@ export async function listLoggedSessions(db: SQLiteDatabase, cycleId: string): P
   }
   return logs.map((log) => ({ log, sets: bySession.get(log.id) ?? [] }));
 }
+
+export interface CycleRow {
+  cycle: Cycle;
+  status: 'planned' | 'active' | 'done';
+}
+
+export async function listCycles(db: SQLiteDatabase): Promise<CycleRow[]> {
+  const rows = await db.getAllAsync<{ data: string; status: CycleRow['status'] }>(
+    'SELECT data, status FROM cycles ORDER BY start_date DESC',
+  );
+  return rows.map((r) => ({ cycle: JSON.parse(r.data) as Cycle, status: r.status }));
+}
+
+export async function setActiveCycle(db: SQLiteDatabase, id: string): Promise<void> {
+  await db.withTransactionAsync(async () => {
+    await db.runAsync("UPDATE cycles SET status = 'done' WHERE status = 'active'");
+    await db.runAsync("UPDATE cycles SET status = 'active' WHERE id = ?", id);
+  });
+}
+
+export async function exerciseNames(db: SQLiteDatabase): Promise<Map<string, string>> {
+  const rows = await db.getAllAsync<{ id: string; name: string }>('SELECT id, name FROM exercises');
+  return new Map(rows.map((r) => [r.id, r.name]));
+}

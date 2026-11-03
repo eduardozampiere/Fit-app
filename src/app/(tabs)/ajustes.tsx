@@ -1,5 +1,7 @@
 import * as Notifications from 'expo-notifications';
-import { useState } from 'react';
+import { useSQLiteContext } from 'expo-sqlite';
+import { useEffect, useState } from 'react';
+import { getSetting, setSetting } from '../../db/repo';
 import { Alert, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { BigButton, Card, Chip, SectionTitle, Stepper } from '../../components/ui';
@@ -7,6 +9,7 @@ import { formatKg, formatNumber } from '../../domain/format';
 import { LIFT_LABEL } from '../../domain/plan';
 import type { Lift, Maxes } from '../../domain/types';
 import { useAppData } from '../../state/AppData';
+import { applyCheckinReminder, DEFAULT_REMINDER, type ReminderSettings } from '../../state/reminders';
 import { useTheme } from '../../ui/theme';
 
 const ALL_PLATES = [25, 20, 15, 10, 5, 2.5, 1.25];
@@ -62,6 +65,9 @@ export default function SettingsScreen() {
           </View>
         </Card>
 
+        <SectionTitle>Lembrete do check-in</SectionTitle>
+        <ReminderEditor />
+
         <SectionTitle>Cronômetro de descanso</SectionTitle>
         <Card>
           <Text style={{ color: t.muted, fontSize: 14 }}>
@@ -75,6 +81,41 @@ export default function SettingsScreen() {
         </Text>
       </ScrollView>
     </SafeAreaView>
+  );
+}
+
+function ReminderEditor() {
+  const t = useTheme();
+  const db = useSQLiteContext();
+  const [r, setR] = useState<ReminderSettings | null>(null);
+  useEffect(() => {
+    getSetting(db, 'checkinReminder', DEFAULT_REMINDER).then(setR);
+  }, [db]);
+  if (!r) return null;
+  const save = async (next: ReminderSettings) => {
+    const ok = await applyCheckinReminder(next);
+    if (!ok) {
+      Alert.alert('Notificações bloqueadas', 'Libere as notificações do app nos Ajustes do iPhone.');
+      return;
+    }
+    await setSetting(db, 'checkinReminder', next);
+    setR(next);
+  };
+  const two = (n: number) => String(n).padStart(2, '0');
+  return (
+    <Card>
+      <View style={styles.wrap}>
+        <Chip label="Ligado" selected={r.enabled} onPress={() => save({ ...r, enabled: true })} />
+        <Chip label="Desligado" selected={!r.enabled} onPress={() => save({ ...r, enabled: false })} />
+      </View>
+      {r.enabled ? (
+        <>
+          <Stepper label="Hora" value={r.hour} step={1} onChange={(v) => save({ ...r, hour: ((v % 24) + 24) % 24 })} format={(v) => two(v ?? 0)} />
+          <Stepper label="Minuto" value={r.minute} step={15} onChange={(v) => save({ ...r, minute: ((v % 60) + 60) % 60 })} format={(v) => two(v ?? 0)} />
+          <Text style={{ color: t.muted, fontSize: 14 }}>Todo dia às {two(r.hour)}:{two(r.minute)}.</Text>
+        </>
+      ) : null}
+    </Card>
   );
 }
 

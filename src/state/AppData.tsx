@@ -1,6 +1,6 @@
 import { useSQLiteContext } from 'expo-sqlite';
 import { createContext, useCallback, useContext, useEffect, useState, type ReactNode } from 'react';
-import { getActiveCycle, getMaxes, getSetting, maxesKey, setSetting } from '../db/repo';
+import { getActiveCycle, getMaxes, getSetting, maxesKey, saveCycleData, setSetting } from '../db/repo';
 import { DEFAULT_BAR_KG, DEFAULT_PLATES_KG } from '../domain/plates';
 import type { Cycle, Maxes } from '../domain/types';
 
@@ -20,6 +20,8 @@ interface AppDataValue {
   bump: () => void;
   setMaxes: (m: Maxes) => Promise<void>;
   setGym: (g: GymSettings) => Promise<void>;
+  /** Grava uma versão editada do plano (ex.: sugestão aceita). */
+  updateCycle: (c: Cycle) => Promise<void>;
 }
 
 const Ctx = createContext<AppDataValue | null>(null);
@@ -59,7 +61,18 @@ export function AppDataProvider({ children }: { children: ReactNode }) {
     [db],
   );
 
-  return <Ctx.Provider value={{ cycle, maxes, gym, version, bump, setMaxes, setGym }}>{children}</Ctx.Provider>;
+  const updateCycle = useCallback(
+    async (c: Cycle) => {
+      await saveCycleData(db, c);
+      setCycle(c);
+      setVersion((v) => v + 1);
+    },
+    [db],
+  );
+
+  return (
+    <Ctx.Provider value={{ cycle, maxes, gym, version, bump, setMaxes, setGym, updateCycle }}>{children}</Ctx.Provider>
+  );
 }
 
 export function useAppData(): AppDataValue {

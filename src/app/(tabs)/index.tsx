@@ -3,18 +3,23 @@ import { useSQLiteContext } from 'expo-sqlite';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { ActivityIndicator, Platform, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { AlertCard } from '../../components/AlertCard';
+import { CheckinSummary } from '../../components/CheckinSummary';
 import { ExerciseCard } from '../../components/ExerciseCard';
 import { PlateCalculator } from '../../components/PlateCalculator';
+import { RedFlagModal } from '../../components/RedFlagModal';
 import { RestTimerBar } from '../../components/RestTimerBar';
 import { SetEditor, type EditableSet } from '../../components/SetEditor';
 import { BigButton, Card, Chip } from '../../components/ui';
 import {
   deleteSet,
   ensureSessionLog,
+  getSetting,
   insertSets,
   listSessionLogs,
   listSetLogs,
   setSessionStatus,
+  setSetting,
   updateSet,
 } from '../../db/repo';
 import { toISODate } from '../../domain/dates';
@@ -30,9 +35,11 @@ import {
   sessionItems,
   type SessionRef,
 } from '../../domain/plan';
+import { gripForSet, gripTip, hasRedFlags, sessionLocks } from '../../domain/rules';
 import type { PrescribedItem, SessionLog, SetLog } from '../../domain/types';
 import { useAppData } from '../../state/AppData';
 import { useRestTimer } from '../../state/RestTimer';
+import { useCoach } from '../../state/useCoach';
 import { useTheme } from '../../ui/theme';
 
 const GENERIC_NOTE = /^(% calculado|Registro:)/;
@@ -42,6 +49,7 @@ export default function TodayScreen() {
   const db = useSQLiteContext();
   const { cycle, maxes, version, bump } = useAppData();
   const timer = useRestTimer();
+  const coach = useCoach();
   const params = useLocalSearchParams<{ sessionId?: string; at?: string }>();
   const today = toISODate(new Date());
 
@@ -72,6 +80,8 @@ export default function TodayScreen() {
   const [setLogs, setSetLogs] = useState<SetLog[]>([]);
   const [editor, setEditor] = useState<{ item: PrescribedItem; draft: EditableSet; key: string } | null>(null);
   const [plateKg, setPlateKg] = useState<number | null | undefined>(undefined);
+  const [failUnlocked, setFailUnlocked] = useState(false);
+  const [redFlagSeen, setRedFlagSeen] = useState(false);
 
   const sessionLog = useMemo(
     () => (ref ? sessionLogs.find((l) => l.sessionId === ref.session.id) ?? null : null),
@@ -87,6 +97,7 @@ export default function TodayScreen() {
       setSessionLogs(logs);
       const current = ref ? logs.find((l) => l.sessionId === ref.session.id) : undefined;
       setSetLogs(current ? await listSetLogs(db, current.id) : []);
+      setFailUnlocked(current ? await getSetting(db, `unlock-fail:${current.id}`, false) : false);
     })();
     return () => {
       alive = false;
@@ -96,6 +107,28 @@ export default function TodayScreen() {
   const items = useMemo(() => (ref ? sessionItems(ref.week, ref.session) : []), [ref]);
   const loadOf = useCallback((item: PrescribedItem) => (cycle && maxes ? currentLoad(cycle, item, maxes) : item.load), [cycle, maxes]);
   const logsOf = useCallback((item: PrescribedItem) => setLogs.filter((l) => l.itemId === item.id), [setLogs]);
+  // Regras 4 e 5: séries bloqueadas (4ª do terra, terra falhou).
+  const locks = useMemo(
+    () => (cycle && ref ? sessionLocks(cycle, ref.week, items, setLogs, failUnlocked) : new Map()),
+    [cycle, ref, items, setLogs, failUnlocked],
+  );
+  // "Conforme o plano" já com a pegada sugerida (regra 10).
+  const planned = useCallback(
+    (item: PrescribedItem, idx: number) => ({
+      ...plannedSet(item, loadOf(item), idx),
+      grip: cycle && ref ? gripForSet(cycle, ref.week, item, idx) : null,
+    }),
+    [cycle, ref, loadOf],
+  );
+  const missingPlanned = useCallback(
+    (item: PrescribedItem) => {
+      const lock = locks.get(item.id);
+      return asPlannedSets(item, loadOf(item), logsOf(item).map((l) => l.setIndex))
+        .filter((d) => !lock || d.setIndex < lock.fromSet)
+        .map((d) => planned(item, d.setIndex));
+    },
+    [locks, loadOf, logsOf, planned],
+  );
 
   const ensureLog = useCallback(async () => {
     if (!cycle || !ref) throw new Error('sem sessão');
@@ -120,20 +153,20 @@ export default function TodayScreen() {
 
   const quickSet = async (item: PrescribedItem, idx: number) => {
     const log = await ensureLog();
-    await insertSets(db, log.id, [plannedSet(item, loadOf(item), idx)]);
+    await insertSets(db, log.id, [planned(item, idx)]);
     startRest(item, idx);
     bump();
   };
 
   const allAsPlanned = async (item: PrescribedItem) => {
     const log = await ensureLog();
-    await insertSets(db, log.id, asPlannedSets(item, loadOf(item), logsOf(item).map((l) => l.setIndex)));
+    await insertSets(db, log.id, missingPlanned(item));
     bump();
   };
 
   const sessionAsPlanned = async () => {
     const log = await ensureLog();
-    const drafts = items.flatMap((item) => asPlannedSets(item, loadOf(item), logsOf(item).map((l) => l.setIndex)));
+    const drafts = items.flatMap((item) => missingPlanned(item));
     await insertSets(db, log.id, drafts);
     await setSessionStatus(db, log.id, 'done');
     timer.stop();
@@ -155,7 +188,7 @@ export default function TodayScreen() {
   };
 
   const openEditor = (item: PrescribedItem, idx: number, log: SetLog | null) => {
-    setEditor({ item, draft: log ?? plannedSet(item, loadOf(item), idx), key: `${item.id}-${idx}-${log?.id ?? 'new'}` });
+    setEditor({ item, draft: log ?? planned(item, idx), key: `${item.id}-${idx}-${log?.id ?? 'new'}` });
   };
 
   const saveEditor = async (s: EditableSet) => {
@@ -170,6 +203,12 @@ export default function TodayScreen() {
       startRest(editor.item, s.setIndex);
     }
     setEditor(null);
+    bump();
+  };
+
+  const toggleFailLock = async (unlocked: boolean) => {
+    const log = await ensureLog();
+    await setSetting(db, `unlock-fail:${log.id}`, unlocked);
     bump();
   };
 
@@ -194,6 +233,11 @@ export default function TodayScreen() {
   const weekNotes = [ref.week.note, ...ref.week.notes.filter((n) => !GENERIC_NOTE.test(n))].filter(Boolean) as string[];
   const doneSessions = new Set(sessionLogs.filter((l) => l.status === 'done').map((l) => l.sessionId));
   const startedSessions = new Set(sessionLogs.map((l) => l.sessionId));
+  // Alertas desta semana e da anterior (portões aparecem na semana seguinte) + regra das 24 h de hoje.
+  const sessionAlerts = coach.pending.filter((a) =>
+    a.rule === 'pain_24h' ? isToday : a.week === ref.week.number || a.week === ref.week.number - 1,
+  );
+  const redFlagToday = hasRedFlags(coach.todayCheckin);
 
   const goWeek = (delta: number) => {
     const w = cycle.weeks[weekIdx + delta];
@@ -256,6 +300,21 @@ export default function TodayScreen() {
           </Text>
         </View>
 
+        {redFlagToday ? (
+          <Card style={{ backgroundColor: t.dangerBg, borderColor: t.danger }}>
+            <Text style={{ color: t.danger, fontSize: 17, fontWeight: '800' }}>
+              Sinal de alarme da lombar no check-in de hoje. Não treine: procure um pronto-socorro.
+            </Text>
+            <BigButton label="Ver orientação" variant="danger" compact onPress={() => setRedFlagSeen(false)} />
+          </Card>
+        ) : null}
+
+        {isToday ? <CheckinSummary checkin={coach.todayCheckin} /> : null}
+
+        {sessionAlerts.map((a) => (
+          <AlertCard key={a.key} alert={a} onDecide={(status) => coach.decide(a, status)} />
+        ))}
+
         {weekNotes.length ? (
           <Card style={{ backgroundColor: t.warnBg, borderColor: t.warnBg }}>
             {weekNotes.map((n, i) => (
@@ -293,6 +352,9 @@ export default function TodayScreen() {
             onAllAsPlanned={() => allAsPlanned(item)}
             onQuickRpe={(rpe) => quickRpe(item, rpe)}
             onPlates={(kg) => setPlateKg(kg)}
+            lock={locks.get(item.id)}
+            onUnlock={() => toggleFailLock(true)}
+            tip={gripTip(cycle, ref.week, item)}
           />
         ))}
 
@@ -319,6 +381,7 @@ export default function TodayScreen() {
           onClose={() => setEditor(null)}
         />
       ) : null}
+      <RedFlagModal visible={redFlagToday && !redFlagSeen} onClose={() => setRedFlagSeen(true)} />
       {plateKg !== undefined ? (
         <PlateCalculator visible initialKg={plateKg} onClose={() => setPlateKg(undefined)} />
       ) : null}

@@ -3,6 +3,7 @@ import { useSQLiteContext } from 'expo-sqlite';
 import { useEffect, useState } from 'react';
 import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { AlertCard } from '../../components/AlertCard';
 import { prescriptionLine } from '../../components/ExerciseCard';
 import { Badge, Card, SectionTitle } from '../../components/ui';
 import { listSessionLogs } from '../../db/repo';
@@ -11,6 +12,7 @@ import { formatDateShort, WEEKDAY_NAMES } from '../../domain/format';
 import { currentLoad, sessionDate, weekForDate } from '../../domain/plan';
 import type { SessionLog } from '../../domain/types';
 import { useAppData } from '../../state/AppData';
+import { useCoach } from '../../state/useCoach';
 import { TOUCH, useTheme } from '../../ui/theme';
 
 export default function PlanScreen() {
@@ -20,6 +22,8 @@ export default function PlanScreen() {
   const [logs, setLogs] = useState<SessionLog[]>([]);
   const [open, setOpen] = useState<number | null>(null);
   const [openSession, setOpenSession] = useState<string | null>(null);
+  const [showHistory, setShowHistory] = useState(false);
+  const coach = useCoach();
 
   useEffect(() => {
     if (cycle) listSessionLogs(db, cycle.id).then(setLogs);
@@ -36,6 +40,25 @@ export default function PlanScreen() {
           {cycle.name}
         </Text>
         {cycle.goal ? <Text style={{ color: t.muted, fontSize: 15 }}>{cycle.goal}</Text> : null}
+
+        {coach.pending.length ? <SectionTitle>Sugestões pendentes ({coach.pending.length})</SectionTitle> : null}
+        {coach.pending.map((a) => (
+          <AlertCard key={a.key} alert={a} onDecide={(status) => coach.decide(a, status)} />
+        ))}
+        {coach.decisions.size ? (
+          <Pressable accessibilityRole="button" onPress={() => setShowHistory(!showHistory)} style={{ minHeight: 44, justifyContent: 'center' }}>
+            <Text style={{ color: t.accent, fontSize: 15, fontWeight: '700' }}>
+              {showHistory ? 'Esconder' : 'Ver'} decisões anteriores ({coach.decisions.size})
+            </Text>
+          </Pressable>
+        ) : null}
+        {showHistory
+          ? coach.alerts
+              .filter((a) => coach.decisions.has(a.key))
+              .map((a) => <AlertCard key={a.key} alert={a} decision={coach.decisions.get(a.key)} />)
+          : null}
+
+        <SectionTitle>Semanas</SectionTitle>
 
         {cycle.weeks.map((w) => {
           const isOpen = openWeek === w.number;

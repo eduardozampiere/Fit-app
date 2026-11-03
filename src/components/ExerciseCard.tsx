@@ -2,6 +2,7 @@ import { Pressable, StyleSheet, Text, View } from 'react-native';
 import { formatKg, formatNumber, formatRange } from '../domain/format';
 import { KIND_LABEL, maxSetCount, plannedSetCount } from '../domain/plan';
 import { RPE_CHOICES } from '../domain/rpe';
+import type { SetLock } from '../domain/rules';
 import type { PrescribedItem, Range, SetLog } from '../domain/types';
 import { TOUCH, useTheme } from '../ui/theme';
 import { Badge, BigButton, Card, Chip } from './ui';
@@ -41,6 +42,9 @@ export function ExerciseCard({
   onAllAsPlanned,
   onQuickRpe,
   onPlates,
+  lock,
+  onUnlock,
+  tip,
 }: {
   item: PrescribedItem;
   load: Range | null;
@@ -51,12 +55,16 @@ export function ExerciseCard({
   onAllAsPlanned: () => void;
   onQuickRpe: (rpe: number) => void;
   onPlates: (kg: number | null) => void;
+  lock?: SetLock;
+  onUnlock?: () => void;
+  tip?: string | null;
 }) {
   const t = useTheme();
   const planned = plannedSetCount(item);
   const rows = Math.max(maxSetCount(item), logs.length ? Math.max(...logs.map((l) => l.setIndex)) : 0);
   const loggedCount = logs.length;
-  const complete = loggedCount >= planned;
+  const effectivePlanned = lock ? Math.min(planned, lock.fromSet - 1) : planned;
+  const complete = loggedCount >= effectivePlanned && (loggedCount > 0 || effectivePlanned === 0);
   const last = logs.length ? logs.reduce((a, b) => (b.setIndex > a.setIndex ? b : a)) : null;
   const askRpe = RPE_KINDS.has(item.kind) && last !== null && last.rpe === null;
   const plannedLoad = load?.min ?? null;
@@ -88,11 +96,31 @@ export function ExerciseCard({
 
       <Text style={[styles.prescription, { color: t.text }]}>{prescriptionLine(item, load)}</Text>
       {item.notes ? <Text style={[styles.notes, { color: t.muted }]}>{item.notes}</Text> : null}
+      {tip ? <Text style={[styles.tip, { color: t.accent }]}>{tip}</Text> : null}
+      {lock ? (
+        <View style={[styles.lockBox, { backgroundColor: t.warnBg }]}>
+          <Text style={{ color: t.warn, fontSize: 15, fontWeight: '700', flex: 1 }}>🔒 {lock.reason}</Text>
+          {lock.undoable && onUnlock ? (
+            <Pressable accessibilityRole="button" accessibilityLabel="Desfazer bloqueio do terra" onPress={onUnlock} style={[styles.unlockBtn, { backgroundColor: t.chip }]}>
+              <Text style={{ color: t.text, fontWeight: '700' }}>Desfazer</Text>
+            </Pressable>
+          ) : null}
+        </View>
+      ) : null}
 
       <View style={{ gap: 6 }}>
         {Array.from({ length: rows }, (_, i) => i + 1).map((idx) => {
           const log = logs.find((l) => l.setIndex === idx) ?? null;
           const optional = idx > planned;
+          const locked = !log && !!lock && idx >= lock.fromSet;
+          if (locked) {
+            return (
+              <View key={idx} style={[styles.setMain, { backgroundColor: t.chip, opacity: 0.5 }]} accessible accessibilityLabel={`Série ${idx} bloqueada: ${lock!.reason}`}>
+                <Text style={[styles.setIdx, { color: t.muted }]}>{idx}</Text>
+                <Text style={[styles.setText, { color: t.muted }]}>🔒 bloqueada</Text>
+              </View>
+            );
+          }
           return (
             <View key={idx} style={styles.setRow}>
               <Pressable
@@ -155,5 +183,8 @@ const styles = StyleSheet.create({
   checkBtn: { width: TOUCH + 8, minHeight: TOUCH, borderRadius: 12, alignItems: 'center', justifyContent: 'center' },
   checkText: { color: '#fff', fontSize: 26, fontWeight: '900' },
   askRpe: { fontSize: 14, fontWeight: '600' },
+  tip: { fontSize: 14, fontWeight: '700' },
+  lockBox: { borderRadius: 12, padding: 10, flexDirection: 'row', alignItems: 'center', gap: 8 },
+  unlockBtn: { minHeight: 40, borderRadius: 10, paddingHorizontal: 12, justifyContent: 'center' },
   wrap: { flexDirection: 'row', flexWrap: 'wrap', gap: 8 },
 });

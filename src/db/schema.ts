@@ -2,7 +2,7 @@ import type { SQLiteDatabase } from 'expo-sqlite';
 import bundledCycle from '../../assets/plan/ciclo_out26_jan27.json';
 import type { Cycle } from '../domain/types';
 
-const DATABASE_VERSION = 1;
+const DATABASE_VERSION = 2;
 
 /** Migrações por PRAGMA user_version. Nunca editar uma migração já publicada: criar a próxima. */
 export async function migrateDbIfNeeded(db: SQLiteDatabase) {
@@ -66,6 +66,29 @@ CREATE TABLE IF NOT EXISTS settings (
 `);
     await importCycle(db, bundledCycle as unknown as Cycle, 'active');
     version = 1;
+  }
+
+  if (version === 1) {
+    await db.execAsync(`
+CREATE TABLE IF NOT EXISTS checkins (
+  date TEXT PRIMARY KEY NOT NULL,   -- um check-in por dia
+  low_back INTEGER,
+  knee INTEGER,
+  wrist INTEGER,
+  foot INTEGER,
+  sleep_h REAL,
+  red_flags TEXT NOT NULL,          -- JSON RedFlags
+  note TEXT,
+  updated_at TEXT NOT NULL
+);
+CREATE TABLE IF NOT EXISTS alert_decisions (
+  key TEXT PRIMARY KEY NOT NULL,    -- Alert.key
+  cycle_id TEXT NOT NULL,
+  status TEXT NOT NULL,             -- accepted | dismissed
+  decided_at TEXT NOT NULL
+);
+`);
+    version = 2;
   }
 
   await db.execAsync(`PRAGMA user_version = ${DATABASE_VERSION}`);

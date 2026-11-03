@@ -1,7 +1,7 @@
 import { useLocalSearchParams } from 'expo-router';
 import { useSQLiteContext } from 'expo-sqlite';
 import { useCallback, useEffect, useMemo, useState } from 'react';
-import { ActivityIndicator, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { ActivityIndicator, Platform, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { ExerciseCard } from '../../components/ExerciseCard';
 import { PlateCalculator } from '../../components/PlateCalculator';
@@ -202,7 +202,7 @@ export default function TodayScreen() {
 
   return (
     <SafeAreaView edges={['top']} style={{ flex: 1, backgroundColor: t.bg }}>
-      <ScrollView contentContainerStyle={styles.body}>
+      <ScrollView contentContainerStyle={styles.body} contentInsetAdjustmentBehavior="automatic">
         <View style={styles.weekNav}>
           <Pressable
             accessibilityRole="button"
@@ -304,7 +304,8 @@ export default function TodayScreen() {
         </Text>
       </ScrollView>
 
-      <RestTimerBar />
+      {/* No iOS o cronômetro fica no acessório da barra de abas (Liquid Glass). */}
+      {Platform.OS !== 'ios' ? <RestTimerBar /> : null}
 
       {editor ? (
         <SetEditor

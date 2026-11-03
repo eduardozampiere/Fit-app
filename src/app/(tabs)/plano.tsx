@@ -31,7 +31,7 @@ export default function PlanScreen() {
 
   return (
     <SafeAreaView edges={['top']} style={{ flex: 1, backgroundColor: t.bg }}>
-      <ScrollView contentContainerStyle={styles.body}>
+      <ScrollView contentContainerStyle={styles.body} contentInsetAdjustmentBehavior="automatic">
         <Text style={[styles.title, { color: t.text }]} accessibilityRole="header">
           {cycle.name}
         </Text>

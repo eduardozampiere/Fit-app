@@ -12,6 +12,10 @@ App de iPhone (Expo + React Native) para o ciclo de powerlifting. Offline: tudo 
 - **Claude:** pacote para o treinador, aplicar ajustes/ciclo novo vindos do Claude, importar Hevy e
   CSVs antigos, exportar CSV/JSON, backup e histórico de ciclos.
 
+## Acompanhamento
+
+Status, contexto e decisões em **[specs/](specs/PLANO.md)** (uma subpasta por feature).
+
 ## Instalar no iPhone para usar na academia
 
 Ver **[docs/instalar-no-iphone.md](docs/instalar-no-iphone.md)**: Apple ID gratuito, renovação a cada 7 dias

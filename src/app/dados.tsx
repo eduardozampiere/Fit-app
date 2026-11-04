@@ -258,7 +258,6 @@ export default function DataScreen() {
             onChangeText={setReply}
             placeholder='```json { "format": "fitapp.adjustments/v1", … }'
             area
-            surface="bg"
             accessibilityLabel="Resposta do Claude"
           />
           <View style={styles.row2}>

@@ -17,9 +17,10 @@ Legenda: ✅ feito · 🟡 feito, falta verificar no iPhone · 🔨 em andamento
 | 05 | Alimentação, peso e medidas | 🟡 | [05-alimentacao-e-corpo](05-alimentacao-e-corpo/spec.md) |
 | 06 | Análises (gráficos, agrupamentos, cartões por dia) | 🟡 | [06-analises](06-analises/spec.md) |
 | 07 | Importação, exportação, backup e integração com o Claude | 🟡 | [07-dados-e-claude](07-dados-e-claude/spec.md) |
+| 08 | Visual inspirado no Hevy (tabela de séries inline, tokens novos) | 🔨 | [08-design-hevy](08-design-hevy/spec.md) |
 
-Nada foi testado num iPhone ainda: as sessões na nuvem rodam em Linux. O que foi verificado em cada
-feature está no `spec.md` dela.
+Nada foi testado num iPhone de verdade ainda. Em 03/11/2026 o app rodou no simulador do iOS 27.2 (Mac,
+Xcode 27.2, `npx expo run:ios`). O que foi verificado em cada feature está no `spec.md` dela.
 
 ## Próximo passo
 
@@ -58,4 +59,5 @@ feature está no `spec.md` dela.
 | 03/11/2026 | Incrementos 3, 4 e 5 | `11b4a12`, `fd90e02`, `96411c0` |
 | 03/11/2026 | Pasta `specs/` criada (contexto, plano, uma spec por feature) | `46f64c8` |
 | 03/11/2026 | CLAUDE.md com padrões de projeto e DRY | `444a54b` |
-| 03/11/2026 | Remoção das duplicações: `text.ts` (slug), `LIFTS` e `weekForDate` únicos, `TextField` | este commit |
+| 03/11/2026 | Remoção das duplicações: `text.ts` (slug), `LIFTS` e `weekForDate` únicos, `TextField` | `5fbb676` |
+| 03/11/2026 | Visual Hevy, fase 1: tokens novos e componentes base | este commit |

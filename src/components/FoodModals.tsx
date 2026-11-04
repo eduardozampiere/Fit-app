@@ -279,7 +279,6 @@ export function NamePrompt({ title, onSave, onClose }: { title: string; onSave: 
             onChangeText={setName}
             autoFocus
             placeholder="ex.: Almoço padrão"
-            surface="bg"
           />
           <BigButton label="Salvar" compact disabled={name.trim().length < 2} onPress={() => onSave(name.trim())} />
           <BigButton label="Cancelar" compact variant="neutral" onPress={onClose} />

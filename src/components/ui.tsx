@@ -1,10 +1,13 @@
-import type { ReactNode } from 'react';
+import Ionicons from '@expo/vector-icons/Ionicons';
+import type { ComponentProps, ReactNode } from 'react';
 import { Pressable, StyleSheet, Text, TextInput, View, type StyleProp, type TextInputProps, type ViewStyle } from 'react-native';
-import { TOUCH, useTheme } from '../ui/theme';
+import { font, radius, space, TOUCH, useTheme } from '../ui/theme';
+
+export type IconName = ComponentProps<typeof Ionicons>['name'];
 
 export function Card({ children, style }: { children: ReactNode; style?: StyleProp<ViewStyle> }) {
   const t = useTheme();
-  return <View style={[styles.card, { backgroundColor: t.card, borderColor: t.border }, style]}>{children}</View>;
+  return <View style={[styles.card, { backgroundColor: t.card, borderColor: t.separator }, style]}>{children}</View>;
 }
 
 type Variant = 'primary' | 'success' | 'neutral' | 'danger';
@@ -16,6 +19,7 @@ export function BigButton({
   disabled,
   accessibilityHint,
   compact,
+  icon,
 }: {
   label: string;
   onPress: () => void;
@@ -23,9 +27,10 @@ export function BigButton({
   disabled?: boolean;
   accessibilityHint?: string;
   compact?: boolean;
+  icon?: IconName;
 }) {
   const t = useTheme();
-  const bg = { primary: t.accent, success: t.success, neutral: t.chip, danger: t.danger }[variant];
+  const bg = { primary: t.accent, success: t.done, neutral: t.surface, danger: t.danger }[variant];
   const fg = variant === 'neutral' ? t.text : t.accentText;
   return (
     <Pressable
@@ -38,9 +43,10 @@ export function BigButton({
       style={({ pressed }) => [
         styles.button,
         compact && styles.buttonCompact,
-        { backgroundColor: bg, opacity: disabled ? 0.45 : pressed ? 0.8 : 1 },
+        { backgroundColor: bg, opacity: disabled ? 0.45 : pressed ? 0.75 : 1 },
       ]}
     >
+      {icon ? <Ionicons name={icon} size={compact ? 18 : 20} color={fg} /> : null}
       <Text style={[styles.buttonText, compact && styles.buttonTextCompact, { color: fg }]} maxFontSizeMultiplier={1.6}>
         {label}
       </Text>
@@ -48,6 +54,7 @@ export function BigButton({
   );
 }
 
+/** Pílula: seletor (selecionada = azul preenchido) ou etiqueta de estado (`tone`). */
 export function Chip({
   label,
   selected,
@@ -62,8 +69,8 @@ export function Chip({
   tone?: 'success' | 'warn';
 }) {
   const t = useTheme();
-  const bg = selected ? t.accent : tone === 'success' ? t.successBg : tone === 'warn' ? t.warnBg : t.chip;
-  const fg = selected ? t.accentText : tone === 'success' ? t.success : tone === 'warn' ? t.warn : t.text;
+  const bg = selected ? t.accent : tone === 'success' ? t.doneBg : tone === 'warn' ? t.warnBg : t.surface;
+  const fg = selected ? t.accentText : tone === 'success' ? t.done : tone === 'warn' ? t.warn : t.text;
   return (
     <Pressable
       accessibilityRole="button"
@@ -82,9 +89,9 @@ export function Chip({
 export function Badge({ label, tone = 'neutral' }: { label: string; tone?: 'neutral' | 'accent' | 'success' | 'warn' }) {
   const t = useTheme();
   const map = {
-    neutral: [t.chip, t.muted],
+    neutral: [t.surface, t.muted],
     accent: [t.accent, t.accentText],
-    success: [t.successBg, t.success],
+    success: [t.doneBg, t.done],
     warn: [t.warnBg, t.warn],
   } as const;
   const [bg, fg] = map[tone];
@@ -114,15 +121,15 @@ export function Stepper({
   const v = value ?? 0;
   return (
     <View style={styles.stepper}>
-      <Text style={[styles.stepperLabel, { color: t.muted }]}>{label}</Text>
+      <Text style={[styles.fieldLabel, { color: t.muted }]}>{label}</Text>
       <View style={styles.stepperRow}>
         <Pressable
           accessibilityRole="button"
           accessibilityLabel={`Diminuir ${label}`}
           onPress={() => onChange(Math.max(min, Math.round((v - step) * 100) / 100))}
-          style={[styles.stepBtn, { backgroundColor: t.chip }]}
+          style={({ pressed }) => [styles.stepBtn, { backgroundColor: t.surface, opacity: pressed ? 0.7 : 1 }]}
         >
-          <Text style={[styles.stepBtnText, { color: t.text }]}>−</Text>
+          <Ionicons name="remove" size={26} color={t.text} />
         </Pressable>
         <Text
           style={[styles.stepValue, { color: t.text }]}
@@ -135,27 +142,23 @@ export function Stepper({
           accessibilityRole="button"
           accessibilityLabel={`Aumentar ${label}`}
           onPress={() => onChange(Math.round((v + step) * 100) / 100)}
-          style={[styles.stepBtn, { backgroundColor: t.chip }]}
+          style={({ pressed }) => [styles.stepBtn, { backgroundColor: t.surface, opacity: pressed ? 0.7 : 1 }]}
         >
-          <Text style={[styles.stepBtnText, { color: t.text }]}>+</Text>
+          <Ionicons name="add" size={26} color={t.text} />
         </Pressable>
       </View>
     </View>
   );
 }
 
-/**
- * Campo de texto padrão. `surface`: fundo do cartão (padrão) ou da tela, para quando o campo está
- * dentro de um cartão. `area`: várias linhas. `label`: rótulo acima do campo.
- */
+/** Campo de texto preenchido (sem borda). `area`: várias linhas. `label`: rótulo acima do campo. */
 export function TextField({
   label,
-  surface = 'card',
   area,
   style,
   accessibilityLabel,
   ...props
-}: TextInputProps & { label?: string; surface?: 'card' | 'bg'; area?: boolean }) {
+}: TextInputProps & { label?: string; area?: boolean }) {
   const t = useTheme();
   const input = (
     <TextInput
@@ -163,16 +166,12 @@ export function TextField({
       multiline={area || props.multiline}
       accessibilityLabel={accessibilityLabel ?? label}
       {...props}
-      style={[
-        area ? styles.area : styles.input,
-        { color: t.text, backgroundColor: surface === 'bg' ? t.bg : t.card, borderColor: t.border },
-        style,
-      ]}
+      style={[area ? styles.area : styles.input, { color: t.text, backgroundColor: t.surface }, style]}
     />
   );
   if (!label) return input;
   return (
-    <View style={{ gap: 4 }}>
+    <View style={{ gap: space.xs + 2 }}>
       <Text style={[styles.fieldLabel, { color: t.muted }]}>{label}</Text>
       {input}
     </View>
@@ -184,24 +183,170 @@ export function SectionTitle({ children }: { children: ReactNode }) {
   return <Text style={[styles.section, { color: t.muted }]}>{children}</Text>;
 }
 
+/** Bloco plano com título e ação opcional à direita ("Ver tudo"). */
+export function Section({
+  title,
+  action,
+  onAction,
+  children,
+  style,
+}: {
+  title: string;
+  action?: string;
+  onAction?: () => void;
+  children: ReactNode;
+  style?: StyleProp<ViewStyle>;
+}) {
+  const t = useTheme();
+  return (
+    <View style={[{ gap: space.sm }, style]}>
+      <View style={styles.sectionHeader}>
+        <Text style={[styles.sectionHeading, { color: t.text }]} accessibilityRole="header">
+          {title}
+        </Text>
+        {action && onAction ? (
+          <Pressable accessibilityRole="button" accessibilityLabel={action} onPress={onAction} hitSlop={12}>
+            <Text style={[styles.link, { color: t.accent }]}>{action}</Text>
+          </Pressable>
+        ) : null}
+      </View>
+      {children}
+    </View>
+  );
+}
+
+export function Divider({ inset = 0 }: { inset?: number }) {
+  const t = useTheme();
+  return <View style={{ height: StyleSheet.hairlineWidth, backgroundColor: t.separator, marginLeft: inset }} />;
+}
+
+/** Linha de lista: título (e subtítulo) à esquerda, valor e chevron à direita, divisória embaixo. */
+export function ListRow({
+  title,
+  subtitle,
+  value,
+  onPress,
+  icon,
+  last,
+}: {
+  title: string;
+  subtitle?: string;
+  value?: string;
+  onPress?: () => void;
+  icon?: IconName;
+  last?: boolean;
+}) {
+  const t = useTheme();
+  const content = (
+    <View style={styles.listRow}>
+      {icon ? <Ionicons name={icon} size={22} color={t.accent} /> : null}
+      <View style={{ flex: 1, gap: 2 }}>
+        <Text style={[styles.rowTitle, { color: t.text }]}>{title}</Text>
+        {subtitle ? <Text style={[styles.rowSub, { color: t.muted }]}>{subtitle}</Text> : null}
+      </View>
+      {value ? <Text style={[styles.rowValue, { color: t.muted }]}>{value}</Text> : null}
+      {onPress ? <Ionicons name="chevron-forward" size={18} color={t.muted} /> : null}
+    </View>
+  );
+  return (
+    <View>
+      {onPress ? (
+        <Pressable
+          accessibilityRole="button"
+          accessibilityLabel={[title, subtitle, value].filter(Boolean).join(', ')}
+          onPress={onPress}
+          style={({ pressed }) => ({ opacity: pressed ? 0.6 : 1 })}
+        >
+          {content}
+        </Pressable>
+      ) : (
+        content
+      )}
+      {last ? null : <Divider />}
+    </View>
+  );
+}
+
+/** Resumo em colunas: rótulo pequeno em cima, valor embaixo (ex.: Tempo · Volume · Séries). */
+export function StatRow({ items }: { items: { label: string; value: string; accent?: boolean }[] }) {
+  const t = useTheme();
+  return (
+    <View style={styles.statRow}>
+      {items.map((it) => (
+        <View key={it.label} style={{ flex: 1, gap: 2 }} accessible accessibilityLabel={`${it.label}: ${it.value}`}>
+          <Text style={[styles.statLabel, { color: t.muted }]}>{it.label}</Text>
+          <Text style={[styles.statValue, { color: it.accent ? t.accent : t.text }]} maxFontSizeMultiplier={1.4}>
+            {it.value}
+          </Text>
+        </View>
+      ))}
+    </View>
+  );
+}
+
+/** Botão só de ícone; a área de toque chega a `TOUCH` mesmo com o ícone pequeno. */
+export function IconButton({
+  name,
+  label,
+  onPress,
+  color,
+  size = 24,
+}: {
+  name: IconName;
+  label: string;
+  onPress: () => void;
+  color?: string;
+  size?: number;
+}) {
+  const t = useTheme();
+  return (
+    <Pressable
+      accessibilityRole="button"
+      accessibilityLabel={label}
+      onPress={onPress}
+      hitSlop={(TOUCH - 44) / 2}
+      style={({ pressed }) => [styles.iconBtn, { opacity: pressed ? 0.6 : 1 }]}
+    >
+      <Ionicons name={name} size={size} color={color ?? t.text} />
+    </Pressable>
+  );
+}
+
 const styles = StyleSheet.create({
-  card: { borderRadius: 14, borderWidth: StyleSheet.hairlineWidth, padding: 14, gap: 10 },
-  button: { minHeight: TOUCH, borderRadius: 14, alignItems: 'center', justifyContent: 'center', paddingHorizontal: 16 },
+  card: { borderRadius: radius.card, borderWidth: StyleSheet.hairlineWidth, padding: space.lg, gap: space.md },
+  button: {
+    minHeight: TOUCH,
+    borderRadius: radius.button,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: space.sm,
+    paddingHorizontal: space.lg,
+  },
   buttonCompact: { minHeight: 48 },
-  buttonText: { fontSize: 18, fontWeight: '700' },
+  buttonText: { fontSize: 17, fontWeight: '600' },
   buttonTextCompact: { fontSize: 16 },
-  chip: { minHeight: 44, minWidth: 44, borderRadius: 22, paddingHorizontal: 14, alignItems: 'center', justifyContent: 'center' },
-  chipText: { fontSize: 16, fontWeight: '600' },
-  badge: { borderRadius: 6, paddingHorizontal: 8, paddingVertical: 2, alignSelf: 'flex-start' },
-  badgeText: { fontSize: 12, fontWeight: '700' },
-  stepper: { gap: 6 },
-  stepperLabel: { fontSize: 14, fontWeight: '600' },
-  stepperRow: { flexDirection: 'row', alignItems: 'center', gap: 12 },
-  stepBtn: { width: TOUCH, height: TOUCH, borderRadius: 14, alignItems: 'center', justifyContent: 'center' },
-  stepBtnText: { fontSize: 28, fontWeight: '600' },
-  stepValue: { flex: 1, textAlign: 'center', fontSize: 26, fontWeight: '700', fontVariant: ['tabular-nums'] },
-  input: { minHeight: 52, borderRadius: 12, borderWidth: StyleSheet.hairlineWidth, paddingHorizontal: 14, fontSize: 17 },
-  area: { minHeight: 120, maxHeight: 260, borderRadius: 12, borderWidth: StyleSheet.hairlineWidth, padding: 12, fontSize: 14, textAlignVertical: 'top' },
-  fieldLabel: { fontSize: 14, fontWeight: '600' },
-  section: { fontSize: 13, fontWeight: '700', textTransform: 'uppercase', letterSpacing: 0.6, marginTop: 8 },
+  chip: { minHeight: 44, minWidth: 44, borderRadius: 22, paddingHorizontal: space.lg, alignItems: 'center', justifyContent: 'center' },
+  chipText: { fontSize: 15, fontWeight: '600' },
+  badge: { borderRadius: 6, paddingHorizontal: space.sm, paddingVertical: 2, alignSelf: 'flex-start' },
+  badgeText: { fontSize: 12, fontWeight: '600' },
+  stepper: { gap: space.sm },
+  stepperRow: { flexDirection: 'row', alignItems: 'center', gap: space.md },
+  stepBtn: { width: TOUCH, height: TOUCH, borderRadius: radius.button, alignItems: 'center', justifyContent: 'center' },
+  stepValue: { flex: 1, textAlign: 'center', fontSize: 26, fontWeight: '600', fontVariant: ['tabular-nums'] },
+  input: { minHeight: 48, borderRadius: radius.button, paddingHorizontal: space.md + 2, fontSize: 17 },
+  area: { minHeight: 120, maxHeight: 260, borderRadius: radius.button, padding: space.md, fontSize: 15, textAlignVertical: 'top' },
+  fieldLabel: { ...font.label },
+  section: { ...font.label, fontSize: 14, marginTop: space.sm },
+  sectionHeader: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginTop: space.sm },
+  sectionHeading: { ...font.headline },
+  link: { fontSize: 15, fontWeight: '500' },
+  listRow: { minHeight: 52, flexDirection: 'row', alignItems: 'center', gap: space.md, paddingVertical: space.sm + 2 },
+  rowTitle: { ...font.body },
+  rowSub: { fontSize: 13 },
+  rowValue: { fontSize: 16, fontVariant: ['tabular-nums'] },
+  statRow: { flexDirection: 'row', gap: space.md },
+  statLabel: { ...font.label },
+  statValue: { fontSize: 17, fontWeight: '500', fontVariant: ['tabular-nums'] },
+  iconBtn: { width: 44, height: 44, alignItems: 'center', justifyContent: 'center' },
 });

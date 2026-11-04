@@ -148,7 +148,6 @@ function CheckinForm({
           value={c.note ?? ''}
           onChangeText={(v) => setC({ ...c, note: v || null })}
           placeholder="Observação (opcional)"
-          surface="bg"
           maxLength={200}
           accessibilityLabel="Observação do check-in"
         />

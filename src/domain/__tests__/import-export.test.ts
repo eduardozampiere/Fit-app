@@ -224,7 +224,7 @@ describe('pacote para o Claude e exportação', () => {
       log: { id: 'L1', cycleId: cycle.id, week: 2, sessionId: s.id, date: '2026-11-03', status: 'done' as const, note: null },
       sets: [1, 2, 3, 4, 5].map((i) => ({
         id: `s${i}`, sessionLogId: 'L1', itemId: s.items[1].id, exerciseId: s.items[1].exerciseId, setIndex: i,
-        loadKg: 145, reps: 4, durationSec: null, rpe: i === 5 ? 8 : null, grip: null, belt: null, failed: false, asPlanned: true, note: null, doneAt: '',
+        loadKg: 145, reps: 4, durationSec: null, rpe: i === 5 ? 8 : null, grip: null, belt: null, failed: false, asPlanned: true, warmup: false, note: null, doneAt: '',
       })),
     },
   ];

@@ -38,7 +38,7 @@ Caminhos avaliados e descartados (não reabrir sem motivo novo):
 
 - **Expo SDK 58**, React Native 0.88, React 19, TypeScript estrito.
 - **Expo Router** com rotas em `src/app/`. No iOS as abas são nativas (`expo-router/native-tabs`): Liquid Glass no iOS 26+, cronômetro no `BottomAccessory`. Na web as abas são em JS (`_layout.web.tsx`), só para a prévia.
-- **expo-sqlite** com migrações por `PRAGMA user_version` (`src/db/schema.ts`; versão atual **4**).
+- **expo-sqlite** com migrações por `PRAGMA user_version` (`src/db/schema.ts`; versão atual **5**).
 - **expo-notifications** só local (`enableRemoteNotifications: false`, sem entitlement de push, para o Apple ID gratuito conseguir assinar).
 - **react-native-svg** para gráficos feitos à mão (`src/components/charts.tsx`).
 - expo-haptics, expo-file-system (API nova `File`/`Paths`), expo-document-picker, expo-sharing, expo-clipboard.

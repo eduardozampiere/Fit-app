@@ -5,7 +5,8 @@ import { KIND_LABEL } from '../domain/plan';
 import type { SetLock } from '../domain/rules';
 import type { PrescribedItem, Range, SetLog } from '../domain/types';
 import { font, radius, space, useTheme } from '../ui/theme';
-import { SetTable, type SetInput } from './SetTable';
+import type { SetDraft } from '../domain/logging';
+import { SetTable, type SetInput, type SetKind } from './SetTable';
 import { IconButton } from './ui';
 
 function loadLabel(item: PrescribedItem, load: Range | null): string {
@@ -35,6 +36,8 @@ export function ExerciseCard({
   isLift,
   rows,
   plannedCount,
+  warmups,
+  warmupDrafts,
   complete,
   restSec,
   showRpe,
@@ -46,9 +49,11 @@ export function ExerciseCard({
   onCheck,
   onUncheck,
   onEdit,
+  onRemove,
   onSetMenu,
   onRpe,
   onAdd,
+  onAddWarmup,
 }: {
   item: PrescribedItem;
   load: Range | null;
@@ -58,6 +63,8 @@ export function ExerciseCard({
   isLift: boolean;
   rows: number;
   plannedCount: number;
+  warmups: SetLog[];
+  warmupDrafts: SetDraft[];
   complete: boolean;
   restSec: number;
   showRpe: boolean;
@@ -66,12 +73,14 @@ export function ExerciseCard({
   onUnlock?: () => void;
   tip?: string | null;
   onMenu: () => void;
-  onCheck: (setIndex: number, input: SetInput) => void;
+  onCheck: (kind: SetKind, setIndex: number, input: SetInput) => void;
   onUncheck: (log: SetLog) => void;
   onEdit: (log: SetLog, input: SetInput) => void;
-  onSetMenu: (setIndex: number, log: SetLog | null) => void;
+  onRemove: (kind: SetKind, setIndex: number, log: SetLog | null) => void;
+  onSetMenu: (kind: SetKind, setIndex: number, log: SetLog | null) => void;
   onRpe: (log: SetLog) => void;
   onAdd: () => void;
+  onAddWarmup: () => void;
 }) {
   const t = useTheme();
   const prescription = prescriptionLine(item, load);
@@ -127,15 +136,19 @@ export function ExerciseCard({
         logs={logs}
         rows={rows}
         plannedCount={plannedCount}
+        warmups={warmups}
+        warmupDrafts={warmupDrafts}
         lock={lock}
         showRpe={showRpe}
         pendingRpeIndex={pendingRpeIndex}
         onCheck={onCheck}
         onUncheck={onUncheck}
         onEdit={onEdit}
+        onRemove={onRemove}
         onSetMenu={onSetMenu}
         onRpe={onRpe}
         onAdd={onAdd}
+        onAddWarmup={onAddWarmup}
       />
     </View>
   );

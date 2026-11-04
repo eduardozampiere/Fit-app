@@ -10,7 +10,7 @@ import { PlateCalculator } from '../../components/PlateCalculator';
 import { RedFlagModal } from '../../components/RedFlagModal';
 import { RestTimerBar } from '../../components/RestTimerBar';
 import { SetEditor, type EditableSet } from '../../components/SetEditor';
-import type { SetInput } from '../../components/SetTable';
+import type { SetInput, SetKind } from '../../components/SetTable';
 import { ActionMenu, BigButton, Card, Chip, Divider, IconButton, type MenuOption } from '../../components/ui';
 import { WorkoutStats } from '../../components/WorkoutStats';
 import {
@@ -22,6 +22,7 @@ import {
   listSessionLogs,
   listSetLogs,
   setCountsKey,
+  warmupCountsKey,
   setSessionStatus,
   setSetting,
   updateSet,
@@ -36,6 +37,8 @@ import {
   renumberAfterRemoval,
   sessionStats,
   setRowCount,
+  warmupRowCount,
+  warmupSet,
 } from '../../domain/logging';
 import {
   currentLoad,
@@ -61,7 +64,7 @@ const GENERIC_NOTE = /^(% calculado|Registro:)/;
 export default function TodayScreen() {
   const t = useTheme();
   const db = useSQLiteContext();
-  const { cycle, maxes, version, bump } = useAppData();
+  const { cycle, maxes, gym, version, bump } = useAppData();
   const timer = useRestTimer();
   const coach = useCoach();
   const params = useLocalSearchParams<{ sessionId?: string; at?: string }>();
@@ -97,6 +100,7 @@ export default function TodayScreen() {
   const [menu, setMenu] = useState<{ title?: string; options: MenuOption[]; columns?: number } | null>(null);
   // Séries adicionadas/removidas no treino do dia, por item.
   const [setCounts, setSetCounts] = useState<Record<string, number>>({});
+  const [warmupCounts, setWarmupCounts] = useState<Record<string, number>>({});
   const [failUnlocked, setFailUnlocked] = useState(false);
   const [redFlagSeen, setRedFlagSeen] = useState(false);
 
@@ -116,6 +120,7 @@ export default function TodayScreen() {
       setSetLogs(current ? await listSetLogs(db, current.id) : []);
       setFailUnlocked(current ? await getSetting(db, `unlock-fail:${current.id}`, false) : false);
       setSetCounts(current ? await getSetting<Record<string, number>>(db, setCountsKey(current.id), {}) : {});
+      setWarmupCounts(current ? await getSetting<Record<string, number>>(db, warmupCountsKey(current.id), {}) : {});
     })();
     return () => {
       alive = false;
@@ -124,11 +129,17 @@ export default function TodayScreen() {
 
   const items = useMemo(() => (ref ? sessionItems(ref.week, ref.session) : []), [ref]);
   const loadOf = useCallback((item: PrescribedItem) => (cycle && maxes ? currentLoad(cycle, item, maxes) : item.load), [cycle, maxes]);
-  const logsOf = useCallback((item: PrescribedItem) => setLogs.filter((l) => l.itemId === item.id), [setLogs]);
+  // O aquecimento tem numeração própria e fica fora das regras, do resumo e do "conforme o plano".
+  const workLogs = useMemo(() => setLogs.filter((l) => !l.warmup), [setLogs]);
+  const logsOf = useCallback((item: PrescribedItem) => workLogs.filter((l) => l.itemId === item.id), [workLogs]);
+  const warmupsOf = useCallback(
+    (item: PrescribedItem) => setLogs.filter((l) => l.warmup && l.itemId === item.id),
+    [setLogs],
+  );
   // Regras 4 e 5: séries bloqueadas (4ª do terra, terra falhou).
   const locks = useMemo(
-    () => (cycle && ref ? sessionLocks(cycle, ref.week, items, setLogs, failUnlocked) : new Map()),
-    [cycle, ref, items, setLogs, failUnlocked],
+    () => (cycle && ref ? sessionLocks(cycle, ref.week, items, workLogs, failUnlocked) : new Map()),
+    [cycle, ref, items, workLogs, failUnlocked],
   );
   // "Conforme o plano" já com a pegada sugerida (regra 10).
   const planned = useCallback(
@@ -143,6 +154,13 @@ export default function TodayScreen() {
     [setCounts, logsOf],
   );
   const plannedCountOf = useCallback((item: PrescribedItem) => plannedCountFor(item, setCounts[item.id]), [setCounts]);
+  const warmupDraftsOf = useCallback(
+    (item: PrescribedItem) => {
+      const n = warmupRowCount(warmupCounts[item.id], warmupsOf(item).map((l) => l.setIndex));
+      return Array.from({ length: n }, (_, i) => warmupSet(item, loadOf(item)?.min ?? null, i + 1, n, gym.barKg));
+    },
+    [warmupCounts, warmupsOf, loadOf, gym.barKg],
+  );
   const missingPlanned = useCallback(
     (item: PrescribedItem) => {
       const lock = locks.get(item.id);
@@ -174,10 +192,14 @@ export default function TodayScreen() {
     [timer, nextLabel],
   );
 
-  const checkSet = async (item: PrescribedItem, idx: number, input: SetInput) => {
+  const draftFor = (kind: SetKind, item: PrescribedItem, idx: number) =>
+    kind === 'warmup' ? warmupDraftsOf(item)[idx - 1] : planned(item, idx);
+
+  const checkSet = async (kind: SetKind, item: PrescribedItem, idx: number, input: SetInput) => {
     const log = await ensureLog();
-    await insertSets(db, log.id, [draftFromInput(planned(item, idx), input)]);
-    startRest(item, idx);
+    await insertSets(db, log.id, [draftFromInput(draftFor(kind, item, idx), input)]);
+    // Aquecimento não dispara o descanso: a próxima série costuma vir logo.
+    if (kind === 'work') startRest(item, idx);
     bump();
   };
 
@@ -193,22 +215,28 @@ export default function TodayScreen() {
     bump();
   };
 
-  const saveSetCount = async (item: PrescribedItem, count: number) => {
+  /** Número de linhas do dia por item: séries de trabalho ou de aquecimento. */
+  const saveCount = async (kind: SetKind, item: PrescribedItem, count: number) => {
     const log = await ensureLog();
-    const next = { ...setCounts, [item.id]: Math.max(0, count) };
-    await setSetting(db, setCountsKey(log.id), next);
-    setSetCounts(next);
+    const current = kind === 'warmup' ? warmupCounts : setCounts;
+    const next = { ...current, [item.id]: Math.max(0, count) };
+    await setSetting(db, kind === 'warmup' ? warmupCountsKey(log.id) : setCountsKey(log.id), next);
+    if (kind === 'warmup') setWarmupCounts(next);
+    else setSetCounts(next);
   };
 
-  const addSet = async (item: PrescribedItem) => {
-    await saveSetCount(item, rowsOf(item) + 1);
+  const rowsOfKind = (kind: SetKind, item: PrescribedItem) => (kind === 'warmup' ? warmupDraftsOf(item).length : rowsOf(item));
+
+  const addSet = async (item: PrescribedItem, kind: SetKind = 'work') => {
+    await saveCount(kind, item, rowsOfKind(kind, item) + 1);
     bump();
   };
 
-  /** Remove a linha `idx` (e a série gravada nela, se houver); as seguintes sobem uma posição. */
-  const removeSet = async (item: PrescribedItem, idx: number, log: SetLog | null) => {
-    await deleteSetAndRenumber(db, log?.id ?? null, renumberAfterRemoval(logsOf(item), idx));
-    await saveSetCount(item, rowsOf(item) - 1);
+  /** Remove a linha `idx` (e a série gravada nela, se houver); as seguintes do mesmo tipo sobem uma posição. */
+  const removeSet = async (kind: SetKind, item: PrescribedItem, idx: number, log: SetLog | null) => {
+    const sameKind = kind === 'warmup' ? warmupsOf(item) : logsOf(item);
+    await deleteSetAndRenumber(db, log?.id ?? null, renumberAfterRemoval(sameKind, idx));
+    await saveCount(kind, item, rowsOfKind(kind, item) - 1);
     bump();
   };
 
@@ -248,16 +276,16 @@ export default function TodayScreen() {
       ],
     });
 
-  const openSetMenu = (item: PrescribedItem, idx: number, log: SetLog | null) =>
+  const openSetMenu = (kind: SetKind, item: PrescribedItem, idx: number, log: SetLog | null) =>
     setMenu({
-      title: `${item.name} · série ${idx}`,
+      title: `${item.name} · ${kind === 'warmup' ? 'aquecimento' : 'série'} ${idx}`,
       options: [
         {
           label: log ? 'Detalhes (RPE, pegada, cinto, falha)' : 'Registrar com detalhes',
           icon: 'create-outline',
-          onPress: () => openEditor(item, idx, log),
+          onPress: () => openEditor(item, idx, log, kind),
         },
-        { label: 'Remover série', icon: 'trash-outline', destructive: true, onPress: () => removeSet(item, idx, log) },
+        { label: 'Remover série', icon: 'trash-outline', destructive: true, onPress: () => removeSet(kind, item, idx, log) },
       ],
     });
 
@@ -269,12 +297,13 @@ export default function TodayScreen() {
         { label: 'Calculadora de anilhas', icon: 'calculator-outline', onPress: () => setPlates({ kg, exerciseId: item.exerciseId }) },
         { label: 'Completar conforme o plano', icon: 'checkmark-done-outline', onPress: () => allAsPlanned(item) },
         { label: 'Adicionar série', icon: 'add-circle-outline', onPress: () => addSet(item) },
+        { label: 'Adicionar aquecimento', icon: 'flame-outline', onPress: () => addSet(item, 'warmup') },
       ],
     });
   };
 
-  const openEditor = (item: PrescribedItem, idx: number, log: SetLog | null) => {
-    setEditor({ item, draft: log ?? planned(item, idx), key: `${item.id}-${idx}-${log?.id ?? 'new'}` });
+  const openEditor = (item: PrescribedItem, idx: number, log: SetLog | null, kind: SetKind = 'work') => {
+    setEditor({ item, draft: log ?? draftFor(kind, item, idx), key: `${item.id}-${kind}-${idx}-${log?.id ?? 'new'}` });
   };
 
   const saveEditor = async (s: EditableSet) => {
@@ -286,7 +315,7 @@ export default function TodayScreen() {
       const log = await ensureLog();
       const { id: _id, ...draft } = s;
       await insertSets(db, log.id, [draft]);
-      startRest(editor.item, s.setIndex);
+      if (!draft.warmup) startRest(editor.item, s.setIndex);
     }
     setEditor(null);
     bump();
@@ -330,7 +359,7 @@ export default function TodayScreen() {
     if (w) setSelectedId(w.sessions[0].id);
   };
 
-  const stats = sessionStats(setLogs);
+  const stats = sessionStats(workLogs);
   const plannedSets = items.reduce((acc, it) => acc + plannedCountOf(it), 0);
 
   return (
@@ -445,6 +474,8 @@ export default function TodayScreen() {
                   isLift={liftOf(cycle, item) !== null}
                   rows={rowsOf(item)}
                   plannedCount={plannedCount}
+                  warmups={warmupsOf(item)}
+                  warmupDrafts={warmupDraftsOf(item)}
                   complete={logs.length >= effective && (logs.length > 0 || effective === 0)}
                   restSec={restSeconds(item)}
                   showRpe={showRpe}
@@ -453,12 +484,14 @@ export default function TodayScreen() {
                   onUnlock={() => toggleFailLock(true)}
                   tip={gripTip(cycle, ref.week, item)}
                   onMenu={() => openExerciseMenu(item)}
-                  onCheck={(idx, input) => checkSet(item, idx, input)}
+                  onCheck={(kind, idx, input) => checkSet(kind, item, idx, input)}
                   onUncheck={uncheckSet}
                   onEdit={editSet}
-                  onSetMenu={(idx, log) => openSetMenu(item, idx, log)}
+                  onRemove={(kind, idx, log) => removeSet(kind, item, idx, log)}
+                  onSetMenu={(kind, idx, log) => openSetMenu(kind, item, idx, log)}
                   onRpe={openRpeMenu}
                   onAdd={() => addSet(item)}
+                  onAddWarmup={() => addSet(item, 'warmup')}
                 />
               </View>
             );

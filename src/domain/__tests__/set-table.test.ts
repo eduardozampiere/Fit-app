@@ -9,6 +9,8 @@ import {
   renumberAfterRemoval,
   sessionStats,
   setRowCount,
+  warmupRowCount,
+  warmupSet,
 } from '../logging';
 import { barChoices, platesFor } from '../plates';
 import type { Cycle } from '../types';
@@ -96,5 +98,29 @@ describe('barras da calculadora', () => {
     expect(platesFor(100, 20).perSide).toEqual([25, 15]);
     expect(platesFor(100, 15).perSide).toEqual([25, 15, 2.5]);
     expect(platesFor(100, 10).perSide).toEqual([25, 20]);
+  });
+});
+
+describe('aquecimento', () => {
+  it('rampa de 40% a 85% da carga de trabalho, com reps caindo', () => {
+    const sets = [1, 2, 3].map((i) => warmupSet(squat, 145, i, 3, 20));
+    expect(sets.map((s) => s.loadKg)).toEqual([57.5, 90, 122.5]);
+    expect(sets.map((s) => s.reps)).toEqual([5, 3, 2]);
+    expect(sets.every((s) => s.warmup && !s.asPlanned)).toBe(true);
+  });
+
+  it('um aquecimento só fica em 60%; nunca abaixo da barra', () => {
+    expect(warmupSet(squat, 145, 1, 1, 20).loadKg).toBe(87.5);
+    expect(warmupSet(squat, 30, 1, 3, 20).loadKg).toBe(20);
+  });
+
+  it('sem carga de trabalho, sugere só as reps do plano', () => {
+    expect(warmupSet({ ...squat, reps: { min: 10, max: 12 } }, null, 1, 2, 20)).toMatchObject({ loadKg: null, reps: 10 });
+  });
+
+  it('linhas de aquecimento: adicionadas no dia ou as já registradas', () => {
+    expect(warmupRowCount(undefined, [])).toBe(0);
+    expect(warmupRowCount(2, [])).toBe(2);
+    expect(warmupRowCount(1, [1, 3])).toBe(3);
   });
 });

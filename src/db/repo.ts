@@ -72,6 +72,7 @@ type SetLogRow = {
   belt: number | null;
   failed: number;
   as_planned: number;
+  warmup: number;
   note: string | null;
   done_at: string;
 };
@@ -91,6 +92,7 @@ function toSetLog(r: SetLogRow): SetLog {
     belt: r.belt === null ? null : r.belt === 1,
     failed: r.failed === 1,
     asPlanned: r.as_planned === 1,
+    warmup: r.warmup === 1,
     note: r.note,
     doneAt: r.done_at,
   };
@@ -161,8 +163,8 @@ export async function insertSets(db: SQLiteDatabase, sessionLogId: string, draft
     for (const d of drafts) {
       await db.runAsync(
         `INSERT INTO set_logs (id, session_log_id, item_id, exercise_id, set_index, load_kg, reps, duration_sec,
-           rpe, grip, belt, failed, as_planned, note, done_at)
-         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+           rpe, grip, belt, failed, as_planned, warmup, note, done_at)
+         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
         newId(),
         sessionLogId,
         d.itemId,
@@ -176,6 +178,7 @@ export async function insertSets(db: SQLiteDatabase, sessionLogId: string, draft
         d.belt === null ? null : d.belt ? 1 : 0,
         d.failed ? 1 : 0,
         d.asPlanned ? 1 : 0,
+        d.warmup ? 1 : 0,
         d.note,
         now,
       );
@@ -218,6 +221,9 @@ export async function deleteSetAndRenumber(
 
 /** Séries adicionadas ou removidas no treino do dia, por item (chave: id do item). */
 export const setCountsKey = (sessionLogId: string) => `set-counts:${sessionLogId}`;
+
+/** Linhas de aquecimento adicionadas no treino do dia, por item. */
+export const warmupCountsKey = (sessionLogId: string) => `warmup-counts:${sessionLogId}`;
 
 // ---- Check-in ----
 
@@ -285,11 +291,14 @@ export async function decideAlert(db: SQLiteDatabase, cycleId: string, key: stri
   );
 }
 
-/** Todas as sessões do ciclo com suas séries (entrada do motor de regras). */
+/**
+ * Todas as sessões do ciclo com suas séries de trabalho (entrada do motor de regras, das análises, do
+ * pacote para o Claude e da exportação). O aquecimento fica de fora; o backup guarda tudo.
+ */
 export async function listLoggedSessions(db: SQLiteDatabase, cycleId: string): Promise<LoggedSession[]> {
   const logs = await listSessionLogs(db, cycleId);
   const rows = await db.getAllAsync<SetLogRow>(
-    `SELECT s.* FROM set_logs s JOIN session_logs l ON l.id = s.session_log_id WHERE l.cycle_id = ? ORDER BY s.set_index`,
+    `SELECT s.* FROM set_logs s JOIN session_logs l ON l.id = s.session_log_id WHERE l.cycle_id = ? AND s.warmup = 0 ORDER BY s.set_index`,
     cycleId,
   );
   const bySession = new Map<string, SetLog[]>();

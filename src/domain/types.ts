@@ -128,6 +128,8 @@ export interface SetLog {
   belt: boolean | null;
   failed: boolean;
   asPlanned: boolean;
+  /** Série de aquecimento: numeração própria (A1, A2…) e fora de volume, regras e análises. */
+  warmup: boolean;
   note: string | null;
   doneAt: string; // ISO datetime
 }

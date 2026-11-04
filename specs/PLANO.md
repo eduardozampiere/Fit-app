@@ -64,4 +64,5 @@ Xcode 27.2, `npx expo run:ios`). O que foi verificado em cada feature está no `
 | 03/11/2026 | Visual Hevy, fase 2: tabela de séries, adicionar/remover série, barra da calculadora | `de84e48` |
 | 03/11/2026 | Visual Hevy, fase 3: aba Plano no estilo de rotinas | `3cdd66c` |
 | 03/11/2026 | Visual Hevy, fase 4: Análises, Corpo e Comida | `299e9c9` |
-| 03/11/2026 | Visual Hevy, fase 5: modais, Ajustes/Dados e limpeza dos apelidos | este commit |
+| 03/11/2026 | Visual Hevy, fase 5: modais, Ajustes/Dados e limpeza dos apelidos | `978b6c2` |
+| 03/11/2026 | Arrastar para apagar série e séries de aquecimento (banco v5) | este commit |

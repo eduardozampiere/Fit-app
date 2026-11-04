@@ -1,6 +1,6 @@
 # 08 — Visual inspirado no Hevy
 
-**Status:** 🔨 em andamento (fase 1 feita)
+**Status:** 🔨 em andamento (fases 1 e 2 feitas)
 
 ## Objetivo
 O visual atual (cartões arredondados em tudo, botões pesados, muitos chips coloridos) não agrada. A meta
@@ -35,6 +35,18 @@ Tirado das capturas da App Store (03/11/2026):
   numérico na própria célula. Com as células vazias, o ✓ registra conforme o plano (o comportamento de hoje).
   Com valores digitados, o ✓ grava com `asPlanned: false`. RPE, pegada, cinto, falha e observação saem
   da tela cheia e vão para um menu da série, aberto ao tocar no número da série.
+- **Adicionar e remover séries** (pedido do usuário, 03/11/2026): "+ Adicionar série" embaixo da
+  tabela e "Remover série" no menu da série. O número de séries do dia fica em
+  `settings['set-counts:<sessão>']` (por item), sem mudar o plano; "conforme o plano" completa até esse
+  número. Remover uma série do meio apaga a gravada e renumera as seguintes (`renumberAfterRemoval`).
+  Desmarcar o ✓ apaga a série, mas mantém a linha.
+- **Barra da calculadora** (pedido do usuário): os Ajustes têm a lista de barras da academia (padrão
+  20/15/10) e a barra padrão; a calculadora mostra as barras em pílulas e lembra a escolha por exercício
+  (`settings['bar:<exerciseId>']`).
+- **Menus** (série, ⋮ do exercício, RPE) usam um `ActionMenu` próprio, que funciona igual no iOS e na
+  prévia web. "Completar conforme o plano" saiu do cartão e foi para o ⋮.
+- **Teclado:** a tela Hoje rola sozinha para a célula em edição (`automaticallyAdjustKeyboardInsets`);
+  o teclado decimal aceita vírgula ou ponto (`parseDecimalInput`).
 - **Coluna PLANO no lugar de ANTERIOR:** aqui a referência é a prescrição do ciclo (`150×1`), não o treino
   passado. O "anterior" pode entrar depois, no menu ⋮ do exercício.
 - **Coluna RPE** só nos tipos que pedem RPE (`RPE_KINDS` de hoje). A célula do RPE pendente fica destacada
@@ -84,17 +96,19 @@ Novos grupos de token: `font` (`largeTitle 28/700`, `title 20/600`, `headline 17
 - [x] Verificação: Hoje, Comida, Corpo, Análises e Plano no simulador do iOS 27.2, claro e escuro
 
 ### Fase 2 — Tela Hoje e registro
-- [ ] Domínio: `sessionStats(logs)` em `logging.ts` (séries feitas, volume com `tonnage`, início) com teste;
-  entrada inline com `parseDecimal` (`format.ts`, aceita vírgula), com teste dos casos `"137,5"`, `""`, `"abc"`
-- [ ] `SetTable` e `SetRow` (novos): colunas, estados (pendente, feita, falhou, bloqueada, opcional), ✓
+- [x] Domínio: `sessionStats`, `setRowCount`, `plannedCountFor`, `renumberAfterRemoval`, `draftFromInput`
+  (`logging.ts`), `parseDecimalInput` e `formatElapsed` (`format.ts`), `barChoices` (`plates.ts`), com
+  testes em `__tests__/set-table.test.ts`
+- [x] `SetTable` e `SetRow` (novos): colunas, estados (pendente, feita, falhou, bloqueada, opcional), ✓
   conforme o plano ou com os valores digitados, "+ Adicionar série" para as séries opcionais
-- [ ] `ExerciseHeader`: miniatura, nome em azul, tipo em cinza, menu ⋮ (anilhas, editar, notas), linha de
+- [x] Cabeçalho do exercício (dentro do `ExerciseCard`): miniatura, nome em azul, tipo em cinza, menu ⋮ (anilhas, editar, notas), linha de
   descanso em azul
-- [ ] `WorkoutStats` no topo da tela Hoje (Tempo · Volume · Séries)
-- [ ] `SetEditor` vira `SetDetailsSheet` (RPE, pegada, cinto, falha, observação, apagar)
-- [ ] Seletor de dias, check-in e avisos (Finados, regras) como faixas compactas
-- [ ] Verificação: fluxo de 1 toque, série diferente do plano, RPE do principal, bloqueio da 4ª série do
-  terra, falha, cronômetro
+- [x] `WorkoutStats` no topo da tela Hoje (Tempo · Volume · Séries)
+- [x] `SetEditor` continua como "Detalhes da série" (RPE, pegada, cinto, falha, observação), aberto pelo menu da série
+- [x] Seletor de dias, check-in e avisos (Finados, regras) como faixas compactas
+- [x] Verificação no simulador: ✓ conforme o plano, carga digitada (132,5), RPE pendente destacado,
+  adicionar e remover série, calculadora com barra de 15 kg, cronômetro no acessório. Falta conferir o
+  bloqueio da 4ª série do terra e a falha no aparelho
 
 ### Fase 3 — Plano
 - [ ] Sessões da semana como cartões de rotina (título, exercícios em cinza, botão azul "Abrir treino")
@@ -135,4 +149,5 @@ claro e escuro, prévia web e atualização deste spec e do `PLANO.md`.
 | Data | Nota |
 |---|---|
 | 03/11/2026 | Spec criada a partir das capturas do Hevy na App Store. Decisões do usuário: edição inline, tema do sistema, por fases. |
+| 03/11/2026 | Fase 2 feita: tabela de séries com edição inline, adicionar/remover série, resumo do treino e barra escolhida na calculadora. |
 | 03/11/2026 | Fase 1 feita: tokens novos, componentes base e `@expo/vector-icons` de volta às dependências (só JS, sem entitlement novo). No escuro, `surface` subiu para `#28282B` para o botão secundário aparecer dentro do cartão. Os títulos do `ExerciseCard` ainda usam estilos próprios (fase 2). |

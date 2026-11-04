@@ -1,6 +1,6 @@
 import Ionicons from '@expo/vector-icons/Ionicons';
 import type { ComponentProps, ReactNode } from 'react';
-import { Pressable, StyleSheet, Text, TextInput, View, type StyleProp, type TextInputProps, type ViewStyle } from 'react-native';
+import { Modal, Pressable, StyleSheet, Text, TextInput, View, type StyleProp, type TextInputProps, type ViewStyle } from 'react-native';
 import { font, radius, space, TOUCH, useTheme } from '../ui/theme';
 
 export type IconName = ComponentProps<typeof Ionicons>['name'];
@@ -312,7 +312,90 @@ export function IconButton({
   );
 }
 
+export interface MenuOption {
+  label: string;
+  onPress: () => void;
+  destructive?: boolean;
+  icon?: IconName;
+}
+
+/**
+ * Folha de ações de baixo para cima (menu ⋮, menu da série, escolha de RPE). Funciona igual em
+ * iOS, Android e na prévia web, ao contrário do `Alert` com botões.
+ */
+export function ActionMenu({
+  title,
+  options,
+  onClose,
+  columns,
+}: {
+  title?: string;
+  options: MenuOption[];
+  onClose: () => void;
+  /** Opções em grade (ex.: valores de RPE) em vez de lista. */
+  columns?: number;
+}) {
+  const t = useTheme();
+  return (
+    <Modal visible transparent animationType="fade" onRequestClose={onClose}>
+      <Pressable style={styles.menuBackdrop} onPress={onClose} accessibilityLabel="Fechar menu">
+        <Pressable style={[styles.menuSheet, { backgroundColor: t.card }]} onPress={() => {}}>
+          {title ? <Text style={[styles.menuTitle, { color: t.muted }]}>{title}</Text> : null}
+          {columns ? (
+            <View style={styles.menuGrid}>
+              {options.map((o) => (
+                <Pressable
+                  key={o.label}
+                  accessibilityRole="button"
+                  accessibilityLabel={o.label}
+                  onPress={() => {
+                    onClose();
+                    o.onPress();
+                  }}
+                  style={({ pressed }) => [
+                    styles.menuCell,
+                    { width: `${100 / columns - 2}%`, backgroundColor: t.surface, opacity: pressed ? 0.7 : 1 },
+                  ]}
+                >
+                  <Text style={[styles.menuCellText, { color: t.text }]}>{o.label}</Text>
+                </Pressable>
+              ))}
+            </View>
+          ) : (
+            options.map((o, i) => (
+              <View key={o.label}>
+                {i > 0 ? <Divider /> : null}
+                <Pressable
+                  accessibilityRole="button"
+                  accessibilityLabel={o.label}
+                  onPress={() => {
+                    onClose();
+                    o.onPress();
+                  }}
+                  style={({ pressed }) => [styles.menuRow, { opacity: pressed ? 0.6 : 1 }]}
+                >
+                  {o.icon ? <Ionicons name={o.icon} size={22} color={o.destructive ? t.danger : t.accent} /> : null}
+                  <Text style={[styles.menuRowText, { color: o.destructive ? t.danger : t.text }]}>{o.label}</Text>
+                </Pressable>
+              </View>
+            ))
+          )}
+          <BigButton label="Cancelar" variant="neutral" compact onPress={onClose} />
+        </Pressable>
+      </Pressable>
+    </Modal>
+  );
+}
+
 const styles = StyleSheet.create({
+  menuBackdrop: { flex: 1, justifyContent: 'flex-end', backgroundColor: 'rgba(0,0,0,0.35)' },
+  menuSheet: { borderTopLeftRadius: radius.card, borderTopRightRadius: radius.card, padding: space.lg, paddingBottom: 36, gap: space.sm },
+  menuTitle: { ...font.label, textAlign: 'center', marginBottom: space.xs },
+  menuRow: { minHeight: TOUCH, flexDirection: 'row', alignItems: 'center', gap: space.md },
+  menuRowText: { fontSize: 17 },
+  menuGrid: { flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'space-between', rowGap: space.sm, marginBottom: space.sm },
+  menuCell: { minHeight: TOUCH, borderRadius: radius.button, alignItems: 'center', justifyContent: 'center' },
+  menuCellText: { fontSize: 18, fontWeight: '600', fontVariant: ['tabular-nums'] },
   card: { borderRadius: radius.card, borderWidth: StyleSheet.hairlineWidth, padding: space.lg, gap: space.md },
   button: {
     minHeight: TOUCH,

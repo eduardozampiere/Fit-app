@@ -1,16 +1,19 @@
 import { useSQLiteContext } from 'expo-sqlite';
 import { createContext, useCallback, useContext, useEffect, useState, type ReactNode } from 'react';
 import { getActiveCycle, getMaxes, getSetting, maxesKey, saveCycleData, setSetting } from '../db/repo';
-import { DEFAULT_BAR_KG, DEFAULT_PLATES_KG } from '../domain/plates';
+import { DEFAULT_BAR_KG, DEFAULT_BARS_KG, DEFAULT_PLATES_KG } from '../domain/plates';
 import { DEFAULT_TARGETS, type NutritionTargets } from '../domain/nutrition';
 import type { Cycle, Maxes } from '../domain/types';
 
 export interface GymSettings {
+  /** Barra padrão da calculadora. */
   barKg: number;
+  /** Barras que a academia tem (a calculadora deixa escolher entre elas). */
+  bars: number[];
   plates: number[];
 }
 
-const DEFAULT_GYM: GymSettings = { barKg: DEFAULT_BAR_KG, plates: DEFAULT_PLATES_KG };
+const DEFAULT_GYM: GymSettings = { barKg: DEFAULT_BAR_KG, bars: DEFAULT_BARS_KG, plates: DEFAULT_PLATES_KG };
 
 interface AppDataValue {
   cycle: Cycle | null;
@@ -45,7 +48,8 @@ export function AppDataProvider({ children }: { children: ReactNode }) {
       const c = await getActiveCycle(db);
       setCycle(c);
       if (c) setMaxesState(await getMaxes(db, c));
-      setGymState(await getSetting(db, 'gym', DEFAULT_GYM));
+      // Ajustes gravados antes de existir a lista de barras não têm `bars`.
+      setGymState({ ...DEFAULT_GYM, ...(await getSetting(db, 'gym', DEFAULT_GYM)) });
       setTargetsState({ ...DEFAULT_TARGETS, ...(await getSetting(db, 'nutritionTargets', DEFAULT_TARGETS)) });
     })();
   }, [db, reloadKey]);

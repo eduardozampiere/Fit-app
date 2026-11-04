@@ -1,5 +1,15 @@
 export const DEFAULT_BAR_KG = 20;
 export const DEFAULT_PLATES_KG = [25, 20, 15, 10, 5, 2.5];
+/** Barras comuns: olímpica (20), técnica/feminina (15) e de treino (10). */
+export const DEFAULT_BARS_KG = [20, 15, 10];
+/** Opções oferecidas nos Ajustes. */
+export const ALL_PLATES_KG = [25, 20, 15, 10, 5, 2.5, 1.25];
+export const ALL_BARS_KG = [25, 20, 15, 12, 10, 7, 5];
+
+/** Barras oferecidas na calculadora: as da academia e a padrão, sem repetir, da mais pesada para a mais leve. */
+export function barChoices(bars: number[] | undefined, defaultBar: number): number[] {
+  return [...new Set([...(bars ?? DEFAULT_BARS_KG), defaultBar])].filter((b) => b > 0).sort((a, b) => b - a);
+}
 
 export interface PlateResult {
   perSide: number[]; // anilhas de cada lado, da maior para a menor

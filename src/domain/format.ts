@@ -28,6 +28,26 @@ export function parseDecimal(text: string): number | null {
   return Number.isFinite(n) ? n : null;
 }
 
+/**
+ * Número digitado numa célula (carga, reps). Aceita vírgula ou ponto como decimal, porque o teclado
+ * numérico muda conforme o idioma do aparelho; aqui não há separador de milhar.
+ */
+export function parseDecimalInput(text: string): number | null {
+  const t = text.trim().replace(',', '.');
+  if (t === '' || !/^\d*\.?\d*$/.test(t) || t === '.') return null;
+  const n = Number(t);
+  return Number.isFinite(n) ? n : null;
+}
+
+/** Duração de treino: "45 min", "1h 15min". */
+export function formatElapsed(totalSeconds: number): string {
+  const min = Math.max(0, Math.floor(totalSeconds / 60));
+  if (min < 60) return `${min} min`;
+  const h = Math.floor(min / 60);
+  const m = min % 60;
+  return m ? `${h}h ${m}min` : `${h}h`;
+}
+
 /** 'YYYY-MM-DD' -> 'dd/MM' */
 export function formatDateShort(iso: string): string {
   const [, m, d] = iso.split('-');

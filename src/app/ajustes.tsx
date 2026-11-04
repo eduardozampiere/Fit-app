@@ -7,12 +7,11 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { BigButton, Card, Chip, SectionTitle, Stepper } from '../components/ui';
 import { formatKg, formatNumber } from '../domain/format';
 import { LIFT_LABEL, LIFTS } from '../domain/plan';
+import { ALL_BARS_KG, ALL_PLATES_KG, barChoices } from '../domain/plates';
 import type { Maxes } from '../domain/types';
 import { useAppData } from '../state/AppData';
 import { applyCheckinReminder, DEFAULT_REMINDER, type ReminderSettings } from '../state/reminders';
 import { useTheme } from '../ui/theme';
-
-const ALL_PLATES = [25, 20, 15, 10, 5, 2.5, 1.25];
 
 export default function SettingsScreen() {
   const t = useTheme();
@@ -41,10 +40,41 @@ export default function SettingsScreen() {
 
         <SectionTitle>Academia</SectionTitle>
         <Card>
-          <Stepper label="Barra" value={gym.barKg} step={5} min={5} onChange={(v) => setGym({ ...gym, barKg: v })} format={formatKg} />
+          <Text style={{ color: t.muted, fontSize: 14 }}>Barras da academia (a calculadora deixa escolher entre elas):</Text>
+          <View style={styles.wrap}>
+            {ALL_BARS_KG.map((b) => {
+              const on = gym.bars.includes(b);
+              return (
+                <Chip
+                  key={b}
+                  label={`${formatNumber(b, 2)} kg`}
+                  selected={on}
+                  accessibilityLabel={`Barra de ${formatNumber(b, 2)} quilos, ${on ? 'disponível' : 'indisponível'}`}
+                  onPress={() => {
+                    const bars = on ? gym.bars.filter((x) => x !== b) : [...gym.bars, b];
+                    if (bars.length === 0) return;
+                    const barKg = bars.includes(gym.barKg) ? gym.barKg : Math.max(...bars);
+                    setGym({ ...gym, bars, barKg });
+                  }}
+                />
+              );
+            })}
+          </View>
+          <Text style={{ color: t.muted, fontSize: 14 }}>Barra padrão:</Text>
+          <View style={styles.wrap}>
+            {barChoices(gym.bars, gym.barKg).map((b) => (
+              <Chip
+                key={b}
+                label={`${formatNumber(b, 2)} kg`}
+                selected={b === gym.barKg}
+                accessibilityLabel={`Barra padrão de ${formatNumber(b, 2)} quilos`}
+                onPress={() => setGym({ ...gym, barKg: b })}
+              />
+            ))}
+          </View>
           <Text style={{ color: t.muted, fontSize: 14 }}>Anilhas disponíveis (toque para ligar/desligar):</Text>
           <View style={styles.wrap}>
-            {ALL_PLATES.map((p) => {
+            {ALL_PLATES_KG.map((p) => {
               const on = gym.plates.includes(p);
               return (
                 <Chip

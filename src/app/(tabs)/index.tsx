@@ -1,7 +1,7 @@
 import { useLocalSearchParams } from 'expo-router';
 import { useSQLiteContext } from 'expo-sqlite';
 import { useCallback, useEffect, useMemo, useState } from 'react';
-import { ActivityIndicator, Platform, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { ActivityIndicator, Platform, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { AlertCard } from '../../components/AlertCard';
 import { CheckinSummary } from '../../components/CheckinSummary';
@@ -10,27 +10,40 @@ import { PlateCalculator } from '../../components/PlateCalculator';
 import { RedFlagModal } from '../../components/RedFlagModal';
 import { RestTimerBar } from '../../components/RestTimerBar';
 import { SetEditor, type EditableSet } from '../../components/SetEditor';
-import { BigButton, Card, Chip } from '../../components/ui';
+import type { SetInput } from '../../components/SetTable';
+import { ActionMenu, BigButton, Card, Chip, Divider, IconButton, type MenuOption } from '../../components/ui';
+import { WorkoutStats } from '../../components/WorkoutStats';
 import {
   deleteSet,
+  deleteSetAndRenumber,
   ensureSessionLog,
   getSetting,
   insertSets,
   listSessionLogs,
   listSetLogs,
+  setCountsKey,
   setSessionStatus,
   setSetting,
   updateSet,
 } from '../../db/repo';
 import { toISODate } from '../../domain/dates';
 import { formatDateShort, formatNumber, WEEKDAY_NAMES, WEEKDAY_SHORT } from '../../domain/format';
-import { asPlannedSets, plannedSet } from '../../domain/logging';
+import {
+  asPlannedSets,
+  draftFromInput,
+  plannedCountFor,
+  plannedSet,
+  renumberAfterRemoval,
+  sessionStats,
+  setRowCount,
+} from '../../domain/logging';
 import {
   currentLoad,
   findSession,
   liftOf,
   nextSessionFrom,
   restSeconds,
+  RPE_KINDS,
   sessionForDate,
   sessionItems,
   type SessionRef,
@@ -40,7 +53,8 @@ import type { PrescribedItem, SessionLog, SetLog } from '../../domain/types';
 import { useAppData } from '../../state/AppData';
 import { useRestTimer } from '../../state/RestTimer';
 import { useCoach } from '../../state/useCoach';
-import { useTheme } from '../../ui/theme';
+import { RPE_CHOICES } from '../../domain/rpe';
+import { font, space, useTheme } from '../../ui/theme';
 
 const GENERIC_NOTE = /^(% calculado|Registro:)/;
 
@@ -79,7 +93,10 @@ export default function TodayScreen() {
   const [sessionLogs, setSessionLogs] = useState<SessionLog[]>([]);
   const [setLogs, setSetLogs] = useState<SetLog[]>([]);
   const [editor, setEditor] = useState<{ item: PrescribedItem; draft: EditableSet; key: string } | null>(null);
-  const [plateKg, setPlateKg] = useState<number | null | undefined>(undefined);
+  const [plates, setPlates] = useState<{ kg: number | null; exerciseId: string } | null>(null);
+  const [menu, setMenu] = useState<{ title?: string; options: MenuOption[]; columns?: number } | null>(null);
+  // Séries adicionadas/removidas no treino do dia, por item.
+  const [setCounts, setSetCounts] = useState<Record<string, number>>({});
   const [failUnlocked, setFailUnlocked] = useState(false);
   const [redFlagSeen, setRedFlagSeen] = useState(false);
 
@@ -98,6 +115,7 @@ export default function TodayScreen() {
       const current = ref ? logs.find((l) => l.sessionId === ref.session.id) : undefined;
       setSetLogs(current ? await listSetLogs(db, current.id) : []);
       setFailUnlocked(current ? await getSetting(db, `unlock-fail:${current.id}`, false) : false);
+      setSetCounts(current ? await getSetting<Record<string, number>>(db, setCountsKey(current.id), {}) : {});
     })();
     return () => {
       alive = false;
@@ -120,14 +138,19 @@ export default function TodayScreen() {
     }),
     [cycle, ref, loadOf],
   );
+  const rowsOf = useCallback(
+    (item: PrescribedItem) => setRowCount(item, setCounts[item.id], logsOf(item).map((l) => l.setIndex)),
+    [setCounts, logsOf],
+  );
+  const plannedCountOf = useCallback((item: PrescribedItem) => plannedCountFor(item, setCounts[item.id]), [setCounts]);
   const missingPlanned = useCallback(
     (item: PrescribedItem) => {
       const lock = locks.get(item.id);
-      return asPlannedSets(item, loadOf(item), logsOf(item).map((l) => l.setIndex))
+      return asPlannedSets(item, loadOf(item), logsOf(item).map((l) => l.setIndex), plannedCountOf(item))
         .filter((d) => !lock || d.setIndex < lock.fromSet)
         .map((d) => planned(item, d.setIndex));
     },
-    [locks, loadOf, logsOf, planned],
+    [locks, loadOf, logsOf, planned, plannedCountOf],
   );
 
   const ensureLog = useCallback(async () => {
@@ -151,10 +174,41 @@ export default function TodayScreen() {
     [timer, nextLabel],
   );
 
-  const quickSet = async (item: PrescribedItem, idx: number) => {
+  const checkSet = async (item: PrescribedItem, idx: number, input: SetInput) => {
     const log = await ensureLog();
-    await insertSets(db, log.id, [planned(item, idx)]);
+    await insertSets(db, log.id, [draftFromInput(planned(item, idx), input)]);
     startRest(item, idx);
+    bump();
+  };
+
+  const uncheckSet = async (log: SetLog) => {
+    await deleteSet(db, log.id);
+    bump();
+  };
+
+  const editSet = async (log: SetLog, input: SetInput) => {
+    const next = draftFromInput(log, input);
+    if (next.loadKg === log.loadKg && next.reps === log.reps && next.durationSec === log.durationSec) return;
+    await updateSet(db, { ...log, ...next });
+    bump();
+  };
+
+  const saveSetCount = async (item: PrescribedItem, count: number) => {
+    const log = await ensureLog();
+    const next = { ...setCounts, [item.id]: Math.max(0, count) };
+    await setSetting(db, setCountsKey(log.id), next);
+    setSetCounts(next);
+  };
+
+  const addSet = async (item: PrescribedItem) => {
+    await saveSetCount(item, rowsOf(item) + 1);
+    bump();
+  };
+
+  /** Remove a linha `idx` (e a série gravada nela, se houver); as seguintes sobem uma posição. */
+  const removeSet = async (item: PrescribedItem, idx: number, log: SetLog | null) => {
+    await deleteSetAndRenumber(db, log?.id ?? null, renumberAfterRemoval(logsOf(item), idx));
+    await saveSetCount(item, rowsOf(item) - 1);
     bump();
   };
 
@@ -179,12 +233,44 @@ export default function TodayScreen() {
     bump();
   };
 
-  const quickRpe = async (item: PrescribedItem, rpe: number) => {
-    const logs = logsOf(item);
-    if (!logs.length) return;
-    const last = logs.reduce((a, b) => (b.setIndex > a.setIndex ? b : a));
-    await updateSet(db, { ...last, rpe });
+  const setRpe = async (log: SetLog, rpe: number | null) => {
+    await updateSet(db, { ...log, rpe });
     bump();
+  };
+
+  const openRpeMenu = (log: SetLog) =>
+    setMenu({
+      title: `RPE da série ${log.setIndex}`,
+      columns: 4,
+      options: [
+        ...RPE_CHOICES.map((r) => ({ label: formatNumber(r), onPress: () => setRpe(log, r) })),
+        { label: '—', onPress: () => setRpe(log, null) },
+      ],
+    });
+
+  const openSetMenu = (item: PrescribedItem, idx: number, log: SetLog | null) =>
+    setMenu({
+      title: `${item.name} · série ${idx}`,
+      options: [
+        {
+          label: log ? 'Detalhes (RPE, pegada, cinto, falha)' : 'Registrar com detalhes',
+          icon: 'create-outline',
+          onPress: () => openEditor(item, idx, log),
+        },
+        { label: 'Remover série', icon: 'trash-outline', destructive: true, onPress: () => removeSet(item, idx, log) },
+      ],
+    });
+
+  const openExerciseMenu = (item: PrescribedItem) => {
+    const kg = loadOf(item)?.min ?? null;
+    setMenu({
+      title: item.name,
+      options: [
+        { label: 'Calculadora de anilhas', icon: 'calculator-outline', onPress: () => setPlates({ kg, exerciseId: item.exerciseId }) },
+        { label: 'Completar conforme o plano', icon: 'checkmark-done-outline', onPress: () => allAsPlanned(item) },
+        { label: 'Adicionar série', icon: 'add-circle-outline', onPress: () => addSet(item) },
+      ],
+    });
   };
 
   const openEditor = (item: PrescribedItem, idx: number, log: SetLog | null) => {
@@ -244,19 +330,22 @@ export default function TodayScreen() {
     if (w) setSelectedId(w.sessions[0].id);
   };
 
+  const stats = sessionStats(setLogs);
+  const plannedSets = items.reduce((acc, it) => acc + plannedCountOf(it), 0);
+
   return (
     <SafeAreaView edges={['top']} style={{ flex: 1, backgroundColor: t.bg }}>
-      <ScrollView contentContainerStyle={styles.body} contentInsetAdjustmentBehavior="automatic">
+      <ScrollView
+        contentContainerStyle={styles.body}
+        contentInsetAdjustmentBehavior="automatic"
+        keyboardShouldPersistTaps="handled"
+        keyboardDismissMode="on-drag"
+        automaticallyAdjustKeyboardInsets
+      >
         <View style={styles.weekNav}>
-          <Pressable
-            accessibilityRole="button"
-            accessibilityLabel="Semana anterior"
-            disabled={weekIdx <= 0}
-            onPress={() => goWeek(-1)}
-            style={[styles.navBtn, { backgroundColor: t.chip, opacity: weekIdx <= 0 ? 0.3 : 1 }]}
-          >
-            <Text style={[styles.navText, { color: t.text }]}>‹</Text>
-          </Pressable>
+          <View style={{ opacity: weekIdx <= 0 ? 0.3 : 1 }}>
+            <IconButton name="chevron-back" label="Semana anterior" onPress={() => goWeek(-1)} color={t.accent} />
+          </View>
           <View style={{ flex: 1, alignItems: 'center' }}>
             <Text style={[styles.weekTitle, { color: t.text }]} accessibilityRole="header">
               Semana {ref.week.number} · {ref.week.block}
@@ -265,15 +354,9 @@ export default function TodayScreen() {
               início {formatDateShort(ref.week.start)} · RPE alvo {ref.week.targetRpeText.replace(/\./g, ',')}
             </Text>
           </View>
-          <Pressable
-            accessibilityRole="button"
-            accessibilityLabel="Próxima semana"
-            disabled={weekIdx >= cycle.weeks.length - 1}
-            onPress={() => goWeek(1)}
-            style={[styles.navBtn, { backgroundColor: t.chip, opacity: weekIdx >= cycle.weeks.length - 1 ? 0.3 : 1 }]}
-          >
-            <Text style={[styles.navText, { color: t.text }]}>›</Text>
-          </Pressable>
+          <View style={{ opacity: weekIdx >= cycle.weeks.length - 1 ? 0.3 : 1 }}>
+            <IconButton name="chevron-forward" label="Próxima semana" onPress={() => goWeek(1)} color={t.accent} />
+          </View>
         </View>
 
         <View style={styles.days}>
@@ -289,7 +372,7 @@ export default function TodayScreen() {
           ))}
         </View>
 
-        <View style={{ gap: 4 }}>
+        <View style={{ gap: 2 }}>
           <Text style={[styles.dayTitle, { color: t.text }]}>
             {WEEKDAY_NAMES[ref.session.weekday]} — {ref.session.title}
           </Text>
@@ -300,9 +383,12 @@ export default function TodayScreen() {
           </Text>
         </View>
 
+        <WorkoutStats stats={stats} plannedSets={plannedSets} running={!done && stats.sets > 0} />
+        <Divider />
+
         {redFlagToday ? (
           <Card style={{ backgroundColor: t.dangerBg, borderColor: t.danger }}>
-            <Text style={{ color: t.danger, fontSize: 17, fontWeight: '800' }}>
+            <Text style={{ color: t.danger, fontSize: 17, fontWeight: '700' }}>
               Sinal de alarme da lombar no check-in de hoje. Não treine: procure um pronto-socorro.
             </Text>
             <BigButton label="Ver orientação" variant="danger" compact onPress={() => setRedFlagSeen(false)} />
@@ -327,36 +413,57 @@ export default function TodayScreen() {
 
         {!done ? (
           <BigButton
-            label="✓ Treino feito conforme o plano"
-            variant="success"
+            label="Treino feito conforme o plano"
+            icon="checkmark-done"
             onPress={sessionAsPlanned}
             accessibilityHint="Registra todas as séries que faltam exatamente como no plano"
           />
         ) : (
-          <Card style={{ backgroundColor: t.successBg, borderColor: t.success }}>
-            <Text style={{ color: t.success, fontSize: 17, fontWeight: '700' }}>
-              Treino concluído{sessionLog ? ` em ${formatDateShort(sessionLog.date)}` : ''}. Ajuste qualquer série tocando nela.
+          <Card style={{ backgroundColor: t.doneBg, borderColor: t.doneBg }}>
+            <Text style={{ color: t.done, fontSize: 16, fontWeight: '600' }}>
+              Treino concluído{sessionLog ? ` em ${formatDateShort(sessionLog.date)}` : ''}. Dá para ajustar qualquer série na tabela.
             </Text>
           </Card>
         )}
 
-        {items.map((item) => (
-          <ExerciseCard
-            key={item.id}
-            item={item}
-            load={loadOf(item)}
-            logs={logsOf(item)}
-            isChild={!!item.parentId}
-            onQuickSet={(idx) => quickSet(item, idx)}
-            onEditSet={(idx, log) => openEditor(item, idx, log)}
-            onAllAsPlanned={() => allAsPlanned(item)}
-            onQuickRpe={(rpe) => quickRpe(item, rpe)}
-            onPlates={(kg) => setPlateKg(kg)}
-            lock={locks.get(item.id)}
-            onUnlock={() => toggleFailLock(true)}
-            tip={gripTip(cycle, ref.week, item)}
-          />
-        ))}
+        <View>
+          {items.map((item, i) => {
+            const logs = logsOf(item);
+            const lock = locks.get(item.id);
+            const plannedCount = plannedCountOf(item);
+            const effective = lock ? Math.min(plannedCount, lock.fromSet - 1) : plannedCount;
+            const showRpe = RPE_KINDS.has(item.kind);
+            const last = logs.length ? logs.reduce((a, b) => (b.setIndex > a.setIndex ? b : a)) : null;
+            return (
+              <View key={item.id}>
+                {i > 0 ? <Divider /> : null}
+                <ExerciseCard
+                  item={item}
+                  load={loadOf(item)}
+                  logs={logs}
+                  isChild={!!item.parentId}
+                  isLift={liftOf(cycle, item) !== null}
+                  rows={rowsOf(item)}
+                  plannedCount={plannedCount}
+                  complete={logs.length >= effective && (logs.length > 0 || effective === 0)}
+                  restSec={restSeconds(item)}
+                  showRpe={showRpe}
+                  pendingRpeIndex={showRpe && last && last.rpe === null ? last.setIndex : null}
+                  lock={lock}
+                  onUnlock={() => toggleFailLock(true)}
+                  tip={gripTip(cycle, ref.week, item)}
+                  onMenu={() => openExerciseMenu(item)}
+                  onCheck={(idx, input) => checkSet(item, idx, input)}
+                  onUncheck={uncheckSet}
+                  onEdit={editSet}
+                  onSetMenu={(idx, log) => openSetMenu(item, idx, log)}
+                  onRpe={openRpeMenu}
+                  onAdd={() => addSet(item)}
+                />
+              </View>
+            );
+          })}
+        </View>
 
         {setLogs.length > 0 ? (
           <BigButton label={done ? 'Reabrir treino' : 'Finalizar treino'} variant="neutral" onPress={finishSession} />
@@ -381,9 +488,10 @@ export default function TodayScreen() {
           onClose={() => setEditor(null)}
         />
       ) : null}
+      {menu ? <ActionMenu title={menu.title} options={menu.options} columns={menu.columns} onClose={() => setMenu(null)} /> : null}
       <RedFlagModal visible={redFlagToday && !redFlagSeen} onClose={() => setRedFlagSeen(true)} />
-      {plateKg !== undefined ? (
-        <PlateCalculator visible initialKg={plateKg} onClose={() => setPlateKg(undefined)} />
+      {plates ? (
+        <PlateCalculator visible initialKg={plates.kg} exerciseId={plates.exerciseId} onClose={() => setPlates(null)} />
       ) : null}
     </SafeAreaView>
   );
@@ -391,14 +499,12 @@ export default function TodayScreen() {
 
 const styles = StyleSheet.create({
   center: { flex: 1, alignItems: 'center', justifyContent: 'center' },
-  body: { padding: 16, gap: 14, paddingBottom: 32 },
-  weekNav: { flexDirection: 'row', alignItems: 'center', gap: 10 },
-  navBtn: { width: 48, height: 48, borderRadius: 12, alignItems: 'center', justifyContent: 'center' },
-  navText: { fontSize: 30, fontWeight: '600', marginTop: -3 },
-  weekTitle: { fontSize: 18, fontWeight: '800' },
+  body: { padding: space.lg, gap: space.md, paddingBottom: 32 },
+  weekNav: { flexDirection: 'row', alignItems: 'center', gap: space.sm },
+  weekTitle: { ...font.headline },
   weekSub: { fontSize: 13 },
-  days: { flexDirection: 'row', flexWrap: 'wrap', gap: 8, justifyContent: 'center' },
-  dayTitle: { fontSize: 24, fontWeight: '800' },
+  days: { flexDirection: 'row', flexWrap: 'wrap', gap: space.sm, justifyContent: 'center' },
+  dayTitle: { fontSize: 22, fontWeight: '700' },
   daySub: { fontSize: 15 },
   footer: { fontSize: 13, textAlign: 'center' },
 });

@@ -1,9 +1,10 @@
+import Ionicons from '@expo/vector-icons/Ionicons';
 import { useSQLiteContext } from 'expo-sqlite';
 import { useEffect, useMemo, useState } from 'react';
 import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { FavoritePicker, FoodEditor, FoodPicker, FoodsManager, macroLine, NamePrompt } from '../../components/FoodModals';
-import { BigButton, Card } from '../../components/ui';
+import { BigButton, Divider, IconButton, StatRow } from '../../components/ui';
 import {
   deleteFavorite,
   deleteFood,
@@ -32,7 +33,7 @@ import {
 } from '../../domain/nutrition';
 import { sessionForDate } from '../../domain/plan';
 import { useAppData } from '../../state/AppData';
-import { useTheme } from '../../ui/theme';
+import { font, radius, space, useTheme } from '../../ui/theme';
 
 type ModalState =
   | { kind: 'picker'; meal: MealType }
@@ -101,103 +102,103 @@ export default function FoodScreen() {
           <Text style={[styles.title, { color: t.text, flex: 1 }]} accessibilityRole="header">
             Comida
           </Text>
-          <Pressable accessibilityRole="button" onPress={() => setModal({ kind: 'foods' })} style={[styles.smallBtn, { backgroundColor: t.chip }]}>
-            <Text style={{ color: t.text, fontWeight: '700' }}>Alimentos</Text>
-          </Pressable>
+          <IconButton name="book-outline" label="Alimentos" onPress={() => setModal({ kind: 'foods' })} color={t.accent} />
         </View>
 
         <View style={styles.dateNav}>
-          <Pressable accessibilityRole="button" accessibilityLabel="Dia anterior" onPress={() => setDate(addDays(date, -1))} style={[styles.navBtn, { backgroundColor: t.chip }]}>
-            <Text style={[styles.navText, { color: t.text }]}>‹</Text>
-          </Pressable>
+          <IconButton name="chevron-back" label="Dia anterior" onPress={() => setDate(addDays(date, -1))} color={t.accent} />
           <View style={{ flex: 1, alignItems: 'center' }}>
-            <Text style={{ color: t.text, fontSize: 18, fontWeight: '800' }}>
+            <Text style={[styles.dateTitle, { color: t.text }]}>
               {date === today ? 'Hoje' : WEEKDAY_NAMES[isoWeekday(date)]} {formatDateShort(date)}
             </Text>
-            <Text style={{ color: t.muted, fontSize: 14 }}>{isTraining ? 'Dia de treino' : 'Dia de descanso'}</Text>
+            <Text style={{ color: t.muted, fontSize: 13 }}>{isTraining ? 'Dia de treino' : 'Dia de descanso'}</Text>
           </View>
-          <Pressable
-            accessibilityRole="button"
-            accessibilityLabel="Próximo dia"
-            disabled={date >= today}
-            onPress={() => setDate(addDays(date, 1))}
-            style={[styles.navBtn, { backgroundColor: t.chip, opacity: date >= today ? 0.3 : 1 }]}
-          >
-            <Text style={[styles.navText, { color: t.text }]}>›</Text>
-          </Pressable>
+          <View style={{ opacity: date >= today ? 0.3 : 1 }}>
+            <IconButton
+              name="chevron-forward"
+              label="Próximo dia"
+              onPress={() => (date < today ? setDate(addDays(date, 1)) : undefined)}
+              color={t.accent}
+            />
+          </View>
         </View>
 
-        <Card>
+        <View style={{ gap: space.md }}>
           <Goal label="Calorias" value={total.kcal} goal={kcalGoal} unit="kcal" />
           <Goal label="Proteína" value={total.protein} goal={targets.protein} unit="g" />
-          <Text style={{ color: t.muted, fontSize: 14 }}>
-            Carbo {formatNumber(total.carbs)} g · Gordura {formatNumber(total.fat)} g
-          </Text>
-        </Card>
+          <StatRow
+            items={[
+              { label: 'Carboidrato', value: `${formatNumber(total.carbs)} g` },
+              { label: 'Gordura', value: `${formatNumber(total.fat)} g` },
+            ]}
+          />
+        </View>
 
         {MEALS.map((m) => {
           const list = entries.filter((e) => e.meal === m.id);
           const oil = list.filter((e) => e.kind === 'oil').reduce((a, e) => a + (e.grams ?? 0), 0);
           const sub = sumMacros(list);
+          const foodsOfMeal = list.filter((e) => e.kind !== 'oil');
           return (
-            <Card key={m.id}>
-              <View style={styles.header}>
-                <Text style={{ color: t.text, fontSize: 18, fontWeight: '800', flex: 1 }} accessibilityRole="header">
+            <View key={m.id} style={{ gap: space.sm }}>
+              <Divider />
+              <View style={[styles.header, { marginTop: space.sm }]}>
+                <Text style={[styles.mealTitle, { color: t.text }]} accessibilityRole="header">
                   {m.label}
                 </Text>
-                {list.length ? <Text style={{ color: t.muted, fontSize: 14 }}>{formatNumber(sub.kcal, 0)} kcal</Text> : null}
+                {list.length ? <Text style={{ color: t.muted, fontSize: 15 }}>{formatNumber(sub.kcal, 0)} kcal</Text> : null}
               </View>
-              {list
-                .filter((e) => e.kind !== 'oil')
-                .map((e) => (
-                  <View key={e.id} style={styles.entry}>
-                    <View style={{ flex: 1 }}>
-                      <Text style={{ color: t.text, fontSize: 16, fontWeight: '600' }}>
+              {foodsOfMeal.map((e, i) => (
+                <View key={e.id}>
+                  <View style={styles.entry}>
+                    <View style={{ flex: 1, gap: 2 }}>
+                      <Text style={{ color: t.text, fontSize: 16 }}>
                         {e.grams ? `${formatNumber(e.grams, 0)} g ` : ''}
                         {e.label}
                       </Text>
                       <Text style={{ color: t.muted, fontSize: 13 }}>{macroLine(e)}</Text>
                     </View>
-                    <Pressable
-                      accessibilityRole="button"
-                      accessibilityLabel={`Remover ${e.label}`}
+                    <IconButton
+                      name="close"
+                      label={`Remover ${e.label}`}
+                      color={t.muted}
+                      size={20}
                       onPress={async () => {
                         await deleteMealEntry(db, e.id);
                         bump();
                       }}
-                      style={[styles.delBtn, { backgroundColor: t.chip }]}
-                    >
-                      <Text style={{ color: t.muted, fontSize: 18 }}>✕</Text>
-                    </Pressable>
+                    />
                   </View>
-                ))}
+                  {i < foodsOfMeal.length - 1 ? <Divider /> : null}
+                </View>
+              ))}
               {list.length ? (
-              <View style={styles.oilRow}>
-                <Text style={{ color: t.muted, fontSize: 14, flex: 1 }}>
-                  Óleo de preparo: {formatNumber(oil)} colher{oil === 1 ? '' : 'es'} ({formatNumber(oil * targets.oilKcalPerSpoon, 0)} kcal)
-                </Text>
-                <Pressable accessibilityRole="button" accessibilityLabel={`Menos óleo no ${m.label}`} onPress={() => setOil(m.id, Math.max(0, oil - 0.5))} style={[styles.oilBtn, { backgroundColor: t.chip }]}>
-                  <Text style={{ color: t.text, fontSize: 20, fontWeight: '700' }}>−</Text>
-                </Pressable>
-                <Pressable accessibilityRole="button" accessibilityLabel={`Mais óleo no ${m.label}`} onPress={() => setOil(m.id, oil + 0.5)} style={[styles.oilBtn, { backgroundColor: t.chip }]}>
-                  <Text style={{ color: t.text, fontSize: 20, fontWeight: '700' }}>+</Text>
-                </Pressable>
-              </View>
+                <View style={styles.oilRow}>
+                  <Text style={{ color: t.muted, fontSize: 14, flex: 1 }}>
+                    Óleo de preparo: {formatNumber(oil)} colher{oil === 1 ? '' : 'es'} ({formatNumber(oil * targets.oilKcalPerSpoon, 0)} kcal)
+                  </Text>
+                  <Pressable accessibilityRole="button" accessibilityLabel={`Menos óleo no ${m.label}`} onPress={() => setOil(m.id, Math.max(0, oil - 0.5))} style={[styles.oilBtn, { backgroundColor: t.surface }]}>
+                    <Ionicons name="remove" size={20} color={t.text} />
+                  </Pressable>
+                  <Pressable accessibilityRole="button" accessibilityLabel={`Mais óleo no ${m.label}`} onPress={() => setOil(m.id, oil + 0.5)} style={[styles.oilBtn, { backgroundColor: t.surface }]}>
+                    <Ionicons name="add" size={20} color={t.text} />
+                  </Pressable>
+                </View>
               ) : null}
               <View style={styles.actions}>
                 <View style={{ flex: 1 }}>
-                  <BigButton label="+ Alimento" compact onPress={() => setModal({ kind: 'picker', meal: m.id })} />
+                  <BigButton label="Alimento" icon="add" compact variant="neutral" onPress={() => setModal({ kind: 'picker', meal: m.id })} />
                 </View>
                 <View style={{ flex: 1 }}>
-                  <BigButton label="Favorita" compact variant="neutral" onPress={() => setModal({ kind: 'favorites', meal: m.id })} />
+                  <BigButton label="Favorita" icon="star-outline" compact variant="neutral" onPress={() => setModal({ kind: 'favorites', meal: m.id })} />
                 </View>
               </View>
               {list.some((e) => e.kind === 'food') ? (
                 <Pressable accessibilityRole="button" onPress={() => setModal({ kind: 'saveFavorite', meal: m.id })} style={{ minHeight: 40, justifyContent: 'center' }}>
-                  <Text style={{ color: t.accent, fontWeight: '700' }}>Salvar como favorita</Text>
+                  <Text style={{ color: t.accent, fontWeight: '500', fontSize: 15 }}>Salvar como favorita</Text>
                 </Pressable>
               ) : null}
-            </Card>
+            </View>
           );
         })}
       </ScrollView>
@@ -270,12 +271,12 @@ function Goal({ label, value, goal, unit }: { label: string; value: number; goal
   return (
     <View style={{ gap: 4 }} accessible accessibilityLabel={`${label}: ${formatNumber(value, 0)} de ${formatNumber(goal, 0)} ${unit}`}>
       <View style={{ flexDirection: 'row', alignItems: 'baseline' }}>
-        <Text style={{ color: t.text, fontSize: 16, fontWeight: '700', flex: 1 }}>{label}</Text>
-        <Text style={{ color: t.text, fontSize: 18, fontWeight: '800', fontVariant: ['tabular-nums'] }}>
-          {formatNumber(value, 0)} <Text style={{ color: t.muted, fontSize: 14, fontWeight: '600' }}>/ {formatNumber(goal, 0)} {unit}</Text>
+        <Text style={{ color: t.text, fontSize: 16, fontWeight: '600', flex: 1 }}>{label}</Text>
+        <Text style={{ color: t.text, fontSize: 18, fontWeight: '600', fontVariant: ['tabular-nums'] }}>
+          {formatNumber(value, 0)} <Text style={{ color: t.muted, fontSize: 14, fontWeight: '400' }}>/ {formatNumber(goal, 0)} {unit}</Text>
         </Text>
       </View>
-      <View style={[styles.bar, { backgroundColor: t.chip }]}>
+      <View style={[styles.bar, { backgroundColor: t.surface }]}>
         <View style={[styles.barFill, { width: `${Math.min(100, pct * 100)}%`, backgroundColor: over ? t.warn : t.accent }]} />
       </View>
     </View>
@@ -283,19 +284,16 @@ function Goal({ label, value, goal, unit }: { label: string; value: number; goal
 }
 
 const styles = StyleSheet.create({
-  body: { padding: 16, gap: 12, paddingBottom: 40 },
-  title: { fontSize: 28, fontWeight: '800' },
-  header: { flexDirection: 'row', alignItems: 'center', gap: 8 },
-  smallBtn: { minHeight: 44, borderRadius: 12, paddingHorizontal: 14, justifyContent: 'center' },
-  dateNav: { flexDirection: 'row', alignItems: 'center', gap: 10 },
-  navBtn: { width: 48, height: 48, borderRadius: 12, alignItems: 'center', justifyContent: 'center' },
-  navText: { fontSize: 30, fontWeight: '600', marginTop: -3 },
-  entry: { flexDirection: 'row', alignItems: 'center', gap: 8 },
-  delBtn: { width: 44, height: 44, borderRadius: 12, alignItems: 'center', justifyContent: 'center' },
-  oilRow: { flexDirection: 'row', alignItems: 'center', gap: 8 },
-  oilBtn: { width: 44, height: 44, borderRadius: 12, alignItems: 'center', justifyContent: 'center' },
-  actions: { flexDirection: 'row', gap: 8 },
-  bar: { height: 10, borderRadius: 5, overflow: 'hidden' },
-  barFill: { height: 10, borderRadius: 5 },
+  body: { padding: space.lg, gap: space.md, paddingBottom: 40 },
+  title: { ...font.largeTitle },
+  header: { flexDirection: 'row', alignItems: 'center', gap: space.sm },
+  dateNav: { flexDirection: 'row', alignItems: 'center', gap: space.sm },
+  dateTitle: { ...font.headline },
+  mealTitle: { ...font.headline, fontSize: 18, flex: 1 },
+  entry: { flexDirection: 'row', alignItems: 'center', gap: space.sm, minHeight: 52 },
+  oilRow: { flexDirection: 'row', alignItems: 'center', gap: space.sm },
+  oilBtn: { width: 44, height: 44, borderRadius: radius.button, alignItems: 'center', justifyContent: 'center' },
+  actions: { flexDirection: 'row', gap: space.sm },
+  bar: { height: 8, borderRadius: 4, overflow: 'hidden' },
+  barFill: { height: 8, borderRadius: 4 },
 });
-

@@ -5,14 +5,14 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { checkinLine } from '../../components/CheckinSummary';
 import { MeasurementsSection, WeightSection } from '../../components/BodySections';
 import { RedFlagModal } from '../../components/RedFlagModal';
-import { BigButton, Card, Chip, SectionTitle, Stepper, TextField } from '../../components/ui';
+import { BigButton, Card, Chip, ListRow, Section, Stepper, TextField } from '../../components/ui';
 import { saveCheckin } from '../../db/repo';
 import { addDays } from '../../domain/dates';
 import { formatDateShort, formatNumber } from '../../domain/format';
 import { hasRedFlags, NO_RED_FLAGS, type CheckIn, type RedFlags } from '../../domain/rules';
 import { useAppData } from '../../state/AppData';
 import { useCoach } from '../../state/useCoach';
-import { useTheme } from '../../ui/theme';
+import { font, space, useTheme } from '../../ui/theme';
 
 const AREAS: { key: 'lowBack' | 'knee' | 'wrist' | 'foot'; label: string }[] = [
   { key: 'lowBack', label: 'Lombar' },
@@ -27,12 +27,12 @@ const FLAGS: { key: keyof RedFlags; label: string }[] = [
   { key: 'legWeakness', label: 'Fraqueza nas pernas' },
 ];
 
-type Section = 'checkin' | 'peso' | 'medidas';
+type BodyTab = 'checkin' | 'peso' | 'medidas';
 
 export default function BodyScreen() {
   const t = useTheme();
   const coach = useCoach();
-  const [section, setSection] = useState<Section>('checkin');
+  const [section, setSection] = useState<BodyTab>('checkin');
   const [date, setDate] = useState(coach.today);
   const [alarm, setAlarm] = useState(false);
   if (!coach.ready) return <SafeAreaView style={{ flex: 1, backgroundColor: t.bg }} />;
@@ -69,18 +69,19 @@ export default function BodyScreen() {
           onRedFlags={() => setAlarm(true)}
         />
 
-        <SectionTitle>Histórico</SectionTitle>
-        {coach.checkins.slice(0, 21).map((c) => (
-          <Card key={c.date} style={{ paddingVertical: 10 }}>
-            <Text style={{ color: t.text, fontSize: 16, fontWeight: '700' }}>
-              {formatDateShort(c.date)}
-              {hasRedFlags(c) ? '  ⚠️' : ''}
-            </Text>
-            <Text style={{ color: t.muted, fontSize: 15 }}>{checkinLine(c)}</Text>
-            {c.note ? <Text style={{ color: t.muted, fontSize: 14 }}>{c.note}</Text> : null}
-          </Card>
-        ))}
-        {coach.checkins.length === 0 ? <Text style={{ color: t.muted }}>Nenhum check-in ainda.</Text> : null}
+        <Section title="Histórico">
+          <View>
+            {coach.checkins.slice(0, 21).map((c, i, arr) => (
+              <ListRow
+                key={c.date}
+                title={`${formatDateShort(c.date)}${hasRedFlags(c) ? '  ⚠️' : ''}`}
+                subtitle={c.note ? `${checkinLine(c)}\n${c.note}` : checkinLine(c)}
+                last={i === arr.length - 1}
+              />
+            ))}
+          </View>
+          {coach.checkins.length === 0 ? <Text style={{ color: t.muted }}>Nenhum check-in ainda.</Text> : null}
+        </Section>
         </>
         ) : null}
       </ScrollView>
@@ -154,7 +155,7 @@ function CheckinForm({
       </Card>
 
       <Card style={{ borderColor: t.danger }}>
-        <Text style={{ color: t.danger, fontSize: 16, fontWeight: '800' }}>Sinais de alarme da lombar</Text>
+        <Text style={{ color: t.danger, fontSize: 16, fontWeight: '600' }}>Sinais de alarme da lombar</Text>
         {showFlags ? (
           <View style={{ gap: 8 }}>
             {FLAGS.map((f) => (
@@ -177,7 +178,7 @@ function CheckinForm({
 }
 
 const styles = StyleSheet.create({
-  body: { padding: 16, gap: 12, paddingBottom: 40 },
-  title: { fontSize: 28, fontWeight: '800' },
-  wrap: { flexDirection: 'row', flexWrap: 'wrap', gap: 8 },
+  body: { padding: space.lg, gap: space.md, paddingBottom: 40 },
+  title: { ...font.largeTitle },
+  wrap: { flexDirection: 'row', flexWrap: 'wrap', gap: space.sm },
 });

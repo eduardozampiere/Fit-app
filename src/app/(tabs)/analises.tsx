@@ -4,7 +4,7 @@ import { ScrollView, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { BarChart, ChartCard, LineChart } from '../../components/charts';
 import { checkinLine } from '../../components/CheckinSummary';
-import { Card, Chip } from '../../components/ui';
+import { Card, Chip, StatRow } from '../../components/ui';
 import { listAllMealEntries, listWeights } from '../../db/nutritionRepo';
 import { exerciseNames, listCheckins, listCycles, listLoggedSessions } from '../../db/repo';
 import {
@@ -27,9 +27,23 @@ import { MEAL_LABEL, sumMacros, type MealEntry } from '../../domain/nutrition';
 import { LIFT_LABEL, LIFTS } from '../../domain/plan';
 import type { CheckIn } from '../../domain/rules';
 import { useAppData } from '../../state/AppData';
-import { useTheme } from '../../ui/theme';
+import { font, space, useTheme } from '../../ui/theme';
 
 type Mode = 'graficos' | 'grupos' | 'dias';
+type TrainingChart = 'carga' | 'e1rm' | 'single' | 'pvd';
+type BodyChart = 'peso' | 'kcal' | 'proteina';
+
+const TRAINING_CHARTS: { key: TrainingChart; label: string }[] = [
+  { key: 'carga', label: 'Carga' },
+  { key: 'e1rm', label: 'e1RM' },
+  { key: 'single', label: 'Single' },
+  { key: 'pvd', label: 'Planejado × feito' },
+];
+const BODY_CHARTS: { key: BodyChart; label: string }[] = [
+  { key: 'peso', label: 'Peso' },
+  { key: 'kcal', label: 'Calorias' },
+  { key: 'proteina', label: 'Proteína' },
+];
 
 export default function AnalysisScreen() {
   const t = useTheme();
@@ -38,6 +52,8 @@ export default function AnalysisScreen() {
   const [view, setView] = useState<Mode>('graficos');
   const [groupBy, setGroupBy] = useState<GroupBy>('week');
   const [cardKind, setCardKind] = useState<'treino' | 'comida'>('treino');
+  const [trainingChart, setTrainingChart] = useState<TrainingChart>('carga');
+  const [bodyChart, setBodyChart] = useState<BodyChart>('peso');
   const [rows, setRows] = useState<SetRow[]>([]);
   const [meals, setMeals] = useState<MealEntry[]>([]);
   const [weights, setWeights] = useState<WeightEntry[]>([]);
@@ -82,40 +98,60 @@ export default function AnalysisScreen() {
 
         {view === 'graficos' ? (
           <>
-            <ChartCard title="Carga dos principais" subtitle="Top set de cada sessão (kg)">
-              <LineChart series={LIFTS.map((l, i) => ({ name: LIFT_LABEL[l], slot: i, points: mainLoadSeries(cycleRows, l) }))} />
-            </ChartCard>
-            <ChartCard title="Máximo estimado (e1RM)" subtitle="Tabela RTS, melhor série principal com RPE (kg)">
-              <LineChart
-                series={LIFTS.map((l, i) => ({ name: LIFT_LABEL[l], slot: i, points: e1rmSeries(cycleRows, l) }))}
-                empty="Informe o RPE do principal para ver o e1RM."
-              />
-            </ChartCard>
-            <ChartCard title="Termômetro: single de ativação" subtitle="RPE por semana — subir é sinal de cansaço">
-              <LineChart
-                series={LIFTS.map((l, i) => ({ name: LIFT_LABEL[l], slot: i, points: activationRpeByWeek(cycleRows, l) }))}
-                yFormat={(v) => formatNumber(v, 1)}
-                empty="Sem singles de ativação com RPE ainda."
-              />
-            </ChartCard>
-            <ChartCard title="Planejado × feito" subtitle="Séries por semana (sem core)">
-              <BarChart data={pvd.map((p) => ({ x: `S${p.week}`, value: p.doneSets, ref: p.plannedSets }))} refLabel="planejado" />
-            </ChartCard>
-            <ChartCard title="Calorias por dia" subtitle="Últimos 21 dias registrados">
-              <BarChart data={days.map((d) => ({ x: d.date, value: d.kcal, ref: d.kcalTarget }))} />
-            </ChartCard>
-            <ChartCard title="Proteína por dia" subtitle="g · alvo diário">
-              <BarChart data={days.map((d) => ({ x: d.date, value: d.protein, ref: d.proteinTarget }))} slot={2} />
-            </ChartCard>
-            <ChartCard title="Peso" subtitle="Pesagens (pontos) e média móvel de 7 dias (linha)">
-              <LineChart
-                series={[
-                  { name: 'Pesagem', slot: 0, style: 'dots', points: weightSeries.map((w) => ({ x: w.date, y: w.kg })) },
-                  { name: 'Média 7 dias', slot: 1, style: 'line', points: weightSeries.map((w) => ({ x: w.date, y: w.avg7 })) },
-                ]}
-                yFormat={(v) => formatNumber(v, 1)}
-              />
-            </ChartCard>
+            {trainingChart === 'carga' ? (
+              <ChartCard title="Carga dos principais" subtitle="Top set de cada sessão (kg)">
+                <LineChart series={LIFTS.map((l, i) => ({ name: LIFT_LABEL[l], slot: i, points: mainLoadSeries(cycleRows, l) }))} />
+              </ChartCard>
+            ) : trainingChart === 'e1rm' ? (
+              <ChartCard title="Máximo estimado (e1RM)" subtitle="Tabela RTS, melhor série principal com RPE (kg)">
+                <LineChart
+                  series={LIFTS.map((l, i) => ({ name: LIFT_LABEL[l], slot: i, points: e1rmSeries(cycleRows, l) }))}
+                  empty="Informe o RPE do principal para ver o e1RM."
+                />
+              </ChartCard>
+            ) : trainingChart === 'single' ? (
+              <ChartCard title="Termômetro: single de ativação" subtitle="RPE por semana — subir é sinal de cansaço">
+                <LineChart
+                  series={LIFTS.map((l, i) => ({ name: LIFT_LABEL[l], slot: i, points: activationRpeByWeek(cycleRows, l) }))}
+                  yFormat={(v) => formatNumber(v, 1)}
+                  empty="Sem singles de ativação com RPE ainda."
+                />
+              </ChartCard>
+            ) : (
+              <ChartCard title="Planejado × feito" subtitle="Séries por semana (sem core)">
+                <BarChart data={pvd.map((p) => ({ x: `S${p.week}`, value: p.doneSets, ref: p.plannedSets }))} refLabel="planejado" />
+              </ChartCard>
+            )}
+            <View style={styles.wrap}>
+              {TRAINING_CHARTS.map((c) => (
+                <Chip key={c.key} label={c.label} selected={trainingChart === c.key} onPress={() => setTrainingChart(c.key)} />
+              ))}
+            </View>
+
+            {bodyChart === 'peso' ? (
+              <ChartCard title="Peso" subtitle="Pesagens (pontos) e média móvel de 7 dias (linha)">
+                <LineChart
+                  series={[
+                    { name: 'Pesagem', slot: 0, style: 'dots', points: weightSeries.map((w) => ({ x: w.date, y: w.kg })) },
+                    { name: 'Média 7 dias', slot: 1, style: 'line', points: weightSeries.map((w) => ({ x: w.date, y: w.avg7 })) },
+                  ]}
+                  yFormat={(v) => formatNumber(v, 1)}
+                />
+              </ChartCard>
+            ) : bodyChart === 'kcal' ? (
+              <ChartCard title="Calorias por dia" subtitle="Últimos 21 dias registrados">
+                <BarChart data={days.map((d) => ({ x: d.date, value: d.kcal, ref: d.kcalTarget }))} />
+              </ChartCard>
+            ) : (
+              <ChartCard title="Proteína por dia" subtitle="g · alvo diário">
+                <BarChart data={days.map((d) => ({ x: d.date, value: d.protein, ref: d.proteinTarget }))} slot={2} />
+              </ChartCard>
+            )}
+            <View style={styles.wrap}>
+              {BODY_CHARTS.map((c) => (
+                <Chip key={c.key} label={c.label} selected={bodyChart === c.key} onPress={() => setBodyChart(c.key)} />
+              ))}
+            </View>
           </>
         ) : null}
 
@@ -127,18 +163,22 @@ export default function AnalysisScreen() {
               ))}
             </View>
             {groups.map((g) => (
-              <Card key={g.key} style={{ paddingVertical: 12, gap: 6 }}>
-                <Text style={{ color: t.text, fontSize: 16, fontWeight: '800' }}>{g.label}</Text>
-                <View style={styles.statsRow}>
-                  <Stat label="treinos" value={formatNumber(g.sessions, 0)} />
-                  <Stat label="séries" value={formatNumber(g.sets, 0)} />
-                  <Stat label="reps" value={formatNumber(g.reps, 0)} />
-                </View>
-                <View style={styles.statsRow}>
-                  <Stat label="tonelagem" value={`${formatNumber(g.tonnage, 0)} kg`} />
-                  <Stat label="carga máx." value={g.maxLoad === null ? '—' : formatKg(g.maxLoad)} />
-                  <Stat label="RPE médio" value={g.avgRpe === null ? '—' : formatNumber(g.avgRpe)} />
-                </View>
+              <Card key={g.key} style={{ gap: space.md }}>
+                <Text style={[styles.cardTitle, { color: t.text }]}>{g.label}</Text>
+                <StatRow
+                  items={[
+                    { label: 'Treinos', value: formatNumber(g.sessions, 0) },
+                    { label: 'Séries', value: formatNumber(g.sets, 0) },
+                    { label: 'Reps', value: formatNumber(g.reps, 0) },
+                  ]}
+                />
+                <StatRow
+                  items={[
+                    { label: 'Volume', value: `${formatNumber(g.tonnage, 0)} kg` },
+                    { label: 'Carga máx.', value: g.maxLoad === null ? '—' : formatKg(g.maxLoad) },
+                    { label: 'RPE médio', value: g.avgRpe === null ? '—' : formatNumber(g.avgRpe) },
+                  ]}
+                />
               </Card>
             ))}
             {groups.length === 0 ? <Text style={{ color: t.muted }}>Nenhum treino registrado ainda.</Text> : null}
@@ -154,20 +194,24 @@ export default function AnalysisScreen() {
             {cardKind === 'treino'
               ? cards.map((c) => (
                   <Card key={c.sessionLogId} style={{ gap: 6 }}>
-                    <Text style={{ color: t.text, fontSize: 16, fontWeight: '800' }}>
+                    <Text style={[styles.cardTitle, { color: t.text }]}>{c.title}</Text>
+                    <Text style={{ color: t.muted, fontSize: 13 }}>
                       {WEEKDAY_NAMES[isoWeekday(c.date)]} {formatDateShort(c.date)}
-                      {c.week ? ` · S${c.week}` : ''} — {c.title}
+                      {c.week ? ` · S${c.week}` : ''}
                     </Text>
-                    <Text style={{ color: t.muted, fontSize: 14 }}>
-                      {c.sets} séries · {formatNumber(c.tonnage, 0)} kg de tonelagem
-                    </Text>
+                    <StatRow
+                      items={[
+                        { label: 'Séries', value: formatNumber(c.sets, 0) },
+                        { label: 'Volume', value: `${formatNumber(c.tonnage, 0)} kg` },
+                      ]}
+                    />
                     {c.tops.map((s) => (
                       <Text key={s.name} style={{ color: t.text, fontSize: 15 }}>
                         {s.name}: {formatNumber(s.loadKg)} × {s.reps ?? '—'}
                         {s.rpe !== null ? ` @${formatNumber(s.rpe)}` : ''}
                       </Text>
                     ))}
-                    <View style={[styles.footer, { borderTopColor: t.border }]}>
+                    <View style={[styles.footer, { borderTopColor: t.separator }]}>
                       <Text style={{ color: t.muted, fontSize: 13 }}>
                         {c.checkin ? `Check-in: ${checkinLine(c.checkin)}` : 'Sem check-in neste dia'}
                       </Text>
@@ -184,7 +228,7 @@ export default function AnalysisScreen() {
                     const day = days.find((d) => d.date === date);
                     return (
                       <Card key={date} style={{ gap: 6 }}>
-                        <Text style={{ color: t.text, fontSize: 16, fontWeight: '800' }}>
+                        <Text style={[styles.cardTitle, { color: t.text }]}>
                           {WEEKDAY_NAMES[isoWeekday(date)]} {formatDateShort(date)}
                         </Text>
                         <Text style={{ color: t.muted, fontSize: 14 }}>
@@ -210,20 +254,10 @@ export default function AnalysisScreen() {
   );
 }
 
-function Stat({ label, value }: { label: string; value: string }) {
-  const t = useTheme();
-  return (
-    <View style={{ flex: 1 }}>
-      <Text style={{ color: t.text, fontSize: 16, fontWeight: '700', fontVariant: ['tabular-nums'] }}>{value}</Text>
-      <Text style={{ color: t.muted, fontSize: 12 }}>{label}</Text>
-    </View>
-  );
-}
-
 const styles = StyleSheet.create({
-  body: { padding: 16, gap: 12, paddingBottom: 40 },
-  title: { fontSize: 28, fontWeight: '800' },
-  wrap: { flexDirection: 'row', flexWrap: 'wrap', gap: 8 },
-  statsRow: { flexDirection: 'row', gap: 8 },
+  body: { padding: space.lg, gap: space.md, paddingBottom: 40 },
+  title: { ...font.largeTitle },
+  cardTitle: { ...font.headline },
+  wrap: { flexDirection: 'row', flexWrap: 'wrap', gap: space.sm },
   footer: { borderTopWidth: StyleSheet.hairlineWidth, paddingTop: 6, marginTop: 2 },
 });

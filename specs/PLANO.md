@@ -62,4 +62,5 @@ Xcode 27.2, `npx expo run:ios`). O que foi verificado em cada feature está no `
 | 03/11/2026 | Remoção das duplicações: `text.ts` (slug), `LIFTS` e `weekForDate` únicos, `TextField` | `5fbb676` |
 | 03/11/2026 | Visual Hevy, fase 1: tokens novos e componentes base | `b064878` |
 | 03/11/2026 | Visual Hevy, fase 2: tabela de séries, adicionar/remover série, barra da calculadora | `de84e48` |
-| 03/11/2026 | Visual Hevy, fase 3: aba Plano no estilo de rotinas | este commit |
+| 03/11/2026 | Visual Hevy, fase 3: aba Plano no estilo de rotinas | `3cdd66c` |
+| 03/11/2026 | Visual Hevy, fase 4: Análises, Corpo e Comida | este commit |

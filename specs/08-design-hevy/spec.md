@@ -1,6 +1,6 @@
 # 08 — Visual inspirado no Hevy
 
-**Status:** 🔨 em andamento (fases 1 a 3 feitas)
+**Status:** 🔨 em andamento (fases 1 a 4 feitas)
 
 ## Objetivo
 O visual atual (cartões arredondados em tudo, botões pesados, muitos chips coloridos) não agrada. A meta
@@ -116,9 +116,12 @@ Novos grupos de token: `font` (`largeTitle 28/700`, `title 20/600`, `headline 17
 - [x] Edição de exercício pelo menu ⋯ do cartão (lista com `ListRow`); Ajustes e Claude como `IconButton` no topo
 
 ### Fase 4 — Análises, Corpo e Comida
-- [ ] Análises: um gráfico por cartão com seletor em pílula (carga, e1RM, tonelagem, RPE), histórico em `ListRow`
-- [ ] Corpo: peso no estilo "Medidas" (gráfico e histórico em lista), check-in como formulário agrupado
-- [ ] Comida: refeições em `Section` e alimentos em `ListRow` com kcal e proteína à direita; totais em `StatRow`
+- [x] Análises: um gráfico de treino (carga, e1RM, single, planejado × feito) e um de corpo (peso, calorias,
+  proteína), cada um com seletor em pílula embaixo; agrupamentos e cartões por dia com `StatRow`
+- [x] Corpo: peso com média e tendência em `StatRow`, gráfico da média de 7 dias e histórico em `ListRow`;
+  medidas e check-ins também em `ListRow`
+- [x] Comida: refeições como seções planas com divisórias, alimentos em linhas com ✕, botões cinza
+  "Alimento" e "Favorita", carbo e gordura em `StatRow`
 
 ### Fase 5 — Ajustes, Dados e modais
 - [ ] Listas agrupadas no estilo de Ajustes do iOS; modais com barra Cancelar / título / Salvar
@@ -150,6 +153,7 @@ claro e escuro, prévia web e atualização deste spec e do `PLANO.md`.
 | Data | Nota |
 |---|---|
 | 03/11/2026 | Spec criada a partir das capturas do Hevy na App Store. Decisões do usuário: edição inline, tema do sistema, por fases. |
+| 03/11/2026 | Fase 4 feita: Análises, Corpo e Comida no visual novo. |
 | 03/11/2026 | Fase 3 feita: aba Plano com semanas em pílulas e cartões de rotina. |
 | 03/11/2026 | Fase 2 feita: tabela de séries com edição inline, adicionar/remover série, resumo do treino e barra escolhida na calculadora. |
 | 03/11/2026 | Fase 1 feita: tokens novos, componentes base e `@expo/vector-icons` de volta às dependências (só JS, sem entitlement novo). No escuro, `surface` subiu para `#28282B` para o botão secundário aparecer dentro do cartão. Os títulos do `ExerciseCard` ainda usam estilos próprios (fase 2). |

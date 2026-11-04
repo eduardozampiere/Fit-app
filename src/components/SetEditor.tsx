@@ -4,7 +4,7 @@ import { formatKg, formatNumber } from '../domain/format';
 import { RPE_CHOICES } from '../domain/rpe';
 import type { Grip, SetLog } from '../domain/types';
 import { useTheme } from '../ui/theme';
-import { BigButton, Chip, SectionTitle, Stepper, TextField } from './ui';
+import { BigButton, Chip, SectionTitle, SheetHeader, Stepper, TextField } from './ui';
 
 export type EditableSet = Omit<SetLog, 'id' | 'sessionLogId' | 'doneAt'> & { id?: string };
 
@@ -39,10 +39,10 @@ export function SetEditor({
 
   return (
     <Modal visible={visible} animationType="slide" presentationStyle="pageSheet" onRequestClose={onClose}>
-      <KeyboardAvoidingView style={{ flex: 1 }} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
+      <KeyboardAvoidingView style={{ flex: 1, backgroundColor: t.bg }} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
+        <SheetHeader title={`Série ${s.setIndex}`} onCancel={onClose} action="Salvar" onAction={() => onSave(s)} />
         <ScrollView style={{ backgroundColor: t.bg }} contentContainerStyle={styles.body} keyboardShouldPersistTaps="handled">
-          <Text style={[styles.title, { color: t.text }]}>{title}</Text>
-          <Text style={[styles.sub, { color: t.muted }]}>Série {s.setIndex}</Text>
+          <Text style={[styles.title, { color: t.accent }]}>{title}</Text>
 
           <Stepper label="Carga" value={s.loadKg} step={2.5} onChange={(v) => set({ loadKg: v })} format={formatKg} />
           {s.durationSec !== null ? (
@@ -105,9 +105,7 @@ export function SetEditor({
             accessibilityLabel="Observação da série"
           />
 
-          <BigButton label="Salvar série" variant="success" onPress={() => onSave(s)} />
           {onDelete ? <BigButton label="Apagar série" variant="danger" onPress={onDelete} /> : null}
-          <BigButton label="Cancelar" variant="neutral" onPress={onClose} />
         </ScrollView>
       </KeyboardAvoidingView>
     </Modal>
@@ -116,7 +114,6 @@ export function SetEditor({
 
 const styles = StyleSheet.create({
   body: { padding: 20, gap: 14, paddingBottom: 48 },
-  title: { fontSize: 22, fontWeight: '800' },
-  sub: { fontSize: 15, marginTop: -8 },
+  title: { fontSize: 20, fontWeight: '600' },
   wrap: { flexDirection: 'row', flexWrap: 'wrap', gap: 8 },
 });

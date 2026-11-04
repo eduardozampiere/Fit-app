@@ -4,7 +4,7 @@ import type { ItemPatch } from '../domain/adjustments';
 import { KIND_LABEL } from '../domain/plan';
 import type { ItemKind, PrescribedItem } from '../domain/types';
 import { useTheme } from '../ui/theme';
-import { BigButton, Chip, TextField } from './ui';
+import { BigButton, Chip, SheetHeader, TextField } from './ui';
 
 const KINDS: ItemKind[] = ['main', 'variation', 'activation_single', 'walkout', 'backoff', 'accessory', 'core'];
 
@@ -37,8 +37,20 @@ export function ItemEditor({
   return (
     <Modal visible animationType="slide" presentationStyle="pageSheet" onRequestClose={onClose}>
       <KeyboardAvoidingView style={{ flex: 1, backgroundColor: t.bg }} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
+        <SheetHeader
+          title={item ? 'Editar exercício' : 'Novo exercício'}
+          onCancel={onClose}
+          action="Salvar"
+          actionDisabled={!valid}
+          onAction={() => {
+            const patch: ItemPatch & { name: string; setsText: string } = { name: f.name.trim(), setsText: f.setsText.trim(), notes: f.notes, kind: f.kind };
+            if (!item || f.load !== (item.loadText === '—' ? '' : item.loadText)) patch.load = f.load.trim() || '—';
+            if (!item || f.rpe !== (item.rpeText === '—' ? '' : item.rpeText)) patch.rpe = f.rpe.trim();
+            if (!item || f.rest !== (item.restText === '—' ? '' : item.restText)) patch.rest = f.rest.trim();
+            onSave(patch);
+          }}
+        />
         <ScrollView contentContainerStyle={styles.body} keyboardShouldPersistTaps="handled">
-          <Text style={{ color: t.text, fontSize: 22, fontWeight: '800' }}>{item ? 'Editar exercício' : 'Novo exercício'}</Text>
           {field('name', 'Exercício')}
           {field('setsText', 'Séries × reps', 'ex.: 4x4, 3x8-12, 2-3x10')}
           {field('load', 'Carga (kg)', 'ex.: 140, 205-210, 100+, vazio')}
@@ -54,20 +66,7 @@ export function ItemEditor({
           {item?.pctBased ? (
             <Text style={{ color: t.warn, fontSize: 13 }}>Mudar a carga desliga o recálculo por % deste item.</Text>
           ) : null}
-          <BigButton
-            label="Salvar"
-            variant="success"
-            disabled={!valid}
-            onPress={() => {
-              const patch: ItemPatch & { name: string; setsText: string } = { name: f.name.trim(), setsText: f.setsText.trim(), notes: f.notes, kind: f.kind };
-              if (!item || f.load !== (item.loadText === '—' ? '' : item.loadText)) patch.load = f.load.trim() || '—';
-              if (!item || f.rpe !== (item.rpeText === '—' ? '' : item.rpeText)) patch.rpe = f.rpe.trim();
-              if (!item || f.rest !== (item.restText === '—' ? '' : item.restText)) patch.rest = f.rest.trim();
-              onSave(patch);
-            }}
-          />
           {onDelete ? <BigButton label="Remover do plano" variant="danger" onPress={onDelete} /> : null}
-          <BigButton label="Cancelar" variant="neutral" onPress={onClose} />
         </ScrollView>
       </KeyboardAvoidingView>
     </Modal>

@@ -1,13 +1,12 @@
+import Ionicons from '@expo/vector-icons/Ionicons';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
-import { formatKg, formatNumber, formatRange } from '../domain/format';
-import { KIND_LABEL, maxSetCount, plannedSetCount } from '../domain/plan';
-import { RPE_CHOICES } from '../domain/rpe';
+import { formatRange, formatSeconds } from '../domain/format';
+import { KIND_LABEL } from '../domain/plan';
 import type { SetLock } from '../domain/rules';
 import type { PrescribedItem, Range, SetLog } from '../domain/types';
-import { TOUCH, useTheme } from '../ui/theme';
-import { Badge, BigButton, Card, Chip } from './ui';
-
-const RPE_KINDS = new Set(['main', 'activation_single', 'variation', 'backoff', 'volume_doubles']);
+import { font, radius, space, useTheme } from '../ui/theme';
+import { SetTable, type SetInput } from './SetTable';
+import { IconButton } from './ui';
 
 function loadLabel(item: PrescribedItem, load: Range | null): string {
   if (item.loadMode === 'fixed' || item.loadMode === 'progressive') {
@@ -21,170 +20,138 @@ function loadLabel(item: PrescribedItem, load: Range | null): string {
 export function prescriptionLine(item: PrescribedItem, load: Range | null): string {
   const parts = [item.setsText, loadLabel(item, load)];
   if (item.rpeText && item.rpeText !== '—') parts.push(`RPE ${item.rpeText.replace('.', ',')}`);
-  if (item.restText && item.restText !== '—') parts.push(item.restText);
   return parts.filter(Boolean).join(' · ');
 }
 
-function setSummary(s: SetLog): string {
-  const load = s.loadKg !== null ? formatNumber(s.loadKg) : '—';
-  const work = s.durationSec !== null ? `${s.durationSec}s` : s.reps !== null ? String(s.reps) : '—';
-  const rpe = s.rpe !== null ? ` @${formatNumber(s.rpe)}` : '';
-  return `${load} × ${work}${rpe}${s.failed ? ' · falhou' : ''}`;
-}
-
+/**
+ * Bloco de um exercício na tela de treino: miniatura, nome em azul, menu ⋮, prescrição, notas,
+ * descanso e a tabela de séries.
+ */
 export function ExerciseCard({
   item,
   load,
   logs,
   isChild,
-  onQuickSet,
-  onEditSet,
-  onAllAsPlanned,
-  onQuickRpe,
-  onPlates,
+  isLift,
+  rows,
+  plannedCount,
+  complete,
+  restSec,
+  showRpe,
+  pendingRpeIndex,
   lock,
   onUnlock,
   tip,
+  onMenu,
+  onCheck,
+  onUncheck,
+  onEdit,
+  onSetMenu,
+  onRpe,
+  onAdd,
 }: {
   item: PrescribedItem;
   load: Range | null;
   logs: SetLog[];
   isChild: boolean;
-  onQuickSet: (setIndex: number) => void;
-  onEditSet: (setIndex: number, log: SetLog | null) => void;
-  onAllAsPlanned: () => void;
-  onQuickRpe: (rpe: number) => void;
-  onPlates: (kg: number | null) => void;
+  /** Agacho, supino ou terra (miniatura de barra). */
+  isLift: boolean;
+  rows: number;
+  plannedCount: number;
+  complete: boolean;
+  restSec: number;
+  showRpe: boolean;
+  pendingRpeIndex: number | null;
   lock?: SetLock;
   onUnlock?: () => void;
   tip?: string | null;
+  onMenu: () => void;
+  onCheck: (setIndex: number, input: SetInput) => void;
+  onUncheck: (log: SetLog) => void;
+  onEdit: (log: SetLog, input: SetInput) => void;
+  onSetMenu: (setIndex: number, log: SetLog | null) => void;
+  onRpe: (log: SetLog) => void;
+  onAdd: () => void;
 }) {
   const t = useTheme();
-  const planned = plannedSetCount(item);
-  const rows = Math.max(maxSetCount(item), logs.length ? Math.max(...logs.map((l) => l.setIndex)) : 0);
-  const loggedCount = logs.length;
-  const effectivePlanned = lock ? Math.min(planned, lock.fromSet - 1) : planned;
-  const complete = loggedCount >= effectivePlanned && (loggedCount > 0 || effectivePlanned === 0);
-  const last = logs.length ? logs.reduce((a, b) => (b.setIndex > a.setIndex ? b : a)) : null;
-  const askRpe = RPE_KINDS.has(item.kind) && last !== null && last.rpe === null;
-  const plannedLoad = load?.min ?? null;
-  const plannedWork = item.durationSec ? `${formatRange(item.durationSec)}s` : item.reps ? formatRange(item.reps) : '—';
+  const prescription = prescriptionLine(item, load);
 
   return (
-    <Card style={[isChild && { marginLeft: 16 }, complete && { borderColor: t.success }]}>
+    <View style={[styles.block, isChild && { paddingLeft: space.md, borderLeftWidth: 2, borderLeftColor: t.separator }]}>
       <View style={styles.header}>
-        <View style={{ flex: 1, gap: 4 }}>
-          <Text style={[styles.name, { color: t.text }]} accessibilityRole="header">
+        <View style={[styles.avatar, { backgroundColor: t.surface }]}>
+          <Ionicons name={isLift ? 'barbell' : 'fitness'} size={22} color={complete ? t.done : t.accent} />
+        </View>
+        <View style={{ flex: 1, gap: 2 }}>
+          <Text style={[styles.name, { color: t.accent }]} accessibilityRole="header">
             {item.name}
           </Text>
-          <View style={styles.badges}>
-            <Badge label={KIND_LABEL[item.kind]} tone={item.kind === 'main' ? 'accent' : 'neutral'} />
-            {complete ? <Badge label="Feito" tone="success" /> : null}
-          </View>
+          <Text style={[styles.kind, { color: complete ? t.done : t.muted }]}>
+            {KIND_LABEL[item.kind]}
+            {complete ? ' · feito' : ''}
+          </Text>
         </View>
-        {plannedLoad !== null ? (
-          <Pressable
-            accessibilityRole="button"
-            accessibilityLabel={`Calculadora de anilhas para ${formatKg(plannedLoad)}`}
-            onPress={() => onPlates(plannedLoad)}
-            style={[styles.plateBtn, { backgroundColor: t.chip }]}
-          >
-            <Text style={[styles.plateBtnText, { color: t.text }]}>Anilhas</Text>
-          </Pressable>
-        ) : null}
+        <IconButton name="ellipsis-vertical" label={`Opções de ${item.name}`} onPress={onMenu} size={20} />
       </View>
 
-      <Text style={[styles.prescription, { color: t.text }]}>{prescriptionLine(item, load)}</Text>
+      {prescription ? <Text style={[styles.prescription, { color: t.text }]}>{prescription}</Text> : null}
       {item.notes ? <Text style={[styles.notes, { color: t.muted }]}>{item.notes}</Text> : null}
       {tip ? <Text style={[styles.tip, { color: t.accent }]}>{tip}</Text> : null}
+      <View style={styles.restRow}>
+        <Ionicons name="timer-outline" size={16} color={t.accent} />
+        <Text style={[styles.rest, { color: t.accent }]}>
+          Descanso: {item.restText && item.restText !== '—' ? item.restText : formatSeconds(restSec)}
+        </Text>
+      </View>
+
       {lock ? (
         <View style={[styles.lockBox, { backgroundColor: t.warnBg }]}>
-          <Text style={{ color: t.warn, fontSize: 15, fontWeight: '700', flex: 1 }}>🔒 {lock.reason}</Text>
+          <Ionicons name="lock-closed" size={16} color={t.warn} />
+          <Text style={{ color: t.warn, fontSize: 14, fontWeight: '600', flex: 1 }}>{lock.reason}</Text>
           {lock.undoable && onUnlock ? (
-            <Pressable accessibilityRole="button" accessibilityLabel="Desfazer bloqueio do terra" onPress={onUnlock} style={[styles.unlockBtn, { backgroundColor: t.chip }]}>
-              <Text style={{ color: t.text, fontWeight: '700' }}>Desfazer</Text>
+            <Pressable
+              accessibilityRole="button"
+              accessibilityLabel="Desfazer bloqueio do terra"
+              onPress={onUnlock}
+              style={[styles.unlockBtn, { backgroundColor: t.surface }]}
+            >
+              <Text style={{ color: t.text, fontWeight: '600' }}>Desfazer</Text>
             </Pressable>
           ) : null}
         </View>
       ) : null}
 
-      <View style={{ gap: 6 }}>
-        {Array.from({ length: rows }, (_, i) => i + 1).map((idx) => {
-          const log = logs.find((l) => l.setIndex === idx) ?? null;
-          const optional = idx > planned;
-          const locked = !log && !!lock && idx >= lock.fromSet;
-          if (locked) {
-            return (
-              <View key={idx} style={[styles.setMain, { backgroundColor: t.chip, opacity: 0.5 }]} accessible accessibilityLabel={`Série ${idx} bloqueada: ${lock!.reason}`}>
-                <Text style={[styles.setIdx, { color: t.muted }]}>{idx}</Text>
-                <Text style={[styles.setText, { color: t.muted }]}>🔒 bloqueada</Text>
-              </View>
-            );
-          }
-          return (
-            <View key={idx} style={styles.setRow}>
-              <Pressable
-                accessibilityRole="button"
-                accessibilityLabel={
-                  log ? `Série ${idx}: ${setSummary(log)}. Toque para editar` : `Série ${idx} planejada: ${plannedWork} repetições. Toque para registrar diferente`
-                }
-                onPress={() => onEditSet(idx, log)}
-                style={[styles.setMain, { backgroundColor: log ? (log.failed ? t.dangerBg : t.successBg) : t.chip }]}
-              >
-                <Text style={[styles.setIdx, { color: t.muted }]}>{idx}</Text>
-                <Text style={[styles.setText, { color: log ? t.text : t.muted }]}>
-                  {log ? setSummary(log) : `${plannedLoad !== null ? formatNumber(plannedLoad) : '—'} × ${plannedWork}`}
-                  {!log && optional ? '  (opcional)' : ''}
-                </Text>
-              </Pressable>
-              {!log ? (
-                <Pressable
-                  accessibilityRole="button"
-                  accessibilityLabel={`Concluir série ${idx} conforme o plano`}
-                  onPress={() => onQuickSet(idx)}
-                  style={[styles.checkBtn, { backgroundColor: t.accent }]}
-                >
-                  <Text style={styles.checkText}>✓</Text>
-                </Pressable>
-              ) : null}
-            </View>
-          );
-        })}
-      </View>
-
-      {askRpe ? (
-        <View style={{ gap: 6 }}>
-          <Text style={[styles.askRpe, { color: t.muted }]}>RPE da série {last!.setIndex}:</Text>
-          <View style={styles.wrap}>
-            {RPE_CHOICES.map((r) => (
-              <Chip key={r} label={formatNumber(r)} onPress={() => onQuickRpe(r)} accessibilityLabel={`RPE ${formatNumber(r)} na série ${last!.setIndex}`} />
-            ))}
-          </View>
-        </View>
-      ) : null}
-
-      {!complete ? <BigButton label="Feito conforme o plano" variant="primary" compact onPress={onAllAsPlanned} /> : null}
-    </Card>
+      <SetTable
+        item={item}
+        plannedLoad={load?.min ?? null}
+        logs={logs}
+        rows={rows}
+        plannedCount={plannedCount}
+        lock={lock}
+        showRpe={showRpe}
+        pendingRpeIndex={pendingRpeIndex}
+        onCheck={onCheck}
+        onUncheck={onUncheck}
+        onEdit={onEdit}
+        onSetMenu={onSetMenu}
+        onRpe={onRpe}
+        onAdd={onAdd}
+      />
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
-  header: { flexDirection: 'row', alignItems: 'flex-start', gap: 10 },
-  name: { fontSize: 19, fontWeight: '800' },
-  badges: { flexDirection: 'row', gap: 6 },
-  prescription: { fontSize: 17, fontWeight: '600' },
+  block: { gap: space.sm, paddingVertical: space.lg },
+  header: { flexDirection: 'row', alignItems: 'center', gap: space.md },
+  avatar: { width: 40, height: 40, borderRadius: 20, alignItems: 'center', justifyContent: 'center' },
+  name: { ...font.headline },
+  kind: { fontSize: 13 },
+  prescription: { fontSize: 15, fontWeight: '500' },
   notes: { fontSize: 14, lineHeight: 19 },
-  plateBtn: { minHeight: 44, borderRadius: 12, paddingHorizontal: 12, justifyContent: 'center' },
-  plateBtnText: { fontSize: 14, fontWeight: '700' },
-  setRow: { flexDirection: 'row', gap: 8, alignItems: 'stretch' },
-  setMain: { flex: 1, minHeight: TOUCH, borderRadius: 12, flexDirection: 'row', alignItems: 'center', paddingHorizontal: 14, gap: 12 },
-  setIdx: { fontSize: 15, fontWeight: '800', width: 18 },
-  setText: { fontSize: 18, fontWeight: '700', fontVariant: ['tabular-nums'] },
-  checkBtn: { width: TOUCH + 8, minHeight: TOUCH, borderRadius: 12, alignItems: 'center', justifyContent: 'center' },
-  checkText: { color: '#fff', fontSize: 26, fontWeight: '900' },
-  askRpe: { fontSize: 14, fontWeight: '600' },
-  tip: { fontSize: 14, fontWeight: '700' },
-  lockBox: { borderRadius: 12, padding: 10, flexDirection: 'row', alignItems: 'center', gap: 8 },
-  unlockBtn: { minHeight: 40, borderRadius: 10, paddingHorizontal: 12, justifyContent: 'center' },
-  wrap: { flexDirection: 'row', flexWrap: 'wrap', gap: 8 },
+  tip: { fontSize: 14, fontWeight: '600' },
+  restRow: { flexDirection: 'row', alignItems: 'center', gap: space.xs },
+  rest: { fontSize: 14, fontWeight: '500' },
+  lockBox: { borderRadius: radius.button, padding: space.md, flexDirection: 'row', alignItems: 'center', gap: space.sm },
+  unlockBtn: { minHeight: 40, borderRadius: radius.cell, paddingHorizontal: space.md, justifyContent: 'center' },
 });

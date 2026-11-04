@@ -7,6 +7,7 @@ import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { migrateDbIfNeeded } from '../db/schema';
 import { AppDataProvider } from '../state/AppData';
 import { RestTimerProvider } from '../state/RestTimer';
+import { useTheme } from '../ui/theme';
 
 function Loading() {
   return (
@@ -17,6 +18,7 @@ function Loading() {
 }
 
 export default function RootLayout() {
+  const t = useTheme();
   return (
     <SafeAreaProvider>
       <Suspense fallback={<Loading />}>
@@ -24,7 +26,15 @@ export default function RootLayout() {
           <AppDataProvider>
             <RestTimerProvider>
               <StatusBar style="auto" />
-              <Stack screenOptions={{ headerShown: false }}>
+              <Stack
+                screenOptions={{
+                  headerShown: false,
+                  headerStyle: { backgroundColor: t.bg },
+                  headerTintColor: t.accent,
+                  headerTitleStyle: { color: t.text },
+                  contentStyle: { backgroundColor: t.bg },
+                }}
+              >
                 <Stack.Screen name="(tabs)" />
                 <Stack.Screen name="ajustes" options={{ headerShown: true, title: 'Ajustes', presentation: 'modal' }} />
                 <Stack.Screen name="dados" options={{ headerShown: true, title: 'Dados e Claude', presentation: 'modal' }} />

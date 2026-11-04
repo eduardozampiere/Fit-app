@@ -89,6 +89,9 @@ export function maxSetCount(item: Pick<PrescribedItem, 'sets'>): number {
   return item.sets?.max ?? 1;
 }
 
+/** Tipos de item em que o app pede o RPE depois da série (coluna RPE na tabela). */
+export const RPE_KINDS: ReadonlySet<ItemKind> = new Set(['main', 'activation_single', 'variation', 'backoff', 'volume_doubles']);
+
 export const KIND_LABEL: Record<ItemKind, string> = {
   main: 'Principal',
   variation: 'Variação',

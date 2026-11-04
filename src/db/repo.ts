@@ -204,6 +204,21 @@ export async function deleteSet(db: SQLiteDatabase, id: string): Promise<void> {
   await db.runAsync('DELETE FROM set_logs WHERE id = ?', id);
 }
 
+/** Apaga uma série e renumera as seguintes (ver `renumberAfterRemoval`), numa transação. */
+export async function deleteSetAndRenumber(
+  db: SQLiteDatabase,
+  id: string | null,
+  renumber: { id: string; setIndex: number }[],
+): Promise<void> {
+  await db.withTransactionAsync(async () => {
+    if (id) await db.runAsync('DELETE FROM set_logs WHERE id = ?', id);
+    for (const r of renumber) await db.runAsync('UPDATE set_logs SET set_index = ? WHERE id = ?', r.setIndex, r.id);
+  });
+}
+
+/** Séries adicionadas ou removidas no treino do dia, por item (chave: id do item). */
+export const setCountsKey = (sessionLogId: string) => `set-counts:${sessionLogId}`;
+
 // ---- Check-in ----
 
 type CheckInRow = {

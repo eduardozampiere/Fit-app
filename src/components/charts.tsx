@@ -46,7 +46,7 @@ export function ChartCard({ title, subtitle, children }: { title: string; subtit
   const t = useTheme();
   return (
     <Card>
-      <Text style={{ color: t.text, fontSize: 17, fontWeight: '800' }} accessibilityRole="header">
+      <Text style={{ color: t.text, fontSize: 17, fontWeight: '600' }} accessibilityRole="header">
         {title}
       </Text>
       {subtitle ? <Text style={{ color: t.muted, fontSize: 13 }}>{subtitle}</Text> : null}
@@ -112,7 +112,7 @@ export function LineChart({
       ) : null}
       <View style={styles.tooltipRow}>
         {sel !== null ? (
-          <Text style={{ color: t.text, fontSize: 13, fontWeight: '700' }}>
+          <Text style={{ color: t.text, fontSize: 13, fontWeight: '600' }}>
             {xFormat(xs[sel])}:{' '}
             {series
               .map((s) => {
@@ -231,7 +231,7 @@ export function BarChart({
       ) : null}
       <View style={styles.tooltipRow}>
         {sel !== null ? (
-          <Text style={{ color: t.text, fontSize: 13, fontWeight: '700' }}>
+          <Text style={{ color: t.text, fontSize: 13, fontWeight: '600' }}>
             {xFormat(data[sel].x)}: {yFormat(data[sel].value)}
             {data[sel].ref !== undefined ? ` de ${yFormat(data[sel].ref!)} (${refLabel})` : ''}
           </Text>
@@ -290,7 +290,7 @@ export function BarChart({
                 {xFormat(data[i].x)}
               </SvgText>
             ))}
-            <Rect x={PAD.left} y={PAD.top + h} width={w} height={1} fill={t.border} />
+            <Rect x={PAD.left} y={PAD.top + h} width={w} height={1} fill={t.separator} />
           </Svg>
         </Pressable>
       ) : (

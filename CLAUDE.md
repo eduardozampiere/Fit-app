@@ -51,8 +51,9 @@ generalize o que existe em vez de copiar. Ao precisar da mesma coisa em um segun
 | e1RM / tabela RTS | `src/domain/rpe.ts` |
 | Tonelagem, séries "conforme o plano" | `src/domain/logging.ts` |
 | Editar o plano (qualquer origem: tela, Claude, regra) | `applyAdjustments` / `patchItem` em `src/domain/adjustments.ts` |
-| Cores, alvo de toque | `src/ui/theme.ts` (`useTheme`, `TOUCH`) |
-| Botão, chip, cartão, stepper, campo de texto, título de seção | `src/components/ui.tsx` (`TextField` com `label`, `surface`, `area`) |
+| Cores, alvo de toque, tipografia, espaçamento, raios | `src/ui/theme.ts` (`useTheme`, `TOUCH`, `font`, `space`, `radius`) |
+| Botão, pílula, cartão, stepper, campo de texto, seção, linha de lista, resumo em colunas, ícone, menu de ações, cabeçalho de modal | `src/components/ui.tsx` (`BigButton`, `Chip`, `Card`, `Stepper`, `TextField`, `Section`, `ListRow`, `StatRow`, `IconButton`, `ActionMenu`, `SheetHeader`) |
+| Tabela de séries do treino | `src/components/SetTable.tsx` |
 | Gráficos | `src/components/charts.tsx` |
 | Abrir/compartilhar arquivo | `src/state/files.ts` |
 | Ler/gravar ajuste | `getSetting` / `setSetting` em `src/db/repo.ts` |

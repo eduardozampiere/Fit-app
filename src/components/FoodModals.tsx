@@ -4,7 +4,7 @@ import { formatNumber, parseDecimal } from '../domain/format';
 import { macrosFor, type FavoriteMeal, type Food, type MealEntry, type MealType } from '../domain/nutrition';
 import { slugify } from '../domain/text';
 import { TOUCH, useTheme } from '../ui/theme';
-import { BigButton, Card, Chip, Stepper, TextField } from './ui';
+import { BigButton, Card, Chip, ListRow, SheetHeader, Stepper, TextField } from './ui';
 
 const GRAM_CHIPS = [30, 50, 100, 150, 200, 300, 400];
 
@@ -41,8 +41,13 @@ export function FoodPicker({
     <Modal visible={visible} animationType="slide" presentationStyle="pageSheet" onRequestClose={onClose}>
       <KeyboardAvoidingView style={{ flex: 1, backgroundColor: t.bg }} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
         {food ? (
+          <SheetHeader title="Quantidade" onCancel={() => setFood(null)} cancelLabel="Voltar" />
+        ) : (
+          <SheetHeader title="Adicionar alimento" onCancel={onClose} cancelLabel="Fechar" action="Novo" onAction={onNewFood} />
+        )}
+        {food ? (
           <ScrollView contentContainerStyle={styles.body}>
-            <Text style={[styles.title, { color: t.text }]}>{food.name}</Text>
+            <Text style={[styles.title, { color: t.accent }]}>{food.name}</Text>
             <Stepper label="Gramas" value={grams} step={10} onChange={setGrams} format={(v) => `${formatNumber(v ?? 0, 0)} g`} />
             <View style={styles.wrap}>
               {GRAM_CHIPS.map((g) => (
@@ -61,11 +66,9 @@ export function FoodPicker({
                 setQuery('');
               }}
             />
-            <BigButton label="Voltar" variant="neutral" onPress={() => setFood(null)} />
           </ScrollView>
         ) : (
           <View style={{ flex: 1, padding: 16, gap: 12 }}>
-            <Text style={[styles.title, { color: t.text }]}>Adicionar alimento</Text>
             <TextField
               value={query}
               onChangeText={setQuery}
@@ -77,26 +80,17 @@ export function FoodPicker({
               data={list}
               keyExtractor={(f) => f.id}
               keyboardShouldPersistTaps="handled"
-              ItemSeparatorComponent={() => <View style={{ height: 6 }} />}
-              renderItem={({ item }) => (
-                <Pressable
-                  accessibilityRole="button"
+              renderItem={({ item, index }) => (
+                <ListRow
+                  title={item.name}
+                  subtitle={`por 100 g: ${macroLine(item)}`}
                   onPress={() => {
                     setFood(item);
                     setGrams(100);
                   }}
-                  style={[styles.row, { backgroundColor: t.card, borderColor: t.border }]}
-                >
-                  <Text style={{ color: t.text, fontSize: 17, fontWeight: '700' }}>{item.name}</Text>
-                  <Text style={{ color: t.muted, fontSize: 13 }}>por 100 g: {macroLine(item)}</Text>
-                </Pressable>
+                  last={index === list.length - 1}
+                />
               )}
-              ListFooterComponent={
-                <View style={{ gap: 8, marginTop: 12 }}>
-                  <BigButton label="Cadastrar alimento novo" variant="neutral" onPress={onNewFood} />
-                  <BigButton label="Fechar" variant="neutral" onPress={onClose} />
-                </View>
-              }
             />
           </View>
         )}
@@ -141,8 +135,23 @@ export function FoodEditor({
   return (
     <Modal visible animationType="slide" presentationStyle="pageSheet" onRequestClose={onClose}>
       <KeyboardAvoidingView style={{ flex: 1, backgroundColor: t.bg }} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
+        <SheetHeader
+          title={initial ? 'Editar alimento' : 'Novo alimento'}
+          onCancel={onClose}
+          action="Salvar"
+          actionDisabled={!valid}
+          onAction={() =>
+            onSave({
+              id: initial?.id ?? slugify(name),
+              name: name.trim(),
+              kcal: nums.kcal!,
+              protein: nums.protein!,
+              carbs: nums.carbs!,
+              fat: nums.fat!,
+            })
+          }
+        />
         <ScrollView contentContainerStyle={styles.body} keyboardShouldPersistTaps="handled">
-          <Text style={[styles.title, { color: t.text }]}>{initial ? 'Editar alimento' : 'Novo alimento'}</Text>
           <Text style={{ color: t.muted, fontSize: 14 }}>Valores por 100 g (veja o rótulo).</Text>
           <TextField
             value={name}
@@ -160,23 +169,7 @@ export function FoodEditor({
               placeholder="0"
             />
           ))}
-          <BigButton
-            label="Salvar"
-            variant="success"
-            disabled={!valid}
-            onPress={() =>
-              onSave({
-                id: initial?.id ?? slugify(name),
-                name: name.trim(),
-                kcal: nums.kcal!,
-                protein: nums.protein!,
-                carbs: nums.carbs!,
-                fat: nums.fat!,
-              })
-            }
-          />
           {onDelete ? <BigButton label="Apagar alimento" variant="danger" onPress={onDelete} /> : null}
-          <BigButton label="Cancelar" variant="neutral" onPress={onClose} />
         </ScrollView>
       </KeyboardAvoidingView>
     </Modal>
@@ -198,22 +191,13 @@ export function FoodsManager({
   const t = useTheme();
   return (
     <Modal visible animationType="slide" presentationStyle="pageSheet" onRequestClose={onClose}>
+      <SheetHeader title="Alimentos" onCancel={onClose} cancelLabel="Fechar" action="Novo" onAction={onNew} />
       <ScrollView style={{ backgroundColor: t.bg }} contentContainerStyle={styles.body}>
-        <Text style={[styles.title, { color: t.text }]}>Alimentos</Text>
-        <BigButton label="Cadastrar alimento novo" onPress={onNew} />
-        {foods.map((f) => (
-          <Pressable
-            key={f.id}
-            accessibilityRole="button"
-            accessibilityLabel={`Editar ${f.name}`}
-            onPress={() => onEdit(f)}
-            style={[styles.row, { backgroundColor: t.card, borderColor: t.border }]}
-          >
-            <Text style={{ color: t.text, fontSize: 17, fontWeight: '700' }}>{f.name}</Text>
-            <Text style={{ color: t.muted, fontSize: 13 }}>por 100 g: {macroLine(f)}</Text>
-          </Pressable>
-        ))}
-        <BigButton label="Fechar" variant="neutral" onPress={onClose} />
+        <View>
+          {foods.map((f, i) => (
+            <ListRow key={f.id} title={f.name} subtitle={`por 100 g: ${macroLine(f)}`} onPress={() => onEdit(f)} last={i === foods.length - 1} />
+          ))}
+        </View>
       </ScrollView>
     </Modal>
   );
@@ -237,11 +221,11 @@ export function FavoritePicker({
   const name = (id: string) => foods.find((f) => f.id === id)?.name ?? id;
   return (
     <Modal visible animationType="slide" presentationStyle="pageSheet" onRequestClose={onClose}>
+      <SheetHeader title="Refeições favoritas" onCancel={onClose} cancelLabel="Fechar" />
       <ScrollView style={{ backgroundColor: t.bg }} contentContainerStyle={styles.body}>
-        <Text style={[styles.title, { color: t.text }]}>Refeições favoritas</Text>
         {favorites.map((f) => (
           <Card key={f.id}>
-            <Text style={{ color: t.text, fontSize: 17, fontWeight: '800' }}>{f.name}</Text>
+            <Text style={{ color: t.text, fontSize: 17, fontWeight: '700' }}>{f.name}</Text>
             <Text style={{ color: t.muted, fontSize: 14 }}>
               {f.items.map((i) => `${i.grams} g de ${name(i.foodId).toLowerCase()}`).join(' + ')}
               {f.oilSpoons ? ` + óleo (${formatNumber(f.oilSpoons)} colher)` : ''}
@@ -250,7 +234,7 @@ export function FavoritePicker({
               <View style={{ flex: 1 }}>
                 <BigButton label="Adicionar" compact onPress={() => onPick(f)} />
               </View>
-              <Pressable accessibilityRole="button" accessibilityLabel={`Apagar ${f.name}`} onPress={() => onDelete(f)} style={[styles.del, { backgroundColor: t.chip }]}>
+              <Pressable accessibilityRole="button" accessibilityLabel={`Apagar ${f.name}`} onPress={() => onDelete(f)} style={[styles.del, { backgroundColor: t.surface }]}>
                 <Text style={{ color: t.danger, fontWeight: '700' }}>Apagar</Text>
               </Pressable>
             </View>
@@ -259,7 +243,6 @@ export function FavoritePicker({
         {favorites.length === 0 ? (
           <Text style={{ color: t.muted }}>Nenhuma favorita. Monte uma refeição e toque em “Salvar como favorita”.</Text>
         ) : null}
-        <BigButton label="Fechar" variant="neutral" onPress={onClose} />
       </ScrollView>
     </Modal>
   );
@@ -273,13 +256,12 @@ export function NamePrompt({ title, onSave, onClose }: { title: string; onSave: 
     <Modal visible animationType="fade" transparent onRequestClose={onClose}>
       <View style={styles.backdrop}>
         <Card style={{ width: '88%' }}>
-          <Text style={{ color: t.text, fontSize: 18, fontWeight: '800' }}>{title}</Text>
+          <Text style={{ color: t.text, fontSize: 18, fontWeight: '700' }}>{title}</Text>
           <TextField
             value={name}
             onChangeText={setName}
             autoFocus
             placeholder="ex.: Almoço padrão"
-            surface="bg"
           />
           <BigButton label="Salvar" compact disabled={name.trim().length < 2} onPress={() => onSave(name.trim())} />
           <BigButton label="Cancelar" compact variant="neutral" onPress={onClose} />
@@ -291,7 +273,7 @@ export function NamePrompt({ title, onSave, onClose }: { title: string; onSave: 
 
 const styles = StyleSheet.create({
   body: { padding: 20, gap: 14, paddingBottom: 48 },
-  title: { fontSize: 22, fontWeight: '800' },
+  title: { fontSize: 22, fontWeight: '700' },
   wrap: { flexDirection: 'row', flexWrap: 'wrap', gap: 8, alignItems: 'center' },
   row: { minHeight: TOUCH, borderRadius: 12, borderWidth: StyleSheet.hairlineWidth, padding: 12, gap: 2 },
   del: { minHeight: 48, borderRadius: 12, paddingHorizontal: 14, justifyContent: 'center' },

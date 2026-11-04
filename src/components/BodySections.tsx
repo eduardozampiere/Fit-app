@@ -2,12 +2,13 @@ import { useSQLiteContext } from 'expo-sqlite';
 import { useEffect, useState } from 'react';
 import { Pressable, Text, View } from 'react-native';
 import { listMeasurements, listWeights, saveMeasurement, saveWeight, deleteWeight } from '../db/nutritionRepo';
-import { movingAverage7, nextMeasurementDate, weeklyTrend, type Measurement, type WeightEntry } from '../domain/body';
+import { movingAverage7, movingAverageSeries, nextMeasurementDate, weeklyTrend, type Measurement, type WeightEntry } from '../domain/body';
 import { toISODate } from '../domain/dates';
 import { formatDateShort, formatKg, formatNumber } from '../domain/format';
 import { useAppData } from '../state/AppData';
 import { useTheme } from '../ui/theme';
-import { BigButton, Card, SectionTitle, Stepper } from './ui';
+import { ChartCard, LineChart } from './charts';
+import { BigButton, Card, ListRow, Section, Stepper, StatRow } from './ui';
 
 function useBodyData() {
   const db = useSQLiteContext();
@@ -38,25 +39,36 @@ export function WeightSection() {
   return (
     <>
       <WeightForm key={weights.find((w) => w.date === today)?.kg ?? 'novo'} weights={weights} today={today} />
-      <Card>
-        <Text style={{ color: t.muted, fontSize: 13, fontWeight: '700' }}>MÉDIA MÓVEL (7 DIAS)</Text>
-        <Text style={{ color: t.text, fontSize: 28, fontWeight: '800' }}>{avg === null ? '—' : formatKg(avg)}</Text>
-        <Text style={{ color: t.muted, fontSize: 15 }}>
-          Tendência:{' '}
-          {trend === null ? 'precisa de 2 semanas de pesagens' : `${trend > 0 ? '+' : ''}${formatNumber(trend, 2)} kg/semana`}
-        </Text>
-      </Card>
-      <SectionTitle>Pesagens</SectionTitle>
-      {weights.slice(0, 30).map((w) => (
-        <Card key={w.date} style={{ paddingVertical: 10, flexDirection: 'row', alignItems: 'center' }}>
-          <Text style={{ color: t.text, fontSize: 16, fontWeight: '700', flex: 1 }}>{formatDateShort(w.date)}</Text>
-          <Text style={{ color: t.text, fontSize: 16 }}>{formatKg(w.kg)}</Text>
-          <Text style={{ color: t.muted, fontSize: 14, width: 90, textAlign: 'right' }}>
-            méd. {formatNumber(movingAverage7(weights, w.date) ?? w.kg, 1)}
-          </Text>
-        </Card>
-      ))}
-      {weights.length === 0 ? <Text style={{ color: t.muted }}>Nenhuma pesagem ainda.</Text> : null}
+      <StatRow
+        items={[
+          { label: 'Média 7 dias', value: avg === null ? '—' : formatKg(avg) },
+          {
+            label: 'Tendência',
+            value: trend === null ? '—' : `${trend > 0 ? '+' : ''}${formatNumber(trend, 2)} kg/sem`,
+          },
+        ]}
+      />
+      {trend === null ? <Text style={{ color: t.muted, fontSize: 13 }}>A tendência precisa de 2 semanas de pesagens.</Text> : null}
+      <ChartCard title="Peso corporal (kg)">
+        <LineChart
+          series={[{ name: 'Média 7 dias', slot: 0, style: 'line+dots', points: movingAverageSeries(weights).slice(-60).map((w) => ({ x: w.date, y: w.avg7 })) }]}
+          yFormat={(v) => formatNumber(v, 1)}
+        />
+      </ChartCard>
+      <Section title="Histórico">
+        <View>
+          {weights.slice(0, 30).map((w, i, arr) => (
+            <ListRow
+              key={w.date}
+              title={formatDateShort(w.date)}
+              subtitle={`média ${formatNumber(movingAverage7(weights, w.date) ?? w.kg, 1)} kg`}
+              value={formatKg(w.kg)}
+              last={i === arr.length - 1}
+            />
+          ))}
+        </View>
+        {weights.length === 0 ? <Text style={{ color: t.muted }}>Nenhuma pesagem ainda.</Text> : null}
+      </Section>
     </>
   );
 }
@@ -88,7 +100,7 @@ function WeightForm({ weights, today }: { weights: WeightEntry[]; today: string 
           }}
           style={{ minHeight: 44, justifyContent: 'center', alignItems: 'center' }}
         >
-          <Text style={{ color: t.danger, fontWeight: '700' }}>Apagar pesagem de hoje</Text>
+          <Text style={{ color: t.danger, fontWeight: '600' }}>Apagar pesagem de hoje</Text>
         </Pressable>
       ) : null}
     </Card>
@@ -111,16 +123,19 @@ export function MeasurementsSection() {
         </Text>
       </Card>
       <MeasurementForm key={last?.date ?? 'novo'} last={last ?? null} today={today} />
-      <SectionTitle>Histórico</SectionTitle>
-      {measurements.map((m) => (
-        <Card key={m.date} style={{ paddingVertical: 10 }}>
-          <Text style={{ color: t.text, fontSize: 16, fontWeight: '700' }}>{formatDateShort(m.date)}</Text>
-          <Text style={{ color: t.muted, fontSize: 15 }}>
-            Braço {cm(m.armCm)} · Coxa {cm(m.thighCm)} · Abdômen {cm(m.waistCm)}
-          </Text>
-        </Card>
-      ))}
-      {measurements.length === 0 ? <Text style={{ color: t.muted }}>Nenhuma medida ainda.</Text> : null}
+      <Section title="Histórico">
+        <View>
+          {measurements.map((m, i) => (
+            <ListRow
+              key={m.date}
+              title={formatDateShort(m.date)}
+              subtitle={`Braço ${cm(m.armCm)} · Coxa ${cm(m.thighCm)} · Abdômen ${cm(m.waistCm)}`}
+              last={i === measurements.length - 1}
+            />
+          ))}
+        </View>
+        {measurements.length === 0 ? <Text style={{ color: t.muted }}>Nenhuma medida ainda.</Text> : null}
+      </Section>
     </>
   );
 }

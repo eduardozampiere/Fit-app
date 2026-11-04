@@ -54,6 +54,7 @@ generalize o que existe em vez de copiar. Ao precisar da mesma coisa em um segun
 | Cores, alvo de toque, tipografia, espaçamento, raios | `src/ui/theme.ts` (`useTheme`, `TOUCH`, `font`, `space`, `radius`) |
 | Botão, pílula, cartão, stepper, campo de texto, seção, linha de lista, resumo em colunas, ícone, menu de ações, cabeçalho de modal | `src/components/ui.tsx` (`BigButton`, `Chip`, `Card`, `Stepper`, `TextField`, `Section`, `ListRow`, `StatRow`, `IconButton`, `ActionMenu`, `SheetHeader`) |
 | Tabela de séries do treino | `src/components/SetTable.tsx` |
+| Lista reordenável (segurar e arrastar) | `src/components/DragList.tsx` + `src/domain/reorder.ts` |
 | Gráficos | `src/components/charts.tsx` |
 | Abrir/compartilhar arquivo | `src/state/files.ts` |
 | Ler/gravar ajuste | `getSetting` / `setSetting` em `src/db/repo.ts` |

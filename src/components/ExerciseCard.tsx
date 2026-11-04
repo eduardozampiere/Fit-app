@@ -6,6 +6,7 @@ import type { SetLock } from '../domain/rules';
 import type { PrescribedItem, Range, SetLog } from '../domain/types';
 import { font, radius, space, useTheme } from '../ui/theme';
 import type { SetDraft } from '../domain/logging';
+import type { DragHandleProps } from './DragList';
 import { SetTable, type SetInput, type SetKind } from './SetTable';
 import { IconButton } from './ui';
 
@@ -54,6 +55,10 @@ export function ExerciseCard({
   onRpe,
   onAdd,
   onAddWarmup,
+  onMoveSet,
+  onSetDrag,
+  handle,
+  collapsed,
 }: {
   item: PrescribedItem;
   load: Range | null;
@@ -81,81 +86,104 @@ export function ExerciseCard({
   onRpe: (log: SetLog) => void;
   onAdd: () => void;
   onAddWarmup: () => void;
+  onMoveSet: (kind: SetKind, from: number, to: number) => void;
+  onSetDrag: (dragging: boolean) => void;
+  /** Segurar o cabeçalho para arrastar o exercício. */
+  handle?: DragHandleProps;
+  /** Durante o arraste de exercícios, só o cabeçalho aparece. */
+  collapsed?: boolean;
 }) {
   const t = useTheme();
   const prescription = prescriptionLine(item, load);
 
   return (
-    <View style={[styles.block, isChild && { paddingLeft: space.md, borderLeftWidth: 2, borderLeftColor: t.separator }]}>
+    <View style={[styles.block, collapsed && styles.blockCollapsed, isChild && { paddingLeft: space.md, borderLeftWidth: 2, borderLeftColor: t.separator }]}>
       <View style={styles.header}>
-        <View style={[styles.avatar, { backgroundColor: t.surface }]}>
-          <Ionicons name={isLift ? 'barbell' : 'fitness'} size={22} color={complete ? t.done : t.accent} />
-        </View>
-        <View style={{ flex: 1, gap: 2 }}>
-          <Text style={[styles.name, { color: t.accent }]} accessibilityRole="header">
-            {item.name}
-          </Text>
-          <Text style={[styles.kind, { color: complete ? t.done : t.muted }]}>
-            {KIND_LABEL[item.kind]}
-            {complete ? ' · feito' : ''}
-          </Text>
-        </View>
-        <IconButton name="ellipsis-vertical" label={`Opções de ${item.name}`} onPress={onMenu} size={20} />
+        <Pressable
+          style={styles.title}
+          accessibilityRole="header"
+          accessibilityLabel={`${item.name}, ${KIND_LABEL[item.kind]}${complete ? ', feito' : ''}`}
+          accessibilityHint={handle ? 'Segure e arraste para mudar a ordem dos exercícios' : undefined}
+          {...handle}
+        >
+          <View style={[styles.avatar, { backgroundColor: t.surface }]}>
+            <Ionicons name={isLift ? 'barbell' : 'fitness'} size={22} color={complete ? t.done : t.accent} />
+          </View>
+          <View style={{ flex: 1, gap: 2 }}>
+            <Text style={[styles.name, { color: t.accent }]}>{item.name}</Text>
+            <Text style={[styles.kind, { color: complete ? t.done : t.muted }]}>
+              {KIND_LABEL[item.kind]}
+              {complete ? ' · feito' : ''}
+            </Text>
+          </View>
+        </Pressable>
+        {collapsed ? (
+          <Ionicons name="reorder-three" size={26} color={t.muted} />
+        ) : (
+          <IconButton name="ellipsis-vertical" label={`Opções de ${item.name}`} onPress={onMenu} size={20} />
+        )}
       </View>
+      {collapsed ? null : (
+        <>
+          {prescription ? <Text style={[styles.prescription, { color: t.text }]}>{prescription}</Text> : null}
+          {item.notes ? <Text style={[styles.notes, { color: t.muted }]}>{item.notes}</Text> : null}
+          {tip ? <Text style={[styles.tip, { color: t.accent }]}>{tip}</Text> : null}
+          <View style={styles.restRow}>
+            <Ionicons name="timer-outline" size={16} color={t.accent} />
+            <Text style={[styles.rest, { color: t.accent }]}>
+              Descanso: {item.restText && item.restText !== '—' ? item.restText : formatSeconds(restSec)}
+            </Text>
+          </View>
 
-      {prescription ? <Text style={[styles.prescription, { color: t.text }]}>{prescription}</Text> : null}
-      {item.notes ? <Text style={[styles.notes, { color: t.muted }]}>{item.notes}</Text> : null}
-      {tip ? <Text style={[styles.tip, { color: t.accent }]}>{tip}</Text> : null}
-      <View style={styles.restRow}>
-        <Ionicons name="timer-outline" size={16} color={t.accent} />
-        <Text style={[styles.rest, { color: t.accent }]}>
-          Descanso: {item.restText && item.restText !== '—' ? item.restText : formatSeconds(restSec)}
-        </Text>
-      </View>
-
-      {lock ? (
-        <View style={[styles.lockBox, { backgroundColor: t.warnBg }]}>
-          <Ionicons name="lock-closed" size={16} color={t.warn} />
-          <Text style={{ color: t.warn, fontSize: 14, fontWeight: '600', flex: 1 }}>{lock.reason}</Text>
-          {lock.undoable && onUnlock ? (
-            <Pressable
-              accessibilityRole="button"
-              accessibilityLabel="Desfazer bloqueio do terra"
-              onPress={onUnlock}
-              style={[styles.unlockBtn, { backgroundColor: t.surface }]}
-            >
-              <Text style={{ color: t.text, fontWeight: '600' }}>Desfazer</Text>
-            </Pressable>
+          {lock ? (
+            <View style={[styles.lockBox, { backgroundColor: t.warnBg }]}>
+              <Ionicons name="lock-closed" size={16} color={t.warn} />
+              <Text style={{ color: t.warn, fontSize: 14, fontWeight: '600', flex: 1 }}>{lock.reason}</Text>
+              {lock.undoable && onUnlock ? (
+                <Pressable
+                  accessibilityRole="button"
+                  accessibilityLabel="Desfazer bloqueio do terra"
+                  onPress={onUnlock}
+                  style={[styles.unlockBtn, { backgroundColor: t.surface }]}
+                >
+                  <Text style={{ color: t.text, fontWeight: '600' }}>Desfazer</Text>
+                </Pressable>
+              ) : null}
+            </View>
           ) : null}
-        </View>
-      ) : null}
 
-      <SetTable
-        item={item}
-        plannedLoad={load?.min ?? null}
-        logs={logs}
-        rows={rows}
-        plannedCount={plannedCount}
-        warmups={warmups}
-        warmupDrafts={warmupDrafts}
-        lock={lock}
-        showRpe={showRpe}
-        pendingRpeIndex={pendingRpeIndex}
-        onCheck={onCheck}
-        onUncheck={onUncheck}
-        onEdit={onEdit}
-        onRemove={onRemove}
-        onSetMenu={onSetMenu}
-        onRpe={onRpe}
-        onAdd={onAdd}
-        onAddWarmup={onAddWarmup}
-      />
+          <SetTable
+            item={item}
+            plannedLoad={load?.min ?? null}
+            logs={logs}
+            rows={rows}
+            plannedCount={plannedCount}
+            warmups={warmups}
+            warmupDrafts={warmupDrafts}
+            lock={lock}
+            showRpe={showRpe}
+            pendingRpeIndex={pendingRpeIndex}
+            onCheck={onCheck}
+            onUncheck={onUncheck}
+            onEdit={onEdit}
+            onRemove={onRemove}
+            onSetMenu={onSetMenu}
+            onRpe={onRpe}
+            onAdd={onAdd}
+            onAddWarmup={onAddWarmup}
+            onMoveSet={onMoveSet}
+            onDragChange={onSetDrag}
+          />
+        </>
+      )}
     </View>
   );
 }
 
 const styles = StyleSheet.create({
   block: { gap: space.sm, paddingVertical: space.lg },
+  blockCollapsed: { paddingVertical: space.sm },
+  title: { flex: 1, flexDirection: 'row', alignItems: 'center', gap: space.md },
   header: { flexDirection: 'row', alignItems: 'center', gap: space.md },
   avatar: { width: 40, height: 40, borderRadius: 20, alignItems: 'center', justifyContent: 'center' },
   name: { ...font.headline },

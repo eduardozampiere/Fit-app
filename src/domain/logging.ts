@@ -1,6 +1,7 @@
 import { parseDecimalInput } from './format';
 import { plannedLoadKg, roundTo } from './loads';
 import { maxSetCount, plannedSetCount } from './plan';
+import { movedPosition } from './reorder';
 import type { PrescribedItem, Range, SetLog } from './types';
 
 export type SetDraft = Omit<SetLog, 'id' | 'sessionLogId' | 'doneAt'>;
@@ -80,6 +81,21 @@ export function renumberAfterRemoval(
     .filter((l) => l.setIndex > removed)
     .sort((a, b) => a.setIndex - b.setIndex)
     .map((l) => ({ id: l.id, setIndex: l.setIndex - 1 }));
+}
+
+/**
+ * Arrastar a série da posição `from` para `to`: as registradas no caminho andam uma posição.
+ * Devolve só as que mudam de número.
+ */
+export function renumberAfterMove(
+  logs: Pick<SetLog, 'id' | 'setIndex'>[],
+  from: number,
+  to: number,
+): { id: string; setIndex: number }[] {
+  return logs
+    .map((l) => ({ id: l.id, setIndex: movedPosition(l.setIndex, from, to), old: l.setIndex }))
+    .filter((l) => l.setIndex !== l.old)
+    .map(({ id, setIndex }) => ({ id, setIndex }));
 }
 
 /**

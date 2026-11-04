@@ -22,6 +22,8 @@ const light = {
   series: ['#2a78d6', '#eb6834', '#1baf7a'],
   grid: '#ECEDEF',
   reference: '#A3A29C',
+  // Sombra do item levantado no arraste
+  shadow: '#000000',
 };
 
 const dark: typeof light = {
@@ -42,6 +44,7 @@ const dark: typeof light = {
   series: ['#3987e5', '#d95926', '#199e70'],
   grid: '#232326',
   reference: '#6E6D68',
+  shadow: '#000000',
 };
 
 export type Theme = typeof light;

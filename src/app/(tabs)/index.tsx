@@ -5,6 +5,7 @@ import { ActivityIndicator, Platform, ScrollView, StyleSheet, Text, View } from 
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { AlertCard } from '../../components/AlertCard';
 import { CheckinSummary } from '../../components/CheckinSummary';
+import { DragList } from '../../components/DragList';
 import { ExerciseCard } from '../../components/ExerciseCard';
 import { PlateCalculator } from '../../components/PlateCalculator';
 import { RedFlagModal } from '../../components/RedFlagModal';
@@ -17,6 +18,7 @@ import {
   deleteSet,
   deleteSetAndRenumber,
   ensureSessionLog,
+  exerciseOrderKey,
   getSetting,
   insertSets,
   listSessionLogs,
@@ -34,6 +36,7 @@ import {
   draftFromInput,
   plannedCountFor,
   plannedSet,
+  renumberAfterMove,
   renumberAfterRemoval,
   sessionStats,
   setRowCount,
@@ -56,6 +59,7 @@ import type { PrescribedItem, SessionLog, SetLog } from '../../domain/types';
 import { useAppData } from '../../state/AppData';
 import { useRestTimer } from '../../state/RestTimer';
 import { useCoach } from '../../state/useCoach';
+import { itemBlocks, moveItem, orderBlocks } from '../../domain/reorder';
 import { RPE_CHOICES } from '../../domain/rpe';
 import { font, space, useTheme } from '../../ui/theme';
 
@@ -101,6 +105,10 @@ export default function TodayScreen() {
   // Séries adicionadas/removidas no treino do dia, por item.
   const [setCounts, setSetCounts] = useState<Record<string, number>>({});
   const [warmupCounts, setWarmupCounts] = useState<Record<string, number>>({});
+  // Ordem dos exercícios mudada no dia (arrastando), salva por sessão.
+  const [exerciseOrder, setExerciseOrder] = useState<string[]>([]);
+  // Arraste em andamento: trava a rolagem; arrastando exercício, os cartões ficam só com o cabeçalho.
+  const [dragging, setDragging] = useState<'exercise' | 'set' | null>(null);
   const [failUnlocked, setFailUnlocked] = useState(false);
   const [redFlagSeen, setRedFlagSeen] = useState(false);
 
@@ -121,13 +129,19 @@ export default function TodayScreen() {
       setFailUnlocked(current ? await getSetting(db, `unlock-fail:${current.id}`, false) : false);
       setSetCounts(current ? await getSetting<Record<string, number>>(db, setCountsKey(current.id), {}) : {});
       setWarmupCounts(current ? await getSetting<Record<string, number>>(db, warmupCountsKey(current.id), {}) : {});
+      setExerciseOrder(current ? await getSetting<string[]>(db, exerciseOrderKey(current.id), []) : []);
     })();
     return () => {
       alive = false;
     };
   }, [db, cycle, ref, version]);
 
-  const items = useMemo(() => (ref ? sessionItems(ref.week, ref.session) : []), [ref]);
+  // Blocos = exercício + filhos (andam juntos no arraste), na ordem do dia.
+  const blocks = useMemo(
+    () => (ref ? orderBlocks(itemBlocks(sessionItems(ref.week, ref.session)), exerciseOrder) : []),
+    [ref, exerciseOrder],
+  );
+  const items = useMemo(() => blocks.flat(), [blocks]);
   const loadOf = useCallback((item: PrescribedItem) => (cycle && maxes ? currentLoad(cycle, item, maxes) : item.load), [cycle, maxes]);
   // O aquecimento tem numeração própria e fica fora das regras, do resumo e do "conforme o plano".
   const workLogs = useMemo(() => setLogs.filter((l) => !l.warmup), [setLogs]);
@@ -237,6 +251,26 @@ export default function TodayScreen() {
     const sameKind = kind === 'warmup' ? warmupsOf(item) : logsOf(item);
     await deleteSetAndRenumber(db, log?.id ?? null, renumberAfterRemoval(sameKind, idx));
     await saveCount(kind, item, rowsOfKind(kind, item) - 1);
+    bump();
+  };
+
+  /** Muda a ordem dos exercícios só neste treino; o plano continua igual. */
+  const moveExercise = async (from: number, to: number) => {
+    const next = moveItem(blocks, from, to).map((b) => b[0].id);
+    setExerciseOrder(next);
+    const log = await ensureLog();
+    await setSetting(db, exerciseOrderKey(log.id), next);
+    bump();
+  };
+
+  /** Arrasta a série `from` para `to` (posições do mesmo tipo); as registradas no caminho andam uma posição. */
+  const moveSet = async (kind: SetKind, item: PrescribedItem, from: number, to: number) => {
+    const changes = renumberAfterMove(kind === 'warmup' ? warmupsOf(item) : logsOf(item), from, to);
+    if (!changes.length) return;
+    // Otimista: a tabela já aparece na ordem nova, sem voltar ao lugar antes de o banco responder.
+    const byId = new Map(changes.map((c) => [c.id, c.setIndex]));
+    setSetLogs((prev) => prev.map((l) => (byId.has(l.id) ? { ...l, setIndex: byId.get(l.id)! } : l)));
+    await deleteSetAndRenumber(db, null, changes);
     bump();
   };
 
@@ -370,6 +404,7 @@ export default function TodayScreen() {
         keyboardShouldPersistTaps="handled"
         keyboardDismissMode="on-drag"
         automaticallyAdjustKeyboardInsets
+        scrollEnabled={dragging === null}
       >
         <View style={styles.weekNav}>
           <View style={{ opacity: weekIdx <= 0 ? 0.3 : 1 }}>
@@ -455,48 +490,62 @@ export default function TodayScreen() {
           </Card>
         )}
 
-        <View>
-          {items.map((item, i) => {
-            const logs = logsOf(item);
-            const lock = locks.get(item.id);
-            const plannedCount = plannedCountOf(item);
-            const effective = lock ? Math.min(plannedCount, lock.fromSet - 1) : plannedCount;
-            const showRpe = RPE_KINDS.has(item.kind);
-            const last = logs.length ? logs.reduce((a, b) => (b.setIndex > a.setIndex ? b : a)) : null;
-            return (
-              <View key={item.id}>
-                {i > 0 ? <Divider /> : null}
-                <ExerciseCard
-                  item={item}
-                  load={loadOf(item)}
-                  logs={logs}
-                  isChild={!!item.parentId}
-                  isLift={liftOf(cycle, item) !== null}
-                  rows={rowsOf(item)}
-                  plannedCount={plannedCount}
-                  warmups={warmupsOf(item)}
-                  warmupDrafts={warmupDraftsOf(item)}
-                  complete={logs.length >= effective && (logs.length > 0 || effective === 0)}
-                  restSec={restSeconds(item)}
-                  showRpe={showRpe}
-                  pendingRpeIndex={showRpe && last && last.rpe === null ? last.setIndex : null}
-                  lock={lock}
-                  onUnlock={() => toggleFailLock(true)}
-                  tip={gripTip(cycle, ref.week, item)}
-                  onMenu={() => openExerciseMenu(item)}
-                  onCheck={(kind, idx, input) => checkSet(kind, item, idx, input)}
-                  onUncheck={uncheckSet}
-                  onEdit={editSet}
-                  onRemove={(kind, idx, log) => removeSet(kind, item, idx, log)}
-                  onSetMenu={(kind, idx, log) => openSetMenu(kind, item, idx, log)}
-                  onRpe={openRpeMenu}
-                  onAdd={() => addSet(item)}
-                  onAddWarmup={() => addSet(item, 'warmup')}
-                />
-              </View>
-            );
-          })}
-        </View>
+        <DragList
+          items={blocks}
+          keyOf={(b) => b[0].id}
+          onMove={moveExercise}
+          onDragChange={(on) => setDragging(on ? 'exercise' : null)}
+          renderItem={(block, i, handle) => (
+            <View>
+              {i > 0 ? <Divider /> : null}
+              {block.map((item, j) => {
+                const logs = logsOf(item);
+                const lock = locks.get(item.id);
+                const plannedCount = plannedCountOf(item);
+                const effective = lock ? Math.min(plannedCount, lock.fromSet - 1) : plannedCount;
+                const showRpe = RPE_KINDS.has(item.kind);
+                const last = logs.length ? logs.reduce((a, b) => (b.setIndex > a.setIndex ? b : a)) : null;
+                return (
+                  <View key={item.id}>
+                    {j > 0 ? <Divider /> : null}
+                    <ExerciseCard
+                      item={item}
+                      load={loadOf(item)}
+                      logs={logs}
+                      isChild={!!item.parentId}
+                      isLift={liftOf(cycle, item) !== null}
+                      rows={rowsOf(item)}
+                      plannedCount={plannedCount}
+                      warmups={warmupsOf(item)}
+                      warmupDrafts={warmupDraftsOf(item)}
+                      complete={logs.length >= effective && (logs.length > 0 || effective === 0)}
+                      restSec={restSeconds(item)}
+                      showRpe={showRpe}
+                      pendingRpeIndex={showRpe && last && last.rpe === null ? last.setIndex : null}
+                      lock={lock}
+                      onUnlock={() => toggleFailLock(true)}
+                      tip={gripTip(cycle, ref.week, item)}
+                      onMenu={() => openExerciseMenu(item)}
+                      onCheck={(kind, idx, input) => checkSet(kind, item, idx, input)}
+                      onUncheck={uncheckSet}
+                      onEdit={editSet}
+                      onRemove={(kind, idx, log) => removeSet(kind, item, idx, log)}
+                      onSetMenu={(kind, idx, log) => openSetMenu(kind, item, idx, log)}
+                      onRpe={openRpeMenu}
+                      onAdd={() => addSet(item)}
+                      onAddWarmup={() => addSet(item, 'warmup')}
+                      onMoveSet={(kind, from, to) => moveSet(kind, item, from, to)}
+                      onSetDrag={(on) => setDragging(on ? 'set' : null)}
+                      // O bloco inteiro (exercício + filhos) se arrasta pelo cabeçalho de qualquer um.
+                      handle={handle}
+                      collapsed={dragging === 'exercise'}
+                    />
+                  </View>
+                );
+              })}
+            </View>
+          )}
+        />
 
         {setLogs.length > 0 ? (
           <BigButton label={done ? 'Reabrir treino' : 'Finalizar treino'} variant="neutral" onPress={finishSession} />

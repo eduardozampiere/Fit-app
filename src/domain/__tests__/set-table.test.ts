@@ -6,6 +6,7 @@ import {
   draftFromInput,
   plannedCountFor,
   plannedSet,
+  renumberAfterMove,
   renumberAfterRemoval,
   sessionStats,
   setRowCount,
@@ -13,6 +14,7 @@ import {
   warmupSet,
 } from '../logging';
 import { barChoices, platesFor } from '../plates';
+import { dragShift, dropIndex, itemBlocks, moveItem, orderBlocks, settleOffset, slotSize } from '../reorder';
 import type { Cycle } from '../types';
 
 const cycle = cycleJson as unknown as Cycle;
@@ -122,5 +124,52 @@ describe('aquecimento', () => {
     expect(warmupRowCount(undefined, [])).toBe(0);
     expect(warmupRowCount(2, [])).toBe(2);
     expect(warmupRowCount(1, [1, 3])).toBe(3);
+  });
+});
+
+describe('reordenar', () => {
+  it('arrastar uma série renumera só as do caminho', () => {
+    const logs = [
+      { id: 'a', setIndex: 1 },
+      { id: 'b', setIndex: 2 },
+      { id: 'c', setIndex: 4 },
+    ];
+    expect(renumberAfterMove(logs, 4, 1)).toEqual([
+      { id: 'a', setIndex: 2 },
+      { id: 'b', setIndex: 3 },
+      { id: 'c', setIndex: 1 },
+    ]);
+    expect(renumberAfterMove(logs, 1, 3)).toEqual([
+      { id: 'a', setIndex: 3 },
+      { id: 'b', setIndex: 1 },
+    ]);
+    expect(renumberAfterMove(logs, 3, 3)).toEqual([]);
+  });
+
+  it('exercício anda junto com os filhos e respeita a ordem salva do dia', () => {
+    const items = [
+      { id: 'p', parentId: null },
+      { id: 'p1', parentId: 'p' },
+      { id: 'q', parentId: null },
+      { id: 'r', parentId: 'sumiu' },
+    ];
+    const blocks = itemBlocks(items);
+    expect(blocks.map((b) => b.map((i) => i.id))).toEqual([['p', 'p1'], ['q'], ['r']]);
+    expect(orderBlocks(blocks, ['q', 'p']).map((b) => b[0].id)).toEqual(['q', 'p', 'r']);
+    expect(orderBlocks(blocks, undefined)).toBe(blocks);
+    expect(moveItem(['a', 'b', 'c'], 2, 0)).toEqual(['c', 'a', 'b']);
+  });
+
+  it('geometria: onde o item cai e quanto os outros abrem espaço', () => {
+    const slots = [0, 1, 2, 3].map((i) => ({ y: i * 60, h: 52 }));
+    expect(slotSize(slots, 0)).toBe(60);
+    expect(dropIndex(slots, 0, 10)).toBe(0);
+    expect(dropIndex(slots, 0, 150)).toBe(2);
+    expect(dropIndex(slots, 3, 0)).toBe(0);
+    expect([0, 1, 2, 3].map((i) => dragShift(i, 0, 2, 60))).toEqual([0, -60, -60, 0]);
+    expect([0, 1, 2, 3].map((i) => dragShift(i, 3, 1, 60))).toEqual([0, 60, 60, 0]);
+    expect(settleOffset(slots, 0, 2)).toBe(120);
+    expect(settleOffset(slots, 3, 1)).toBe(-120);
+    expect(settleOffset(slots, 1, 1)).toBe(0);
   });
 });

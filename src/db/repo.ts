@@ -225,6 +225,9 @@ export const setCountsKey = (sessionLogId: string) => `set-counts:${sessionLogId
 /** Linhas de aquecimento adicionadas no treino do dia, por item. */
 export const warmupCountsKey = (sessionLogId: string) => `warmup-counts:${sessionLogId}`;
 
+/** Ordem dos exercícios no treino do dia (ids do primeiro item de cada bloco). */
+export const exerciseOrderKey = (sessionLogId: string) => `exercise-order:${sessionLogId}`;
+
 // ---- Check-in ----
 
 type CheckInRow = {

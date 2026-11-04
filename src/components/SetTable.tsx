@@ -6,6 +6,7 @@ import type { SetDraft } from '../domain/logging';
 import type { SetLock } from '../domain/rules';
 import type { PrescribedItem, SetLog } from '../domain/types';
 import { radius, space, useTheme } from '../ui/theme';
+import { DragList, type DragHandleProps } from './DragList';
 import { SwipeToDelete } from './SwipeToDelete';
 import { BigButton } from './ui';
 
@@ -22,7 +23,8 @@ const COL = { set: 34, load: 66, work: 54, rpe: 48, check: 44 } as const;
  * Tabela de séries no estilo do Hevy: SÉRIE · PLANO · KG · REPS · (RPE) · ✓.
  * Aquecimento ("A", em laranja) vem antes das séries de trabalho, com cargas sugeridas em cinza.
  * Célula vazia mostra o valor sugerido; ✓ registra o que foi digitado ou, sem nada digitado, a sugestão.
- * Arrastar a linha para a direita apaga; tocar no número abre o menu da série.
+ * Arrastar a linha para a direita apaga; tocar no número abre o menu da série; segurar o número e
+ * arrastar muda a ordem (aquecimento e trabalho, cada um entre os seus).
  */
 export function SetTable({
   item,
@@ -43,6 +45,8 @@ export function SetTable({
   onRpe,
   onAdd,
   onAddWarmup,
+  onMoveSet,
+  onDragChange,
 }: {
   item: PrescribedItem;
   plannedLoad: number | null;
@@ -64,11 +68,19 @@ export function SetTable({
   onRpe: (log: SetLog) => void;
   onAdd: () => void;
   onAddWarmup: () => void;
+  /** Arrastou a série de `from` para `to` (posições 1…n dentro do mesmo tipo). */
+  onMoveSet: (kind: SetKind, from: number, to: number) => void;
+  onDragChange: (dragging: boolean) => void;
 }) {
   const t = useTheme();
   const isDuration = !!item.durationSec && !item.reps;
   const plannedWork = isDuration ? formatRange(item.durationSec) : item.reps ? formatRange(item.reps) : '—';
   const plannedText = `${plannedLoad !== null ? formatNumber(plannedLoad) : '—'}×${plannedWork}`;
+  // Linhas bloqueadas (regras 4 e 5) ficam paradas no fim; as de antes podem ser arrastadas.
+  const all = Array.from({ length: rows }, (_, i) => i + 1);
+  const firstLocked = lock ? all.find((idx) => idx >= lock.fromSet && !logs.some((l) => l.setIndex === idx)) : undefined;
+  const workRows = firstLocked ? all.filter((idx) => idx < firstLocked) : all;
+  const lockedRows = firstLocked ? all.filter((idx) => idx >= firstLocked) : [];
 
   return (
     <View style={{ gap: 2 }}>
@@ -83,74 +95,88 @@ export function SetTable({
         </View>
       </View>
 
-      {warmupDrafts.map((draft) => {
-        const idx = draft.setIndex;
-        const log = warmups.find((l) => l.setIndex === idx) ?? null;
-        return (
-          <SwipeToDelete key={`w${idx}-${log?.id ?? 'new'}`} label={`aquecimento ${idx}`} onDelete={() => onRemove('warmup', idx, log)}>
-            <SetRow
-              key={`w${idx}-${log?.id ?? 'new'}-${log?.loadKg}-${log?.reps}`}
-              label="A"
-              labelColor={t.warn}
-              a11yName={`Aquecimento ${idx}`}
-              log={log}
-              plannedText="aquec."
-              loadPlaceholder={draft.loadKg !== null ? formatNumber(draft.loadKg, 2) : '—'}
-              workPlaceholder={String((isDuration ? draft.durationSec : draft.reps) ?? '—')}
-              isDuration={isDuration}
-              rpeColumn={showRpe ? 'blank' : 'none'}
-              rpePending={false}
-              onCheck={(input) => onCheck('warmup', idx, input)}
-              onUncheck={onUncheck}
-              onEdit={onEdit}
-              onMenu={() => onSetMenu('warmup', idx, log)}
-              onRpe={onRpe}
-            />
-          </SwipeToDelete>
-        );
-      })}
-
-      {Array.from({ length: rows }, (_, i) => i + 1).map((idx) => {
-        const log = logs.find((l) => l.setIndex === idx) ?? null;
-        const locked = !log && !!lock && idx >= lock.fromSet;
-        if (locked) {
+      <DragList
+        items={warmupDrafts}
+        keyOf={(d) => `w${d.setIndex}-${warmups.find((l) => l.setIndex === d.setIndex)?.id ?? 'new'}`}
+        onMove={(from, to) => onMoveSet('warmup', from + 1, to + 1)}
+        onDragChange={onDragChange}
+        style={styles.rows}
+        renderItem={(draft, i, handle) => {
+          const idx = i + 1;
+          const log = warmups.find((l) => l.setIndex === idx) ?? null;
           return (
-            <View
-              key={idx}
-              style={[styles.row, { backgroundColor: t.surface, opacity: 0.6 }]}
-              accessible
-              accessibilityLabel={`Série ${idx} bloqueada: ${lock!.reason}`}
-            >
-              <Text style={[styles.setIdx, { width: COL.set, color: t.muted }]}>{idx}</Text>
-              <Ionicons name="lock-closed" size={16} color={t.muted} />
-              <Text style={[styles.lockedText, { color: t.muted }]}>bloqueada</Text>
-            </View>
+            <SwipeToDelete label={`aquecimento ${idx}`} onDelete={() => onRemove('warmup', idx, log)}>
+              <SetRow
+                key={`w${idx}-${log?.id ?? 'new'}-${log?.loadKg}-${log?.reps}`}
+                label="A"
+                labelColor={t.warn}
+                a11yName={`Aquecimento ${idx}`}
+                log={log}
+                plannedText="aquec."
+                loadPlaceholder={draft.loadKg !== null ? formatNumber(draft.loadKg, 2) : '—'}
+                workPlaceholder={String((isDuration ? draft.durationSec : draft.reps) ?? '—')}
+                isDuration={isDuration}
+                rpeColumn={showRpe ? 'blank' : 'none'}
+                rpePending={false}
+                handle={handle}
+                onCheck={(input) => onCheck('warmup', idx, input)}
+                onUncheck={onUncheck}
+                onEdit={onEdit}
+                onMenu={() => onSetMenu('warmup', idx, log)}
+                onRpe={onRpe}
+              />
+            </SwipeToDelete>
           );
-        }
-        const optional = idx > plannedCount;
-        return (
-          <SwipeToDelete key={`${idx}-${log?.id ?? 'new'}`} label={`série ${idx}`} onDelete={() => onRemove('work', idx, log)}>
-            <SetRow
-              key={`${idx}-${log?.id ?? 'new'}-${log?.loadKg}-${log?.reps}-${log?.durationSec}`}
-              label={String(idx)}
-              labelColor={optional && !log ? t.muted : t.text}
-              a11yName={`Série ${idx}${optional ? ', opcional' : ''}`}
-              log={log}
-              plannedText={log?.failed ? 'falhou' : optional && !log ? `${plannedText} opc.` : plannedText}
-              loadPlaceholder={plannedLoad !== null ? formatNumber(plannedLoad, 2) : '—'}
-              workPlaceholder={plannedWork}
-              isDuration={isDuration}
-              rpeColumn={showRpe ? 'rpe' : 'none'}
-              rpePending={pendingRpeIndex === idx}
-              onCheck={(input) => onCheck('work', idx, input)}
-              onUncheck={onUncheck}
-              onEdit={onEdit}
-              onMenu={() => onSetMenu('work', idx, log)}
-              onRpe={onRpe}
-            />
-          </SwipeToDelete>
-        );
-      })}
+        }}
+      />
+
+      <DragList
+        items={workRows}
+        keyOf={(idx) => `${idx}-${logs.find((l) => l.setIndex === idx)?.id ?? 'new'}`}
+        onMove={(from, to) => onMoveSet('work', from + 1, to + 1)}
+        onDragChange={onDragChange}
+        style={styles.rows}
+        renderItem={(idx, _i, handle) => {
+          const log = logs.find((l) => l.setIndex === idx) ?? null;
+          const optional = idx > plannedCount;
+          return (
+            <SwipeToDelete label={`série ${idx}`} onDelete={() => onRemove('work', idx, log)}>
+              <SetRow
+                key={`${idx}-${log?.id ?? 'new'}-${log?.loadKg}-${log?.reps}-${log?.durationSec}`}
+                label={String(idx)}
+                labelColor={optional && !log ? t.muted : t.text}
+                a11yName={`Série ${idx}${optional ? ', opcional' : ''}`}
+                log={log}
+                plannedText={log?.failed ? 'falhou' : optional && !log ? `${plannedText} opc.` : plannedText}
+                loadPlaceholder={plannedLoad !== null ? formatNumber(plannedLoad, 2) : '—'}
+                workPlaceholder={plannedWork}
+                isDuration={isDuration}
+                rpeColumn={showRpe ? 'rpe' : 'none'}
+                rpePending={pendingRpeIndex === idx}
+                handle={handle}
+                onCheck={(input) => onCheck('work', idx, input)}
+                onUncheck={onUncheck}
+                onEdit={onEdit}
+                onMenu={() => onSetMenu('work', idx, log)}
+                onRpe={onRpe}
+              />
+            </SwipeToDelete>
+          );
+        }}
+      />
+
+      {lockedRows.map((idx) => (
+        <View
+          key={idx}
+          style={[styles.row, { backgroundColor: t.surface, opacity: 0.6 }]}
+          accessible
+          accessibilityLabel={`Série ${idx} bloqueada: ${lock!.reason}`}
+        >
+          <Text style={[styles.setIdx, { width: COL.set, color: t.muted }]}>{idx}</Text>
+          <Ionicons name="lock-closed" size={16} color={t.muted} />
+          <Text style={[styles.lockedText, { color: t.muted }]}>bloqueada</Text>
+        </View>
+      ))}
 
       <View style={styles.addRow}>
         <View style={{ flex: 2 }}>
@@ -175,6 +201,7 @@ function SetRow({
   isDuration,
   rpeColumn,
   rpePending,
+  handle,
   onCheck,
   onUncheck,
   onEdit,
@@ -192,6 +219,8 @@ function SetRow({
   /** 'blank' mantém a coluna alinhada nas linhas sem RPE (aquecimento). */
   rpeColumn: 'rpe' | 'blank' | 'none';
   rpePending: boolean;
+  /** Segurar o número para arrastar. */
+  handle: DragHandleProps;
   onCheck: (input: SetInput) => void;
   onUncheck: (log: SetLog) => void;
   onEdit: (log: SetLog, input: SetInput) => void;
@@ -214,7 +243,9 @@ function SetRow({
       <Pressable
         accessibilityRole="button"
         accessibilityLabel={`${a11yName}. Abrir menu da série`}
+        accessibilityHint="Segure e arraste para mudar a ordem"
         onPress={onMenu}
+        {...handle}
         hitSlop={8}
         style={[styles.setIdxBtn, { width: COL.set }]}
       >
@@ -291,5 +322,6 @@ const styles = StyleSheet.create({
   checkWrap: { height: 44, alignItems: 'center', justifyContent: 'center' },
   check: { width: 36, height: 36, borderRadius: radius.cell, alignItems: 'center', justifyContent: 'center' },
   lockedText: { fontSize: 14, marginLeft: space.xs },
+  rows: { gap: 2 },
   addRow: { flexDirection: 'row', gap: space.sm, marginTop: space.sm },
 });

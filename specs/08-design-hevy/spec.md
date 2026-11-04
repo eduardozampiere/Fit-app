@@ -1,6 +1,6 @@
 # 08 — Visual inspirado no Hevy
 
-**Status:** 🔨 em andamento (fases 1 e 2 feitas)
+**Status:** 🔨 em andamento (fases 1 a 3 feitas)
 
 ## Objetivo
 O visual atual (cartões arredondados em tudo, botões pesados, muitos chips coloridos) não agrada. A meta
@@ -111,8 +111,9 @@ Novos grupos de token: `font` (`largeTitle 28/700`, `title 20/600`, `headline 17
   bloqueio da 4ª série do terra e a falha no aparelho
 
 ### Fase 3 — Plano
-- [ ] Sessões da semana como cartões de rotina (título, exercícios em cinza, botão azul "Abrir treino")
-- [ ] Edição de exercício pelo menu ⋮; ⚙ Ajustes e Claude como `IconButton` no topo
+- [x] Semanas em pílulas (S1…S14) e sessões da semana como cartões de rotina (título, dia, exercícios em
+  cinza, botão azul "Abrir treino" ou "Ver treino" quando feito)
+- [x] Edição de exercício pelo menu ⋯ do cartão (lista com `ListRow`); Ajustes e Claude como `IconButton` no topo
 
 ### Fase 4 — Análises, Corpo e Comida
 - [ ] Análises: um gráfico por cartão com seletor em pílula (carga, e1RM, tonelagem, RPE), histórico em `ListRow`
@@ -149,5 +150,6 @@ claro e escuro, prévia web e atualização deste spec e do `PLANO.md`.
 | Data | Nota |
 |---|---|
 | 03/11/2026 | Spec criada a partir das capturas do Hevy na App Store. Decisões do usuário: edição inline, tema do sistema, por fases. |
+| 03/11/2026 | Fase 3 feita: aba Plano com semanas em pílulas e cartões de rotina. |
 | 03/11/2026 | Fase 2 feita: tabela de séries com edição inline, adicionar/remover série, resumo do treino e barra escolhida na calculadora. |
 | 03/11/2026 | Fase 1 feita: tokens novos, componentes base e `@expo/vector-icons` de volta às dependências (só JS, sem entitlement novo). No escuro, `surface` subiu para `#28282B` para o botão secundário aparecer dentro do cartão. Os títulos do `ExerciseCard` ainda usam estilos próprios (fase 2). |

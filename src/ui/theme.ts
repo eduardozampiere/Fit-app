@@ -44,21 +44,9 @@ const dark: typeof light = {
   reference: '#6E6D68',
 };
 
-type Palette = typeof light;
+export type Theme = typeof light;
 
-/**
- * Nomes antigos, mantidos como apelidos até a fase 5 da migração visual (specs/08-design-hevy).
- * Código novo usa os nomes da paleta.
- */
-type LegacyAliases = { chip: string; border: string; success: string; successBg: string };
-
-export type Theme = Palette & LegacyAliases;
-
-function withAliases(p: Palette): Theme {
-  return { ...p, chip: p.surface, border: p.separator, success: p.done, successBg: p.doneBg };
-}
-
-const themes = { light: withAliases(light), dark: withAliases(dark) };
+const themes = { light, dark };
 
 export function useTheme(): Theme {
   return useColorScheme() === 'dark' ? themes.dark : themes.light;

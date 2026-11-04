@@ -10,7 +10,7 @@ export default function TabsLayoutWeb() {
         headerShown: false,
         tabBarActiveTintColor: t.accent,
         tabBarInactiveTintColor: t.muted,
-        tabBarStyle: { backgroundColor: t.card, borderTopColor: t.border },
+        tabBarStyle: { backgroundColor: t.card, borderTopColor: t.separator },
         tabBarLabelStyle: { fontSize: 14, fontWeight: '700' },
         tabBarIconStyle: { display: 'none' },
       }}

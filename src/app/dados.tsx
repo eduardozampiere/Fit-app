@@ -332,7 +332,7 @@ export default function DataScreen() {
         <SectionTitle>Ciclos</SectionTitle>
         {cycles.map(({ cycle: c, status }) => (
           <Card key={c.id} style={{ gap: 6 }}>
-            <Text style={{ color: t.text, fontSize: 16, fontWeight: '800' }}>{c.name}</Text>
+            <Text style={{ color: t.text, fontSize: 16, fontWeight: '700' }}>{c.name}</Text>
             <Text style={{ color: t.muted, fontSize: 14 }}>
               {formatDateShort(c.startDate)} a {formatDateShort(c.endDate)} · {c.weeks.length} semanas ·{' '}
               {status === 'active' ? 'ativo' : status === 'planned' ? 'planejado' : 'concluído'}
@@ -418,7 +418,7 @@ function MappingModal({
       <View style={{ flex: 1, backgroundColor: t.bg }}>
         {picking ? (
           <View style={{ flex: 1, padding: 16, gap: 10 }}>
-            <Text style={{ color: t.text, fontSize: 20, fontWeight: '800' }}>{picking}</Text>
+            <Text style={{ color: t.text, fontSize: 20, fontWeight: '700' }}>{picking}</Text>
             <TextField
               value={query}
               onChangeText={setQuery}
@@ -445,7 +445,7 @@ function MappingModal({
                     setPicking(null);
                     setQuery('');
                   }}
-                  style={[styles.pick, { backgroundColor: t.card, borderColor: t.border }]}
+                  style={[styles.pick, { backgroundColor: t.card, borderColor: t.separator }]}
                 >
                   <Text style={{ color: t.text, fontSize: 16, fontWeight: '600' }}>{item.name}</Text>
                 </Pressable>
@@ -454,7 +454,7 @@ function MappingModal({
           </View>
         ) : (
           <ScrollView contentContainerStyle={styles.body}>
-            <Text style={{ color: t.text, fontSize: 22, fontWeight: '800' }}>Exercícios do {source}</Text>
+            <Text style={{ color: t.text, fontSize: 22, fontWeight: '700' }}>Exercícios do {source}</Text>
             <Text style={{ color: t.muted, fontSize: 14 }}>Confira a correspondência com os exercícios do plano. As escolhas ficam lembradas para a próxima importação.</Text>
             {names.map(([name, count]) => (
               <Pressable
@@ -462,7 +462,7 @@ function MappingModal({
                 accessibilityRole="button"
                 accessibilityLabel={`${name}: ${label(choices[name])}. Toque para trocar`}
                 onPress={() => setPicking(name)}
-                style={[styles.pick, { backgroundColor: t.card, borderColor: t.border }]}
+                style={[styles.pick, { backgroundColor: t.card, borderColor: t.separator }]}
               >
                 <Text style={{ color: t.text, fontSize: 16, fontWeight: '700' }}>
                   {name} <Text style={{ color: t.muted, fontWeight: '400' }}>({count} séries)</Text>

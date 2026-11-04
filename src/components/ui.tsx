@@ -312,6 +312,49 @@ export function IconButton({
   );
 }
 
+/** Barra do topo das folhas (modais), como no iOS e no Hevy: Cancelar · título · ação. */
+export function SheetHeader({
+  title,
+  onCancel,
+  cancelLabel = 'Cancelar',
+  action,
+  onAction,
+  actionDisabled,
+}: {
+  title: string;
+  onCancel: () => void;
+  cancelLabel?: string;
+  action?: string;
+  onAction?: () => void;
+  actionDisabled?: boolean;
+}) {
+  const t = useTheme();
+  return (
+    <View style={[styles.sheetHeader, { backgroundColor: t.bg, borderBottomColor: t.separator }]}>
+      <Pressable accessibilityRole="button" accessibilityLabel={cancelLabel} onPress={onCancel} hitSlop={12} style={styles.sheetSide}>
+        <Text style={[styles.sheetLink, { color: t.accent }]}>{cancelLabel}</Text>
+      </Pressable>
+      <Text style={[styles.sheetTitle, { color: t.text }]} numberOfLines={1} accessibilityRole="header">
+        {title}
+      </Text>
+      <View style={[styles.sheetSide, { alignItems: 'flex-end' }]}>
+        {action && onAction ? (
+          <Pressable
+            accessibilityRole="button"
+            accessibilityLabel={action}
+            accessibilityState={{ disabled: !!actionDisabled }}
+            disabled={actionDisabled}
+            onPress={onAction}
+            hitSlop={12}
+          >
+            <Text style={[styles.sheetLink, { color: actionDisabled ? t.muted : t.accent, fontWeight: '600' }]}>{action}</Text>
+          </Pressable>
+        ) : null}
+      </View>
+    </View>
+  );
+}
+
 export interface MenuOption {
   label: string;
   onPress: () => void;
@@ -388,6 +431,16 @@ export function ActionMenu({
 }
 
 const styles = StyleSheet.create({
+  sheetHeader: {
+    minHeight: 56,
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingHorizontal: space.lg,
+    borderBottomWidth: StyleSheet.hairlineWidth,
+  },
+  sheetSide: { width: 96 },
+  sheetLink: { fontSize: 17 },
+  sheetTitle: { ...font.headline, flex: 1, textAlign: 'center' },
   menuBackdrop: { flex: 1, justifyContent: 'flex-end', backgroundColor: 'rgba(0,0,0,0.35)' },
   menuSheet: { borderTopLeftRadius: radius.card, borderTopRightRadius: radius.card, padding: space.lg, paddingBottom: 36, gap: space.sm },
   menuTitle: { ...font.label, textAlign: 'center', marginBottom: space.xs },

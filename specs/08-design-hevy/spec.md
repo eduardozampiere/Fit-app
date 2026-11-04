@@ -1,6 +1,6 @@
 # 08 — Visual inspirado no Hevy
 
-**Status:** 🔨 em andamento (fases 1 a 4 feitas)
+**Status:** 🟡 feito, falta verificar no iPhone (conferido no simulador do iOS 27.2)
 
 ## Objetivo
 O visual atual (cartões arredondados em tudo, botões pesados, muitos chips coloridos) não agrada. A meta
@@ -124,8 +124,11 @@ Novos grupos de token: `font` (`largeTitle 28/700`, `title 20/600`, `headline 17
   "Alimento" e "Favorita", carbo e gordura em `StatRow`
 
 ### Fase 5 — Ajustes, Dados e modais
-- [ ] Listas agrupadas no estilo de Ajustes do iOS; modais com barra Cancelar / título / Salvar
-- [ ] Remover os apelidos de token antigos e os estilos que sobraram
+- [x] Modais com `SheetHeader` (Cancelar · título · Salvar): detalhes da série, editor de exercício,
+  calculadora, alimentos, favoritas. Ajustes e Dados mantêm os cartões agrupados, já com os componentes novos
+- [x] Cabeçalho das telas empilhadas (Ajustes, Dados) com as cores do tema (antes o título sumia no escuro)
+- [x] Apelidos `chip`, `border`, `success`, `successBg` removidos; peso de fonte 800 trocado por 700
+  (exceto a tela vermelha de alarme)
 
 Em todas as fases: `npm test && npm run test:import && npm run typecheck && npx expo lint`, simulador
 claro e escuro, prévia web e atualização deste spec e do `PLANO.md`.
@@ -153,6 +156,7 @@ claro e escuro, prévia web e atualização deste spec e do `PLANO.md`.
 | Data | Nota |
 |---|---|
 | 03/11/2026 | Spec criada a partir das capturas do Hevy na App Store. Decisões do usuário: edição inline, tema do sistema, por fases. |
+| 03/11/2026 | Fase 5 feita: modais com cabeçalho, apelidos removidos, cabeçalho das telas com o tema. Falta: iPhone de verdade, bloqueio da 4ª série do terra e série falhada na tabela. |
 | 03/11/2026 | Fase 4 feita: Análises, Corpo e Comida no visual novo. |
 | 03/11/2026 | Fase 3 feita: aba Plano com semanas em pílulas e cartões de rotina. |
 | 03/11/2026 | Fase 2 feita: tabela de séries com edição inline, adicionar/remover série, resumo do treino e barra escolhida na calculadora. |

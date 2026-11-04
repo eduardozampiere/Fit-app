@@ -191,6 +191,6 @@ function MaxesEditor() {
 
 const styles = StyleSheet.create({
   body: { padding: 16, gap: 12, paddingBottom: 40 },
-  title: { fontSize: 28, fontWeight: '800' },
+  title: { fontSize: 28, fontWeight: '700' },
   wrap: { flexDirection: 'row', flexWrap: 'wrap', gap: 8 },
 });

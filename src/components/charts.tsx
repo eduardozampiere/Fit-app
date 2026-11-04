@@ -290,7 +290,7 @@ export function BarChart({
                 {xFormat(data[i].x)}
               </SvgText>
             ))}
-            <Rect x={PAD.left} y={PAD.top + h} width={w} height={1} fill={t.border} />
+            <Rect x={PAD.left} y={PAD.top + h} width={w} height={1} fill={t.separator} />
           </Svg>
         </Pressable>
       ) : (

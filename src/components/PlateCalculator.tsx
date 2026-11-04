@@ -5,8 +5,8 @@ import { getSetting, setSetting } from '../db/repo';
 import { formatKg, formatNumber } from '../domain/format';
 import { barChoices, platesFor } from '../domain/plates';
 import { useAppData } from '../state/AppData';
-import { font, radius, space, useTheme } from '../ui/theme';
-import { BigButton, Chip, SectionTitle, Stepper } from './ui';
+import { radius, space, useTheme } from '../ui/theme';
+import { Chip, SectionTitle, SheetHeader, Stepper } from './ui';
 
 /** Barra escolhida por exercício (ex.: barra de 15 no supino inclinado), lembrada entre treinos. */
 const barKey = (exerciseId: string) => `bar:${exerciseId}`;
@@ -48,8 +48,8 @@ export function PlateCalculator({
   const r = platesFor(kg, bar, gym.plates);
   return (
     <Modal visible={visible} animationType="slide" presentationStyle="pageSheet" onRequestClose={onClose}>
+      <SheetHeader title="Calculadora de anilhas" onCancel={onClose} cancelLabel="Fechar" />
       <ScrollView style={{ backgroundColor: t.bg }} contentContainerStyle={styles.body}>
-        <Text style={[styles.title, { color: t.text }]}>Calculadora de anilhas</Text>
         <Stepper label="Carga total" value={kg} step={2.5} onChange={setKg} format={(v) => formatKg(v)} min={bar} />
 
         <SectionTitle>Barra</SectionTitle>
@@ -89,7 +89,6 @@ export function PlateCalculator({
             Não fecha com as anilhas disponíveis: faltam {formatKg(r.remainderKg)} (fica {formatKg(r.achievedKg)}).
           </Text>
         ) : null}
-        <BigButton label="Fechar" variant="neutral" onPress={onClose} />
       </ScrollView>
     </Modal>
   );
@@ -97,7 +96,6 @@ export function PlateCalculator({
 
 const styles = StyleSheet.create({
   body: { padding: space.xl - 4, gap: space.md },
-  title: { ...font.title, fontSize: 22 },
   wrap: { flexDirection: 'row', flexWrap: 'wrap', gap: space.sm },
   hint: { fontSize: 13 },
   plates: { flexDirection: 'row', alignItems: 'center', gap: 6, minHeight: 140, flexWrap: 'wrap' },

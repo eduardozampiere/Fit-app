@@ -15,7 +15,7 @@ export function AlertCard({
 }) {
   const t = useTheme();
   const [bg, fg] =
-    alert.severity === 'danger' ? [t.dangerBg, t.danger] : alert.severity === 'warn' ? [t.warnBg, t.warn] : [t.successBg, t.success];
+    alert.severity === 'danger' ? [t.dangerBg, t.danger] : alert.severity === 'warn' ? [t.warnBg, t.warn] : [t.doneBg, t.done];
   return (
     <Card style={{ backgroundColor: bg, borderColor: bg }}>
       <Text style={[styles.title, { color: fg }]} accessibilityRole="header">
@@ -47,7 +47,7 @@ export function AlertCard({
 }
 
 const styles = StyleSheet.create({
-  title: { fontSize: 17, fontWeight: '800' },
+  title: { fontSize: 17, fontWeight: '700' },
   msg: { fontSize: 15, lineHeight: 21 },
   decided: { fontSize: 14, fontWeight: '700' },
   row: { flexDirection: 'row', gap: 8 },

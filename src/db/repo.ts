@@ -1,4 +1,5 @@
 import type { SQLiteDatabase } from 'expo-sqlite';
+import { flattenSets, type SetRow } from '../domain/analytics';
 import type { SetDraft } from '../domain/logging';
 import { NO_RED_FLAGS, type CheckIn, type LoggedSession } from '../domain/rules';
 import type { Cycle, Maxes, SessionLog, SetLog } from '../domain/types';
@@ -345,6 +346,14 @@ export async function setActiveCycle(db: SQLiteDatabase, id: string): Promise<vo
     await db.runAsync("UPDATE cycles SET status = 'done' WHERE status = 'active'");
     await db.runAsync("UPDATE cycles SET status = 'active' WHERE id = ?", id);
   });
+}
+
+/** Todas as séries de trabalho de todos os ciclos, com o contexto do plano (análises e tela do exercício). */
+export async function listAllSetRows(db: SQLiteDatabase): Promise<SetRow[]> {
+  const [cycles, names] = await Promise.all([listCycles(db), exerciseNames(db)]);
+  const all: SetRow[] = [];
+  for (const { cycle } of cycles) all.push(...flattenSets(cycle, await listLoggedSessions(db, cycle.id), names));
+  return all;
 }
 
 export async function exerciseNames(db: SQLiteDatabase): Promise<Map<string, string>> {

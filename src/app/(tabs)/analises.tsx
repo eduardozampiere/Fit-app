@@ -6,11 +6,10 @@ import { BarChart, ChartCard, LineChart } from '../../components/charts';
 import { checkinLine } from '../../components/CheckinSummary';
 import { Card, Chip, StatRow } from '../../components/ui';
 import { listAllMealEntries, listWeights } from '../../db/nutritionRepo';
-import { exerciseNames, listCheckins, listCycles, listLoggedSessions } from '../../db/repo';
+import { listAllSetRows, listCheckins } from '../../db/repo';
 import {
   activationRpeByWeek,
   e1rmSeries,
-  flattenSets,
   GROUP_LABEL,
   groupStats,
   mainLoadSeries,
@@ -62,9 +61,7 @@ export default function AnalysisScreen() {
   useEffect(() => {
     let alive = true;
     (async () => {
-      const [cycles, names, m, w, c] = await Promise.all([listCycles(db), exerciseNames(db), listAllMealEntries(db), listWeights(db), listCheckins(db)]);
-      const all: SetRow[] = [];
-      for (const { cycle: cy } of cycles) all.push(...flattenSets(cy, await listLoggedSessions(db, cy.id), names));
+      const [all, m, w, c] = await Promise.all([listAllSetRows(db), listAllMealEntries(db), listWeights(db), listCheckins(db)]);
       if (!alive) return;
       setRows(all);
       setMeals(m);

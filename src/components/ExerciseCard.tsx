@@ -7,7 +7,6 @@ import type { PrescribedItem, Range, SetLog } from '../domain/types';
 import { font, radius, space, useTheme } from '../ui/theme';
 import type { SetDraft } from '../domain/logging';
 import type { DragHandleProps } from './DragList';
-import { ExerciseImage } from './ExerciseImage';
 import { SetTable, type SetInput, type SetKind } from './SetTable';
 import { IconButton } from './ui';
 
@@ -44,8 +43,7 @@ export function ExerciseCard({
   restSec,
   restOverridden,
   onRest,
-  image,
-  onImage,
+  onOpen,
   showRpe,
   pendingRpeIndex,
   lock,
@@ -80,9 +78,8 @@ export function ExerciseCard({
   restSec: number;
   restOverridden: boolean;
   onRest: () => void;
-  /** link da imagem do exercício (catálogo), se houver */
-  image: string | null;
-  onImage: () => void;
+  /** abre a tela do exercício (toque no cabeçalho do cartão) */
+  onOpen: () => void;
   showRpe: boolean;
   pendingRpeIndex: number | null;
   lock?: SetLock;
@@ -117,21 +114,15 @@ export function ExerciseCard({
       <View style={styles.header}>
         <Pressable
           style={styles.title}
-          accessibilityRole="header"
-          accessibilityLabel={`${item.name}, ${KIND_LABEL[item.kind]}${complete ? ', feito' : ''}`}
+          accessibilityRole="button"
+          accessibilityLabel={`${item.name}, ${KIND_LABEL[item.kind]}${complete ? ', feito' : ''}. Abrir o exercício`}
           accessibilityHint={handle ? 'Segure e arraste para mudar a ordem dos exercícios' : undefined}
+          onPress={onOpen}
           {...handle}
         >
-          <Pressable
-            style={[styles.avatar, { backgroundColor: t.surface }]}
-            disabled={!image}
-            onPress={onImage}
-            accessibilityRole={image ? 'button' : undefined}
-            accessibilityLabel={image ? `Ver imagem de ${item.name}` : undefined}
-          >
+          <View style={[styles.avatar, { backgroundColor: t.surface }]}>
             <Ionicons name={isLift ? 'barbell' : 'fitness'} size={22} color={complete ? t.done : t.accent} />
-            {image ? <ExerciseImage uri={image} width={40} height={40} /> : null}
-          </Pressable>
+          </View>
           <View style={{ flex: 1, gap: 2 }}>
             <Text style={[styles.name, { color: t.accent }]}>{item.name}</Text>
             <Text style={[styles.kind, { color: complete ? t.done : t.muted }]}>

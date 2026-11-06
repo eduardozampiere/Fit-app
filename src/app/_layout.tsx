@@ -37,6 +37,7 @@ export default function RootLayout() {
               >
                 <Stack.Screen name="(tabs)" />
                 <Stack.Screen name="ajustes" options={{ headerShown: true, title: 'Ajustes', presentation: 'modal' }} />
+                <Stack.Screen name="exercicio" options={{ headerShown: true, title: 'Exercício', headerBackButtonDisplayMode: 'minimal' }} />
                 <Stack.Screen name="dados" options={{ headerShown: true, title: 'Dados e Claude', presentation: 'modal' }} />
               </Stack>
             </RestTimerProvider>

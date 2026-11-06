@@ -1,4 +1,4 @@
-import { useLocalSearchParams } from 'expo-router';
+import { router, useLocalSearchParams } from 'expo-router';
 import { useSQLiteContext } from 'expo-sqlite';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { ActivityIndicator, Platform, ScrollView, StyleSheet, Text, View } from 'react-native';
@@ -16,8 +16,6 @@ import { SetEditor, type EditableSet } from '../../components/SetEditor';
 import type { SetInput, SetKind } from '../../components/SetTable';
 import { ActionMenu, BigButton, Card, Chip, Divider, IconButton, type MenuOption } from '../../components/ui';
 import { WorkoutHeader } from '../../components/WorkoutHeader';
-import { ExercisePreview } from '../../components/ExercisePreview';
-import catalogJson from '../../../assets/catalog/exercicios.json';
 import {
   deleteSet,
   deleteSetAndRenumber,
@@ -36,7 +34,6 @@ import {
   updateSet,
 } from '../../db/repo';
 import { addExerciseToSession, swapExercise } from '../../domain/adjustments';
-import { findCatalogExercise, type Catalog, type CatalogExercise } from '../../domain/catalog';
 import { toISODate } from '../../domain/dates';
 import { formatDateShort, formatNumber, formatRestDuration, WEEKDAY_NAMES, WEEKDAY_SHORT } from '../../domain/format';
 import type { SwapScope } from '../../domain/adjustments';
@@ -74,7 +71,6 @@ import { itemBlocks, moveItem, orderBlocks } from '../../domain/reorder';
 import { RPE_CHOICES } from '../../domain/rpe';
 import { font, space, useTheme } from '../../ui/theme';
 
-const catalog = catalogJson as unknown as Catalog;
 const GENERIC_NOTE = /^(% calculado|Registro:)/;
 
 export default function TodayScreen() {
@@ -127,7 +123,6 @@ export default function TodayScreen() {
   const [swapping, setSwapping] = useState<PrescribedItem | null>(null);
   const [adding, setAdding] = useState(false);
   const [freeTimer, setFreeTimer] = useState(false);
-  const [preview, setPreview] = useState<{ exercise: CatalogExercise; name: string } | null>(null);
   const [failUnlocked, setFailUnlocked] = useState(false);
   const [redFlagSeen, setRedFlagSeen] = useState(false);
 
@@ -322,9 +317,6 @@ export default function TodayScreen() {
     setAdding(false);
     await updateCycle(addExerciseToSession(cycle, ref.session.id, exercise).cycle);
   };
-
-  const catalogOf = (item: PrescribedItem): CatalogExercise | null =>
-    findCatalogExercise(catalog.exercises, cycle?.exercises.find((e) => e.id === item.exerciseId) ?? { id: item.exerciseId, name: item.name });
 
   const allAsPlanned = async (item: PrescribedItem) => {
     const log = await ensureLog();
@@ -577,11 +569,7 @@ export default function TodayScreen() {
                       restSec={restOf(item)}
                       restOverridden={restOverride(restOverrides, item.exerciseId) !== null}
                       onRest={() => setRestEditing(item)}
-                      image={catalogOf(item)?.image ?? null}
-                      onImage={() => {
-                        const c = catalogOf(item);
-                        if (c) setPreview({ exercise: c, name: item.name });
-                      }}
+                      onOpen={() => router.push({ pathname: '/exercicio', params: { id: item.exerciseId, name: item.name } })}
                       showRpe={showRpe}
                       pendingRpeIndex={showRpe && last && last.rpe === null ? last.setIndex : null}
                       lock={lock}
@@ -661,7 +649,6 @@ export default function TodayScreen() {
           onClose={() => setFreeTimer(false)}
         />
       ) : null}
-      {preview ? <ExercisePreview exercise={preview.exercise} name={preview.name} onClose={() => setPreview(null)} /> : null}
       {swapping ? (
         <ExercisePicker
           key={swapping.id}

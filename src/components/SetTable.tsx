@@ -17,7 +17,9 @@ export interface SetInput {
 
 export type SetKind = 'warmup' | 'work';
 
-const COL = { set: 34, load: 66, work: 54, rpe: 48, check: 44 } as const;
+/** KG, REPS e RPE têm a mesma largura; o ✓ tem a mesma altura dos campos. */
+const COL = { set: 34, num: 60, check: 44 } as const;
+const CELL_H = 40;
 
 /**
  * Tabela de séries no estilo do Hevy: SÉRIE · PLANO · KG · REPS · (RPE) · ✓.
@@ -87,9 +89,9 @@ export function SetTable({
       <View style={styles.headRow} accessibilityElementsHidden importantForAccessibility="no-hide-descendants">
         <Text style={[styles.head, { width: COL.set, color: t.muted }]}>SÉRIE</Text>
         <Text style={[styles.head, styles.flex, { color: t.muted }]}>PLANO</Text>
-        <Text style={[styles.head, styles.center, { width: COL.load, color: t.muted }]}>KG</Text>
-        <Text style={[styles.head, styles.center, { width: COL.work, color: t.muted }]}>{isDuration ? 'SEG' : 'REPS'}</Text>
-        {showRpe ? <Text style={[styles.head, styles.center, { width: COL.rpe, color: t.muted }]}>RPE</Text> : null}
+        <Text style={[styles.head, styles.center, { width: COL.num, color: t.muted }]}>KG</Text>
+        <Text style={[styles.head, styles.center, { width: COL.num, color: t.muted }]}>{isDuration ? 'SEG' : 'REPS'}</Text>
+        {showRpe ? <Text style={[styles.head, styles.center, { width: COL.num, color: t.muted }]}>RPE</Text> : null}
         <View style={{ width: COL.check, alignItems: 'center' }}>
           <Ionicons name="checkmark" size={16} color={t.muted} />
         </View>
@@ -263,7 +265,7 @@ function SetRow({
         keyboardType="decimal-pad"
         selectTextOnFocus
         accessibilityLabel={`Carga, ${a11yName}, em quilos`}
-        style={[styles.cell, { width: COL.load, color: t.text, backgroundColor: cellBg }]}
+        style={[styles.cell, { width: COL.num, color: t.text, backgroundColor: cellBg }, !load && styles.cellEmpty]}
       />
       <TextInput
         value={work}
@@ -274,7 +276,7 @@ function SetRow({
         keyboardType="number-pad"
         selectTextOnFocus
         accessibilityLabel={`${isDuration ? 'Segundos' : 'Repetições'}, ${a11yName}`}
-        style={[styles.cell, { width: COL.work, color: t.text, backgroundColor: cellBg }]}
+        style={[styles.cell, { width: COL.num, color: t.text, backgroundColor: cellBg }, !work && styles.cellEmpty]}
       />
       {rpeColumn === 'rpe' ? (
         <Pressable
@@ -282,14 +284,14 @@ function SetRow({
           accessibilityLabel={log ? `RPE, ${a11yName}: ${log.rpe !== null ? formatNumber(log.rpe) : 'não informado'}` : `RPE, ${a11yName}`}
           disabled={!log}
           onPress={() => log && onRpe(log)}
-          style={[styles.rpeCell, { width: COL.rpe }, rpePending && { borderColor: t.accent, borderWidth: 2 }]}
+          style={[styles.rpeCell, { width: COL.num }, rpePending && { borderColor: t.accent, borderWidth: 2 }]}
         >
           <Text style={[styles.rpeText, { color: rpePending ? t.accent : log?.rpe != null ? t.text : t.muted }]}>
             {log?.rpe != null ? formatNumber(log.rpe) : rpePending ? 'RPE?' : '—'}
           </Text>
         </Pressable>
       ) : rpeColumn === 'blank' ? (
-        <View style={{ width: COL.rpe }} />
+        <View style={{ width: COL.num }} />
       ) : null}
       <Pressable
         accessibilityRole="button"
@@ -316,11 +318,13 @@ const styles = StyleSheet.create({
   setIdxBtn: { height: 44, justifyContent: 'center' },
   setIdx: { fontSize: 16, fontWeight: '600', textAlign: 'center' },
   planned: { fontSize: 14, fontVariant: ['tabular-nums'] },
-  cell: { height: 40, borderRadius: radius.cell, textAlign: 'center', fontSize: 17, fontWeight: '600', fontVariant: ['tabular-nums'], padding: 0 },
-  rpeCell: { height: 40, borderRadius: radius.cell, alignItems: 'center', justifyContent: 'center' },
+  cell: { height: CELL_H, borderRadius: radius.button, textAlign: 'center', fontSize: 17, fontWeight: '600', fontVariant: ['tabular-nums'], padding: 0 },
+  // Vazio, mostra a sugestão do plano: menor e mais leve que o valor digitado.
+  cellEmpty: { fontSize: 15, fontWeight: '400' },
+  rpeCell: { height: CELL_H, borderRadius: radius.button, alignItems: 'center', justifyContent: 'center' },
   rpeText: { fontSize: 15, fontWeight: '600', fontVariant: ['tabular-nums'] },
   checkWrap: { height: 44, alignItems: 'center', justifyContent: 'center' },
-  check: { width: 36, height: 36, borderRadius: radius.cell, alignItems: 'center', justifyContent: 'center' },
+  check: { width: CELL_H, height: CELL_H, borderRadius: radius.button, alignItems: 'center', justifyContent: 'center' },
   lockedText: { fontSize: 14, marginLeft: space.xs },
   rows: { gap: 2 },
   addRow: { flexDirection: 'row', gap: space.sm, marginTop: space.sm },

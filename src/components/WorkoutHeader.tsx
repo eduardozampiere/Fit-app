@@ -1,7 +1,7 @@
-import { Pressable, StyleSheet, Text, View } from 'react-native';
+import { StyleSheet, Text, View } from 'react-native';
 import type { SessionStats } from '../domain/logging';
 import { font, space, useTheme } from '../ui/theme';
-import { IconButton } from './ui';
+import { GlassButton } from './GlassButton';
 import { WorkoutStats } from './WorkoutStats';
 
 /**
@@ -39,15 +39,13 @@ export function WorkoutHeader({
             {subtitle}
           </Text>
         </View>
-        <IconButton name="alarm-outline" label="Timer de descanso" onPress={onTimer} color={t.accent} />
-        <Pressable
-          accessibilityRole="button"
+        <GlassButton icon="alarm-outline" accessibilityLabel="Timer de descanso" onPress={onTimer} />
+        <GlassButton
+          label={done ? 'Reabrir' : 'Concluir'}
           accessibilityLabel={done ? 'Reabrir treino' : 'Concluir treino'}
           onPress={onFinish}
-          style={({ pressed }) => [styles.finish, { backgroundColor: done ? t.surface : t.accent, opacity: pressed ? 0.8 : 1 }]}
-        >
-          <Text style={{ color: done ? t.text : t.accentText, fontSize: 16, fontWeight: '600' }}>{done ? 'Reabrir' : 'Concluir'}</Text>
-        </Pressable>
+          tint={done ? undefined : t.accent}
+        />
       </View>
       <WorkoutStats stats={stats} plannedSets={plannedSets} running={running} />
     </View>
@@ -58,5 +56,4 @@ const styles = StyleSheet.create({
   wrap: { paddingHorizontal: space.lg, paddingTop: space.sm, paddingBottom: space.md, gap: space.sm, borderBottomWidth: StyleSheet.hairlineWidth },
   bar: { flexDirection: 'row', alignItems: 'center', gap: space.sm },
   title: { ...font.headline },
-  finish: { minHeight: 44, borderRadius: 22, paddingHorizontal: space.lg, justifyContent: 'center' },
 });

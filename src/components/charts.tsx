@@ -86,7 +86,10 @@ export function LineChart({
 
   const scale = niceScale(values);
   const { lo, hi } = scale;
-  const w = Math.max(0, width - PAD.left - PAD.right);
+  const multi = series.length > 1;
+  // Uma série só: o rótulo do último ponto vai acima dele, então a linha pode ir até a borda do cartão.
+  const padRight = multi ? PAD.right : 8;
+  const w = Math.max(0, width - PAD.left - padRight);
   const h = height - PAD.top - PAD.bottom;
   const xAt = (i: number) => PAD.left + (xs.length === 1 ? w / 2 : (i / (xs.length - 1)) * w);
   const yAt = (v: number) => PAD.top + h - ((v - lo) / (hi - lo)) * h;
@@ -96,7 +99,6 @@ export function LineChart({
     const i = xs.length === 1 ? 0 : Math.round(((x - PAD.left) / w) * (xs.length - 1));
     setSel(Math.max(0, Math.min(xs.length - 1, i)));
   };
-  const multi = series.length > 1;
 
   return (
     <View onLayout={(e: LayoutChangeEvent) => setWidth(e.nativeEvent.layout.width)}>
@@ -156,7 +158,15 @@ export function LineChart({
                     ? pts.map((p) => <Circle key={p.raw.x} cx={p.x} cy={p.y} r={4} fill={color} stroke={t.card} strokeWidth={2} />)
                     : null}
                   {last ? (
-                    <SvgText fontFamily={FONT} x={last.x + 8} y={last.y + 4} fontSize={11} fontWeight="700" fill={t.text}>
+                    <SvgText
+                      fontFamily={FONT}
+                      x={multi ? last.x + 8 : Math.min(last.x, width - 4)}
+                      y={multi ? last.y + 4 : last.y > PAD.top + 14 ? last.y - 10 : last.y + 18}
+                      fontSize={11}
+                      fontWeight="700"
+                      fill={t.text}
+                      textAnchor={multi ? 'start' : last.x > width - 28 ? 'end' : 'middle'}
+                    >
                       {multi ? s.name : yFormat(last.raw.y)}
                     </SvgText>
                   ) : null}

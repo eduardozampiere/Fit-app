@@ -120,11 +120,16 @@ export default function ExerciseScreen() {
                       empty="Sem séries com carga e repetições."
                     />
                   </ChartCard>
-                  <View style={styles.wrap}>
+                  <ScrollView
+                    horizontal
+                    showsHorizontalScrollIndicator={false}
+                    style={styles.chipScroll}
+                    contentContainerStyle={styles.chipRow}
+                  >
                     {METRICS.map((m) => (
-                      <Chip key={m} label={STAT_METRIC_LABEL[m]} selected={metric === m} onPress={() => setMetric(m)} />
+                      <Chip key={m} compact label={STAT_METRIC_LABEL[m]} selected={metric === m} onPress={() => setMetric(m)} />
                     ))}
-                  </View>
+                  </ScrollView>
 
                   <Section title="Recordes pessoais">
                     {records.maxLoad ? (
@@ -222,7 +227,9 @@ const styles = StyleSheet.create({
   },
   body: { padding: space.lg, gap: space.lg },
   title: { ...font.title },
-  wrap: { flexDirection: 'row', flexWrap: 'wrap', gap: space.sm },
+  // Sangra até as bordas da tela para a rolagem horizontal não cortar a pílula no meio do conteúdo.
+  chipScroll: { marginHorizontal: -space.lg },
+  chipRow: { paddingHorizontal: space.lg, gap: space.sm },
   setLine: { flexDirection: 'row', alignItems: 'center', gap: space.md, minHeight: 32 },
   setIdx: { width: 24, fontSize: 15, fontWeight: '600', textAlign: 'center' },
 });

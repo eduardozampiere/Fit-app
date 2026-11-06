@@ -61,12 +61,15 @@ export function Chip({
   onPress,
   accessibilityLabel,
   tone,
+  compact,
 }: {
   label: string;
   selected?: boolean;
   onPress?: () => void;
   accessibilityLabel?: string;
   tone?: 'success' | 'warn';
+  /** Pílula mais baixa e fina, para linhas de filtro com rolagem. */
+  compact?: boolean;
 }) {
   const t = useTheme();
   const bg = selected ? t.accent : tone === 'success' ? t.doneBg : tone === 'warn' ? t.warnBg : t.surface;
@@ -77,9 +80,9 @@ export function Chip({
       accessibilityLabel={accessibilityLabel ?? label}
       accessibilityState={{ selected: !!selected }}
       onPress={onPress}
-      style={({ pressed }) => [styles.chip, { backgroundColor: bg, opacity: pressed ? 0.75 : 1 }]}
+      style={({ pressed }) => [styles.chip, compact && styles.chipCompact, { backgroundColor: bg, opacity: pressed ? 0.75 : 1 }]}
     >
-      <Text style={[styles.chipText, { color: fg }]} maxFontSizeMultiplier={1.6}>
+      <Text style={[styles.chipText, compact && styles.chipTextCompact, { color: fg }]} maxFontSizeMultiplier={1.6}>
         {label}
       </Text>
     </Pressable>
@@ -488,6 +491,8 @@ const styles = StyleSheet.create({
   buttonTextCompact: { fontSize: 16 },
   chip: { minHeight: 44, minWidth: 44, borderRadius: 22, paddingHorizontal: space.lg, alignItems: 'center', justifyContent: 'center' },
   chipText: { fontSize: 15, fontWeight: '600' },
+  chipCompact: { minHeight: 34, minWidth: 0, borderRadius: 17, paddingHorizontal: 14 },
+  chipTextCompact: { fontSize: 14 },
   badge: { borderRadius: 6, paddingHorizontal: space.sm, paddingVertical: 2, alignSelf: 'flex-start' },
   badgeText: { fontSize: 12, fontWeight: '600' },
   stepper: { gap: space.sm },

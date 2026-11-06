@@ -496,9 +496,6 @@ export default function TodayScreen() {
         automaticallyAdjustKeyboardInsets
         scrollEnabled={dragging === null}
       >
-        <WorkoutStats stats={stats} plannedSets={plannedSets} running={!done && stats.sets > 0} />
-        <Divider />
-
         <View style={styles.weekNav}>
           <View style={{ opacity: weekIdx <= 0 ? 0.3 : 1 }}>
             <IconButton name="chevron-back" label="Semana anterior" onPress={() => goWeek(-1)} color={t.accent} />
@@ -534,6 +531,10 @@ export default function TodayScreen() {
           {sessionLog && sessionLog.date !== ref.date ? ` · feito em ${formatDate(sessionLog.date)}` : ''}
           {!isToday && !plannedToday && !sessionLog ? ' · hoje não tem treino no plano' : ''}
         </Text>
+
+        {/* Ordem da tela: semana, dia, depois os números do treino do dia. */}
+        <WorkoutStats stats={stats} plannedSets={plannedSets} running={!done && stats.sets > 0} />
+        <Divider />
 
         {redFlagToday ? (
           <Card style={{ backgroundColor: t.dangerBg, borderColor: t.danger }}>

@@ -39,6 +39,8 @@ arrastando para baixo; (4) cabeçalho do treino mais enxuto.
   folha pelo símbolo. A duração sempre mostra os segundos ("1h 5min 13s").
 - **Pílulas finas em todo o app:** `Chip` com 30 pt de altura e fonte 13 (área de toque de 44 pelo `hitSlop`). Fileiras
   de pílulas rolam na horizontal (`ChipRow`: Análises, Corpo, tela do exercício). Fontes da aba Plano reduzidas.
+- **Gráficos:** linha e barras usam a mesma moldura (`ChartFrame`): o desenho sai da margem do cartão, altura 240.
+- **Ordem da tela Hoje:** seletor de semana, seletor de dia (com o nome do treino), números do treino (Duração · Volume · Séries).
 
 ## Plano de execução
 - [x] `formatDate`, troca em todas as telas e nos gráficos; testes
@@ -60,4 +62,5 @@ arrastando para baixo; (4) cabeçalho do treino mais enxuto.
 | Data | Nota |
 |---|---|
 | 05/11/2026 | Feito e conferido no simulador, claro e escuro. |
+| 05/11/2026 | Pedido: gráfico da tela do exercício maior e igual ao das Análises; ordem da tela Hoje = semana, dia, números do treino. Feito: `ChartFrame` único em `charts.tsx` (largura toda do cartão, altura 240, margem direita igual para uma ou várias séries; rótulo do fim da linha sempre acima do ponto, nome da série quando há 2+); `WorkoutStats` desceu para depois do seletor de dia. Conferido no simulador (escuro). |
 | 05/11/2026 | Pedido: pílulas finas, fonte menor no Plano, cabeçalho só com botões e números fora dele. Feito e conferido (claro e escuro). |

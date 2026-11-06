@@ -3,10 +3,12 @@ import { Platform, Pressable, StyleSheet, Text, View, type GestureResponderEvent
 import Svg, { Circle, G, Line, Path, Rect, Text as SvgText } from 'react-native-svg';
 import type { Point } from '../domain/analytics';
 import { formatDate, formatNumber } from '../domain/format';
-import { useTheme } from '../ui/theme';
+import { space, useTheme } from '../ui/theme';
 import { Card } from './ui';
 
-const PAD = { top: 12, right: 56, bottom: 22, left: 40 };
+// Mesmo layout em todos os gráficos: o desenho vai de ponta a ponta do cartão (ver ChartFrame).
+const PAD = { top: 14, right: 16, bottom: 24, left: 44 };
+const CHART_HEIGHT = 240;
 
 /** Passo "redondo" (1, 2, 2,5, 5 × 10^n) para ~3 divisões. */
 function niceStep(span: number, divisions = 3): number {
@@ -55,6 +57,22 @@ export function ChartCard({ title, subtitle, children }: { title: string; subtit
   );
 }
 
+/**
+ * Moldura única dos gráficos: legenda e dica de toque com a margem do cartão; o desenho ocupa a
+ * largura toda do cartão (sai da margem), por isso `children` recebe a largura medida.
+ */
+function ChartFrame({ header, height, children }: { header: ReactNode; height: number; children: (width: number) => ReactNode }) {
+  const [width, setWidth] = useState(0);
+  return (
+    <View style={{ gap: space.sm }}>
+      <View style={{ gap: space.sm }}>{header}</View>
+      <View style={styles.bleed} onLayout={(e: LayoutChangeEvent) => setWidth(e.nativeEvent.layout.width)}>
+        {width > 0 ? children(width) : <View style={{ height }} />}
+      </View>
+    </View>
+  );
+}
+
 export interface LineSeries {
   name: string;
   points: Point[];
@@ -66,7 +84,7 @@ export interface LineSeries {
 /** Linhas (uma escala só). Toque/arraste mostra os valores daquele ponto. */
 export function LineChart({
   series,
-  height = 180,
+  height = CHART_HEIGHT,
   yFormat = (v: number) => formatNumber(v, 0),
   xFormat = (x: string) => (x.length === 10 ? formatDate(x) : x),
   empty = 'Sem dados ainda.',
@@ -78,7 +96,6 @@ export function LineChart({
   empty?: string;
 }) {
   const t = useTheme();
-  const [width, setWidth] = useState(0);
   const [sel, setSel] = useState<number | null>(null);
   const xs = [...new Set(series.flatMap((s) => s.points.map((p) => p.x)))].sort();
   const values = series.flatMap((s) => s.points.map((p) => p.y));
@@ -87,21 +104,11 @@ export function LineChart({
   const scale = niceScale(values);
   const { lo, hi } = scale;
   const multi = series.length > 1;
-  // Uma série só: o rótulo do último ponto vai acima dele, então a linha pode ir até a borda do cartão.
-  const padRight = multi ? PAD.right : 8;
-  const w = Math.max(0, width - PAD.left - padRight);
   const h = height - PAD.top - PAD.bottom;
-  const xAt = (i: number) => PAD.left + (xs.length === 1 ? w / 2 : (i / (xs.length - 1)) * w);
   const yAt = (v: number) => PAD.top + h - ((v - lo) / (hi - lo)) * h;
-  const onTouch = (e: GestureResponderEvent) => {
-    if (xs.length === 0 || w <= 0) return;
-    const x = e.nativeEvent.locationX;
-    const i = xs.length === 1 ? 0 : Math.round(((x - PAD.left) / w) * (xs.length - 1));
-    setSel(Math.max(0, Math.min(xs.length - 1, i)));
-  };
 
-  return (
-    <View onLayout={(e: LayoutChangeEvent) => setWidth(e.nativeEvent.layout.width)}>
+  const header = (
+    <>
       {multi ? (
         <View style={styles.legend}>
           {series.map((s) => (
@@ -128,57 +135,98 @@ export function LineChart({
           <Text style={{ color: t.muted, fontSize: 12 }}>Toque no gráfico para ver os valores</Text>
         )}
       </View>
-      {width > 0 ? (
-        <Pressable onPressIn={onTouch} onTouchMove={onTouch} accessibilityLabel="Gráfico de linhas" accessibilityHint="Toque para ver os valores">
-          <Svg width={width} height={height}>
-            {ticks(scale).map((v) => (
-              <Line key={v} x1={PAD.left} x2={PAD.left + w} y1={yAt(v)} y2={yAt(v)} stroke={t.grid} strokeWidth={1} />
-            ))}
-            {ticks(scale).map((v) => (
-              <SvgText fontFamily={FONT} key={`l${v}`} x={PAD.left - 6} y={yAt(v) + 4} fontSize={11} fill={t.muted} textAnchor="end">
-                {yFormat(v)}
-              </SvgText>
-            ))}
-            {[0, xs.length - 1].filter((i, k, a) => a.indexOf(i) === k).map((i) => (
-              <SvgText fontFamily={FONT} key={`x${i}`} x={xAt(i)} y={height - 6} fontSize={11} fill={t.muted} textAnchor={i === 0 && xs.length > 1 ? 'start' : 'end'}>
-                {xFormat(xs[i])}
-              </SvgText>
-            ))}
-            {sel !== null ? <Line x1={xAt(sel)} x2={xAt(sel)} y1={PAD.top} y2={PAD.top + h} stroke={t.muted} strokeWidth={1} /> : null}
-            {series.map((s) => {
-              const color = t.series[s.slot];
-              const pts = s.points.map((p) => ({ x: xAt(xs.indexOf(p.x)), y: yAt(p.y), raw: p }));
-              const style = s.style ?? 'line+dots';
-              const d = pts.map((p, i) => `${i ? 'L' : 'M'}${p.x},${p.y}`).join(' ');
-              const last = pts[pts.length - 1];
-              return (
-                <G key={s.name}>
-                  {style !== 'dots' && pts.length > 1 ? <Path d={d} stroke={color} strokeWidth={2} fill="none" strokeLinejoin="round" strokeLinecap="round" /> : null}
-                  {style !== 'line'
-                    ? pts.map((p) => <Circle key={p.raw.x} cx={p.x} cy={p.y} r={4} fill={color} stroke={t.card} strokeWidth={2} />)
-                    : null}
-                  {last ? (
-                    <SvgText
-                      fontFamily={FONT}
-                      x={multi ? last.x + 8 : Math.min(last.x, width - 4)}
-                      y={multi ? last.y + 4 : last.y > PAD.top + 14 ? last.y - 10 : last.y + 18}
-                      fontSize={11}
-                      fontWeight="700"
-                      fill={t.text}
-                      textAnchor={multi ? 'start' : last.x > width - 28 ? 'end' : 'middle'}
-                    >
-                      {multi ? s.name : yFormat(last.raw.y)}
-                    </SvgText>
-                  ) : null}
-                </G>
-              );
-            })}
-          </Svg>
-        </Pressable>
-      ) : (
-        <View style={{ height }} />
-      )}
-    </View>
+    </>
+  );
+
+  return (
+    <ChartFrame header={header} height={height}>
+      {(width) => {
+        const w = Math.max(0, width - PAD.left - PAD.right);
+        const xAt = (i: number) => PAD.left + (xs.length === 1 ? w / 2 : (i / (xs.length - 1)) * w);
+        const onTouch = (e: GestureResponderEvent) => {
+          if (xs.length === 0 || w <= 0) return;
+          const i = xs.length === 1 ? 0 : Math.round(((e.nativeEvent.locationX - PAD.left) / w) * (xs.length - 1));
+          setSel(Math.max(0, Math.min(xs.length - 1, i)));
+        };
+        return (
+          <Pressable
+            onPressIn={onTouch}
+            onTouchMove={onTouch}
+            accessibilityLabel="Gráfico de linhas"
+            accessibilityHint="Toque para ver os valores"
+          >
+            <Svg width={width} height={height}>
+              {ticks(scale).map((v) => (
+                <Line key={v} x1={PAD.left} x2={PAD.left + w} y1={yAt(v)} y2={yAt(v)} stroke={t.grid} strokeWidth={1} />
+              ))}
+              {ticks(scale).map((v) => (
+                <SvgText
+                  fontFamily={FONT}
+                  key={`l${v}`}
+                  x={PAD.left - 6}
+                  y={yAt(v) + 4}
+                  fontSize={11}
+                  fill={t.muted}
+                  textAnchor="end"
+                >
+                  {yFormat(v)}
+                </SvgText>
+              ))}
+              {[0, xs.length - 1]
+                .filter((i, k, a) => a.indexOf(i) === k)
+                .map((i) => (
+                  <SvgText
+                    fontFamily={FONT}
+                    key={`x${i}`}
+                    x={xAt(i)}
+                    y={height - 6}
+                    fontSize={11}
+                    fill={t.muted}
+                    textAnchor={i === 0 && xs.length > 1 ? 'start' : 'end'}
+                  >
+                    {xFormat(xs[i])}
+                  </SvgText>
+                ))}
+              {sel !== null ? (
+                <Line x1={xAt(sel)} x2={xAt(sel)} y1={PAD.top} y2={PAD.top + h} stroke={t.muted} strokeWidth={1} />
+              ) : null}
+              {series.map((s) => {
+                const color = t.series[s.slot];
+                const pts = s.points.map((p) => ({ x: xAt(xs.indexOf(p.x)), y: yAt(p.y), raw: p }));
+                const style = s.style ?? 'line+dots';
+                const d = pts.map((p, i) => `${i ? 'L' : 'M'}${p.x},${p.y}`).join(' ');
+                const last = pts[pts.length - 1];
+                return (
+                  <G key={s.name}>
+                    {style !== 'dots' && pts.length > 1 ? (
+                      <Path d={d} stroke={color} strokeWidth={2} fill="none" strokeLinejoin="round" strokeLinecap="round" />
+                    ) : null}
+                    {style !== 'line'
+                      ? pts.map((p) => (
+                          <Circle key={p.raw.x} cx={p.x} cy={p.y} r={4} fill={color} stroke={t.card} strokeWidth={2} />
+                        ))
+                      : null}
+                    {last ? (
+                      <SvgText
+                        fontFamily={FONT}
+                        x={Math.min(last.x, width - 4)}
+                        y={last.y > PAD.top + 14 ? last.y - 10 : last.y + 18}
+                        fontSize={11}
+                        fontWeight="700"
+                        fill={t.text}
+                        textAnchor={last.x > width - 28 ? 'end' : 'middle'}
+                      >
+                        {multi ? s.name : yFormat(last.raw.y)}
+                      </SvgText>
+                    ) : null}
+                  </G>
+                );
+              })}
+            </Svg>
+          </Pressable>
+        );
+      }}
+    </ChartFrame>
   );
 }
 
@@ -192,7 +240,7 @@ export interface BarDatum {
 /** Barras com linha de referência opcional (alvo / planejado). */
 export function BarChart({
   data,
-  height = 170,
+  height = CHART_HEIGHT,
   slot = 0,
   refLabel = 'alvo',
   yFormat = (v: number) => formatNumber(v, 0),
@@ -208,25 +256,20 @@ export function BarChart({
   empty?: string;
 }) {
   const t = useTheme();
-  const [width, setWidth] = useState(0);
   const [sel, setSel] = useState<number | null>(null);
   if (!data.length) return <Text style={{ color: t.muted, fontSize: 14 }}>{empty}</Text>;
-  const bscale = niceScale(data.flatMap((d) => [d.value, d.ref ?? 0]), true);
+  const bscale = niceScale(
+    data.flatMap((d) => [d.value, d.ref ?? 0]),
+    true,
+  );
   const hi = bscale.hi;
-  const w = Math.max(0, width - PAD.left - 12);
   const h = height - PAD.top - PAD.bottom;
-  const slotW = w / data.length;
-  const barW = Math.max(4, Math.min(28, slotW - 2)); // ≥ 2px de vão entre barras
   const yAt = (v: number) => PAD.top + h - (v / hi) * h;
   const color = t.series[slot];
-  const onTouch = (e: GestureResponderEvent) => {
-    const i = Math.floor((e.nativeEvent.locationX - PAD.left) / slotW);
-    setSel(Math.max(0, Math.min(data.length - 1, i)));
-  };
   const hasRef = data.some((d) => d.ref !== undefined);
 
-  return (
-    <View onLayout={(e: LayoutChangeEvent) => setWidth(e.nativeEvent.layout.width)}>
+  const header = (
+    <>
       {hasRef ? (
         <View style={styles.legend}>
           <View style={styles.legendItem}>
@@ -249,64 +292,91 @@ export function BarChart({
           <Text style={{ color: t.muted, fontSize: 12 }}>Toque numa barra para ver o valor</Text>
         )}
       </View>
-      {width > 0 ? (
-        <Pressable onPressIn={onTouch} onTouchMove={onTouch} accessibilityLabel="Gráfico de barras" accessibilityHint="Toque para ver os valores">
-          <Svg width={width} height={height}>
-            {ticks(bscale).map((v) => (
-              <Line key={v} x1={PAD.left} x2={PAD.left + w} y1={yAt(v)} y2={yAt(v)} stroke={t.grid} strokeWidth={1} />
-            ))}
-            {ticks(bscale).map((v) => (
-              <SvgText fontFamily={FONT} key={`l${v}`} x={PAD.left - 6} y={yAt(v) + 4} fontSize={11} fill={t.muted} textAnchor="end">
-                {yFormat(v)}
-              </SvgText>
-            ))}
-            {data.map((d, i) => {
-              const cx = PAD.left + slotW * i + slotW / 2;
-              const top = yAt(d.value);
-              const bh = Math.max(0, PAD.top + h - top);
-              const r = Math.min(4, barW / 2, bh);
-              // topo arredondado (4px), base reta no eixo
-              const path =
-                bh > 0
-                  ? `M${cx - barW / 2},${PAD.top + h} V${top + r} Q${cx - barW / 2},${top} ${cx - barW / 2 + r},${top} H${cx + barW / 2 - r} Q${cx + barW / 2},${top} ${cx + barW / 2},${top + r} V${PAD.top + h} Z`
-                  : '';
-              return (
-                <G key={d.x}>
-                  {bh > 0 ? <Path d={path} fill={color} opacity={sel === null || sel === i ? 1 : 0.55} /> : null}
-                  {d.ref !== undefined ? (
-                    <Line
-                      x1={cx - slotW / 2 + 1}
-                      x2={cx + slotW / 2 - 1}
-                      y1={yAt(d.ref)}
-                      y2={yAt(d.ref)}
-                      stroke={t.reference}
-                      strokeWidth={2}
-                      strokeDasharray="4 3"
-                    />
-                  ) : null}
-                </G>
-              );
-            })}
-            {[0, data.length - 1].filter((i, k, a) => a.indexOf(i) === k).map((i) => (
-              <SvgText
-                fontFamily={FONT}
-                key={`x${i}`}
-                x={PAD.left + slotW * i + slotW / 2}
-                y={height - 6}
-                fontSize={11}
-                fill={t.muted}
-                textAnchor={i === 0 && data.length > 1 ? 'start' : 'end'}
-              >
-                {xFormat(data[i].x)}
-              </SvgText>
-            ))}
-            <Rect x={PAD.left} y={PAD.top + h} width={w} height={1} fill={t.separator} />
-          </Svg>
-        </Pressable>
-      ) : (
-        <View style={{ height }} />
-      )}
-    </View>
+    </>
+  );
+
+  return (
+    <ChartFrame header={header} height={height}>
+      {(width) => {
+        const w = Math.max(0, width - PAD.left - PAD.right);
+        const slotW = w / data.length;
+        const barW = Math.max(4, Math.min(28, slotW - 2)); // ≥ 2px de vão entre barras
+        const onTouch = (e: GestureResponderEvent) => {
+          const i = Math.floor((e.nativeEvent.locationX - PAD.left) / slotW);
+          setSel(Math.max(0, Math.min(data.length - 1, i)));
+        };
+        return (
+          <Pressable
+            onPressIn={onTouch}
+            onTouchMove={onTouch}
+            accessibilityLabel="Gráfico de barras"
+            accessibilityHint="Toque para ver os valores"
+          >
+            <Svg width={width} height={height}>
+              {ticks(bscale).map((v) => (
+                <Line key={v} x1={PAD.left} x2={PAD.left + w} y1={yAt(v)} y2={yAt(v)} stroke={t.grid} strokeWidth={1} />
+              ))}
+              {ticks(bscale).map((v) => (
+                <SvgText
+                  fontFamily={FONT}
+                  key={`l${v}`}
+                  x={PAD.left - 6}
+                  y={yAt(v) + 4}
+                  fontSize={11}
+                  fill={t.muted}
+                  textAnchor="end"
+                >
+                  {yFormat(v)}
+                </SvgText>
+              ))}
+              {data.map((d, i) => {
+                const cx = PAD.left + slotW * i + slotW / 2;
+                const top = yAt(d.value);
+                const bh = Math.max(0, PAD.top + h - top);
+                const r = Math.min(4, barW / 2, bh);
+                // topo arredondado (4px), base reta no eixo
+                const path =
+                  bh > 0
+                    ? `M${cx - barW / 2},${PAD.top + h} V${top + r} Q${cx - barW / 2},${top} ${cx - barW / 2 + r},${top} H${cx + barW / 2 - r} Q${cx + barW / 2},${top} ${cx + barW / 2},${top + r} V${PAD.top + h} Z`
+                    : '';
+                return (
+                  <G key={d.x}>
+                    {bh > 0 ? <Path d={path} fill={color} opacity={sel === null || sel === i ? 1 : 0.55} /> : null}
+                    {d.ref !== undefined ? (
+                      <Line
+                        x1={cx - slotW / 2 + 1}
+                        x2={cx + slotW / 2 - 1}
+                        y1={yAt(d.ref)}
+                        y2={yAt(d.ref)}
+                        stroke={t.reference}
+                        strokeWidth={2}
+                        strokeDasharray="4 3"
+                      />
+                    ) : null}
+                  </G>
+                );
+              })}
+              {[0, data.length - 1]
+                .filter((i, k, a) => a.indexOf(i) === k)
+                .map((i) => (
+                  <SvgText
+                    fontFamily={FONT}
+                    key={`x${i}`}
+                    x={PAD.left + slotW * i + slotW / 2}
+                    y={height - 6}
+                    fontSize={11}
+                    fill={t.muted}
+                    textAnchor={i === 0 && data.length > 1 ? 'start' : 'end'}
+                  >
+                    {xFormat(data[i].x)}
+                  </SvgText>
+                ))}
+              <Rect x={PAD.left} y={PAD.top + h} width={w} height={1} fill={t.separator} />
+            </Svg>
+          </Pressable>
+        );
+      }}
+    </ChartFrame>
   );
 }
 
@@ -315,5 +385,6 @@ const styles = StyleSheet.create({
   legendItem: { flexDirection: 'row', alignItems: 'center', gap: 6 },
   swatch: { width: 12, height: 12, borderRadius: 3 },
   dash: { width: 16, height: 0, borderTopWidth: 2, borderStyle: 'dashed' },
+  bleed: { marginHorizontal: -space.lg },
   tooltipRow: { minHeight: 20, justifyContent: 'center' },
 });

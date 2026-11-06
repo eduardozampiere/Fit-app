@@ -187,7 +187,7 @@ export function applyAdjustments(cycle: Cycle, maxes: Maxes, ops: AdjustmentOp[]
         c = mapSessions(c, (_w, items) => items.filter((it) => it.id !== o.itemId).map((it) => (it.parentId === o.itemId ? { ...it, parentId: null } : it)));
         break;
       case 'add_item': {
-        const exerciseId = slugify(o.item.name);
+        const exerciseId = o.item.exerciseId ?? slugify(o.item.name);
         const base: PrescribedItem = {
           id: `${o.sessionId}-c${Date.now().toString(36)}${Math.random().toString(36).slice(2, 5)}`,
           exerciseId,
@@ -217,7 +217,7 @@ export function applyAdjustments(cycle: Cycle, maxes: Maxes, ops: AdjustmentOp[]
           return at >= 0 ? [...items.slice(0, at + 1), item, ...items.slice(at + 1)] : [...items, item];
         });
         if (!c.exercises.some((e) => e.id === exerciseId)) {
-          c = { ...c, exercises: [...c.exercises, { id: exerciseId, name: o.item.name, lift: null, category: 'accessory' }] };
+          c = { ...c, exercises: [...c.exercises, { id: exerciseId, name: o.item.name, lift: null, category: o.item.kind === 'core' ? 'core' : 'accessory' }] };
         }
         break;
       }
@@ -255,6 +255,28 @@ export function validateCycle(input: unknown): { ok: boolean; errors: string[]; 
   if (errors.length) return { ok: false, errors: errors.slice(0, 20), cycle: null };
   const cyc = c as Cycle;
   return { ok: true, errors: [], cycle: { ...cyc, endDate: cyc.endDate ?? cyc.weeks[cyc.weeks.length - 1].start, notes: cyc.notes ?? [], rules: cyc.rules ?? [] } };
+}
+
+/** Série padrão de um exercício adicionado no treino do dia; dá para mudar o número de séries na tela. */
+export const NEW_ITEM_SETS = '3x8-12';
+
+/**
+ * Adiciona um exercício ao fim da sessão (só aquele dia). Cadastra o exercício no ciclo se for novo e
+ * devolve o id do item criado.
+ */
+export function addExerciseToSession(cycle: Cycle, sessionId: string, exercise: Exercise): { cycle: Cycle; itemId: string | null } {
+  const session = cycle.weeks.flatMap((w) => w.sessions).find((s) => s.id === sessionId);
+  if (!session) return { cycle, itemId: null };
+  const known = new Set(session.items.map((i) => i.id));
+  const base = cycle.exercises.some((e) => e.id === exercise.id) ? cycle : { ...cycle, exercises: [...cycle.exercises, exercise] };
+  const op: AdjustmentOp = {
+    op: 'add_item',
+    sessionId,
+    item: { name: exercise.name, exerciseId: exercise.id, setsText: NEW_ITEM_SETS, kind: exercise.category === 'core' ? 'core' : 'accessory' },
+  };
+  const next = applyAdjustments(base, base.maxes, [op]).cycle;
+  const created = next.weeks.flatMap((w) => w.sessions).find((s) => s.id === sessionId)?.items.find((i) => !known.has(i.id));
+  return { cycle: next, itemId: created?.id ?? null };
 }
 
 export type SwapScope = 'item' | 'forward';

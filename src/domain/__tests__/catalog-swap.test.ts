@@ -1,14 +1,15 @@
 import { describe, expect, it } from 'vitest';
-import { formatRestDuration } from '../format';
+import { formatRestDuration, formatWorkoutTime } from '../format';
 import catalogJson from '../../../assets/catalog/exercicios.json';
 import cycleJson from '../../../assets/plan/ciclo_out26_jan27.json';
-import { swapExercise, validateAdjustments } from '../adjustments';
+import { NEW_ITEM_SETS, addExerciseToSession, swapExercise, validateAdjustments } from '../adjustments';
 import {
   EQUIPMENT_LABEL,
   MUSCLE_LABEL,
   catalogSubtitle,
   exerciseFromCatalog,
   exerciseFromName,
+  findCatalogExercise,
   findCycleExercise,
   searchCatalog,
   type Catalog,
@@ -66,10 +67,26 @@ describe('catálogo', () => {
     expect(catalogSubtitle(e)).toBe('Peito · Barra');
   });
 
+  it('imagem: link https de um jpg, ou nenhuma (vídeo não entra)', () => {
+    const withImage = catalog.exercises.filter((e) => e.image);
+    expect(withImage.length).toBeGreaterThan(100);
+    for (const e of withImage) {
+      expect(e.image!.startsWith('https://')).toBe(true);
+      expect(e.image!.endsWith('.jpg')).toBe(true);
+    }
+  });
+
+  it('acha o item do catálogo de um exercício do ciclo pelo id ou pelo nome', () => {
+    const bench = catalog.exercises.find((e) => e.name === 'Supino reto (Barra)')!;
+    expect(findCatalogExercise(catalog.exercises, { id: bench.id, name: 'qualquer' })).toBe(bench);
+    expect(findCatalogExercise(catalog.exercises, { id: 'x', name: 'Supino reto (Barra)' })).toBe(bench);
+    expect(findCatalogExercise(catalog.exercises, { id: 'puxada-aberta', name: 'Puxada aberta' })).toBeNull();
+  });
+
   it('reaproveita o exercício do ciclo de mesmo nome; senão cria sem movimento', () => {
     expect(findCycleExercise(cycle.exercises, 'puxada ABERTA')?.id).toBe('puxada-aberta');
     expect(findCycleExercise(cycle.exercises, 'Puxada')).toBeNull();
-    const own = { id: 'x', name: 'Elevação lateral', muscle: 'shoulders', equipment: 'dumbbell', nameEn: '', secondary: [] };
+    const own = { id: 'x', name: 'Elevação lateral', muscle: 'shoulders', equipment: 'dumbbell', nameEn: '', secondary: [], image: null };
     expect(exerciseFromCatalog(cycle.exercises, own).id).toBe('elevacao-lateral');
     const abs = catalog.exercises.find((e) => e.muscle === 'abdominals')!;
     expect(exerciseFromCatalog(cycle.exercises, abs)).toMatchObject({ id: abs.id, lift: null, category: 'core' });
@@ -110,6 +127,35 @@ describe('descanso editável', () => {
     expect(formatRestDuration(240)).toBe('4min 0s');
     expect(formatRestDuration(90)).toBe('1min 30s');
     expect(formatRestDuration(45)).toBe('45s');
+    expect(formatWorkoutTime(373)).toBe('6min 13s');
+    expect(formatWorkoutTime(75 * 60)).toBe('1h 15min');
+  });
+});
+
+describe('adicionar exercício ao treino', () => {
+  const row = catalog.exercises.find((e) => e.name === 'Remada curvada (Barra)')!;
+  const ex = exerciseFromCatalog(cycle.exercises, row);
+
+  it('entra no fim da sessão, só naquele dia, com 3 séries e o exercício cadastrado', () => {
+    const before = cycle.weeks[1].sessions[1].items.length;
+    const out = addExerciseToSession(cycle, 'w2-d2', ex);
+    expect(out.itemId).toBeTruthy();
+    const items = out.cycle.weeks[1].sessions[1].items;
+    expect(items).toHaveLength(before + 1);
+    expect(items[items.length - 1]).toMatchObject({ id: out.itemId, name: ex.name, exerciseId: ex.id, setsText: NEW_ITEM_SETS, kind: 'accessory' });
+    expect(out.cycle.weeks[2].sessions[1].items).toHaveLength(cycle.weeks[2].sessions[1].items.length);
+    expect(out.cycle.exercises.filter((e) => e.id === ex.id)).toHaveLength(1);
+    expect(cycle.weeks[1].sessions[1].items).toHaveLength(before); // imutável
+  });
+
+  it('exercício que o ciclo já tem não duplica; abdominal vira core; sessão inexistente não muda nada', () => {
+    const known = cycle.exercises.find((e) => e.id === 'puxada-aberta')!;
+    expect(addExerciseToSession(cycle, 'w2-d2', known).cycle.exercises).toHaveLength(cycle.exercises.length);
+    const abs = exerciseFromCatalog(cycle.exercises, catalog.exercises.find((e) => e.muscle === 'abdominals')!);
+    const out = addExerciseToSession(cycle, 'w2-d2', abs);
+    expect(find(out.cycle, out.itemId!)).toMatchObject({ kind: 'core' });
+    expect(out.cycle.exercises.find((e) => e.id === abs.id)?.category).toBe('core');
+    expect(addExerciseToSession(cycle, 'nada', ex)).toEqual({ cycle, itemId: null });
   });
 });
 

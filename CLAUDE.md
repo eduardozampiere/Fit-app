@@ -54,6 +54,8 @@ generalize o que existe em vez de copiar. Ao precisar da mesma coisa em um segun
 | Cores, alvo de toque, tipografia, espaçamento, raios | `src/ui/theme.ts` (`useTheme`, `TOUCH`, `font`, `space`, `radius`) |
 | Botão, pílula, cartão, stepper, campo de texto, seção, linha de lista, resumo em colunas, ícone, menu de ações, cabeçalho de modal | `src/components/ui.tsx` (`BigButton`, `Chip`, `Card`, `Stepper`, `TextField`, `Section`, `ListRow`, `StatRow`, `IconButton`, `ActionMenu`, `SheetHeader`) |
 | Tabela de séries do treino | `src/components/SetTable.tsx` |
+| Cabeçalho do treino (duração, volume, séries) | `src/components/WorkoutHeader.tsx` + `WorkoutStats.tsx` |
+| Folha de baixo para cima (menus, editor de descanso) | `BottomSheet` em `src/components/ui.tsx` |
 | Catálogo de exercícios, busca e troca de exercício | `src/domain/catalog.ts` + `swapExercise` em `src/domain/adjustments.ts` |
 | Descanso (padrão, ajuste do usuário, limites) | `restSeconds`, `restOverride`, `withRestOverride` em `src/domain/plan.ts` |
 | Lista reordenável (segurar e arrastar) | `src/components/DragList.tsx` + `src/domain/reorder.ts` |

@@ -1,14 +1,14 @@
 import { useEffect, useState } from 'react';
-import { formatElapsed, formatNumber } from '../domain/format';
+import { formatNumber, formatWorkoutTime } from '../domain/format';
 import type { SessionStats } from '../domain/logging';
 import { StatRow } from './ui';
 
-/** Tempo · Volume · Séries no topo do treino. O tempo corre enquanto o treino está aberto. */
+/** Duração · Volume · Séries. A duração corre (de segundo em segundo) enquanto o treino está aberto. */
 export function WorkoutStats({ stats, plannedSets, running }: { stats: SessionStats; plannedSets: number; running: boolean }) {
   const [now, setNow] = useState(() => Date.now());
   useEffect(() => {
     if (!running || !stats.startedAt) return;
-    const id = setInterval(() => setNow(Date.now()), 30_000);
+    const id = setInterval(() => setNow(Date.now()), 1000);
     return () => clearInterval(id);
   }, [running, stats.startedAt]);
 
@@ -16,7 +16,7 @@ export function WorkoutStats({ stats, plannedSets, running }: { stats: SessionSt
   return (
     <StatRow
       items={[
-        { label: 'Tempo', value: elapsed !== null ? formatElapsed(elapsed) : '—', accent: running && elapsed !== null },
+        { label: 'Duração', value: elapsed !== null ? formatWorkoutTime(elapsed) : '—', accent: running && elapsed !== null },
         { label: 'Volume', value: `${formatNumber(stats.volumeKg, 0)} kg` },
         { label: 'Séries', value: `${stats.sets}/${plannedSets}` },
       ]}

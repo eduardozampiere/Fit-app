@@ -63,6 +63,11 @@ export function formatRestDuration(total: number): string {
   return s < 60 ? `${s}s` : `${Math.floor(s / 60)}min ${s % 60}s`;
 }
 
+/** Duração do treino: "45s", "6min 13s", "1h 15min". */
+export function formatWorkoutTime(total: number): string {
+  return total >= 3600 ? formatElapsed(total) : formatRestDuration(total);
+}
+
 export function formatSeconds(total: number): string {
   const s = Math.max(0, Math.round(total));
   const m = Math.floor(s / 60);

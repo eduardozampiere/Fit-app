@@ -22,7 +22,7 @@
 | Restrição | Consequência |
 |---|---|
 | Sem conta paga da Apple (não vai pagar) | Instalação com Apple ID gratuito pelo Mac: validade de 7 dias, renovação semanal. Sem HealthKit, widgets com dados compartilhados, iCloud/CloudKit nem push remoto. |
-| Uso na academia, sem depender de internet | Offline-first: tudo no aparelho (SQLite), sem backend e sem conta. |
+| Uso na academia: normalmente com 5G, mas pode ficar sem internet (informado pelo usuário em 05/11/2026) | Offline-first: tudo que é essencial fica no aparelho (SQLite), sem backend e sem conta. Internet só para extras que têm alternativa sem ela, como as demonstrações dos exercícios (com cache e ícone de reserva). |
 | Tem Mac | O build e a instalação no iPhone rodam no Mac (`npm run iphone`). |
 | Sessões do Claude Code na nuvem rodam em Linux | Elas não compilam iOS nem alcançam o iPhone. Testes de domínio, lint, tipos e prévia web rodam lá; instalação só numa sessão local no Mac. |
 

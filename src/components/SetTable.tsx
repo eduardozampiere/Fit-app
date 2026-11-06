@@ -179,10 +179,10 @@ export function SetTable({
       ))}
 
       <View style={styles.addRow}>
-        <View style={{ flex: 2 }}>
+        <View style={{ flex: 1 }}>
           <BigButton label="Adicionar série" icon="add" variant="neutral" compact onPress={onAdd} />
         </View>
-        <View style={{ flex: 1.3 }}>
+        <View style={{ flex: 1 }}>
           <BigButton label="Aquecimento" icon="flame-outline" variant="neutral" compact onPress={onAddWarmup} />
         </View>
       </View>

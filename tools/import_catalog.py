@@ -3,6 +3,7 @@
 hevy-ia) e tools/catalogo_pt.txt (nome em português de cada exercício, "Inglês|Português").
 
 Uso: python3 tools/import_catalog.py
+"image" é o link da imagem (jpg) do exercício, quando o CSV traz uma (os links de vídeo não entram).
 O id é o slug do nome em português (mesma regra de slugify em src/domain/text.ts).
 """
 import csv
@@ -46,6 +47,9 @@ def build() -> dict:
             raise SystemExit(f"Nome repetido: {name} (de {en} e {seen[ex_id]})")
         seen[ex_id] = en
         secondary = [] if row["secondary_muscle"] in ("", "None") else [key(m) for m in row["secondary_muscle"].split(",")]
+        # Só imagens (jpg). O CSV também traz mp4 (e marca um deles como "image"): ficam de fora.
+        source = row["source"].strip()
+        image = source if source.startswith("https://") and source.endswith(".jpg") else None
         exercises.append(
             {
                 "id": ex_id,
@@ -54,6 +58,7 @@ def build() -> dict:
                 "equipment": key(row["equipment"]),
                 "muscle": key(row["primary_muscle"]),
                 "secondary": secondary,
+                "image": image,
             }
         )
     if pt:

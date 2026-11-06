@@ -227,6 +227,7 @@ export function ListRow({
   value,
   onPress,
   icon,
+  leading,
   last,
 }: {
   title: string;
@@ -234,12 +235,14 @@ export function ListRow({
   value?: string;
   onPress?: () => void;
   icon?: IconName;
+  /** Miniatura ou outro elemento no lugar do ícone. */
+  leading?: ReactNode;
   last?: boolean;
 }) {
   const t = useTheme();
   const content = (
     <View style={styles.listRow}>
-      {icon ? <Ionicons name={icon} size={22} color={t.accent} /> : null}
+      {leading ?? (icon ? <Ionicons name={icon} size={22} color={t.accent} /> : null)}
       <View style={{ flex: 1, gap: 2 }}>
         <Text style={[styles.rowTitle, { color: t.text }]}>{title}</Text>
         {subtitle ? <Text style={[styles.rowSub, { color: t.muted }]}>{subtitle}</Text> : null}

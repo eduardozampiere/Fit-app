@@ -14,8 +14,8 @@ trocar o exercício escolhendo de uma lista de exercícios pré-cadastrados, com
     ou por um exercício novo com nome livre.
   - Aproveitar o projeto `~/hevy-ia` (ver "O que veio do hevy-ia").
 - Não entra:
+  - Imagem dos exercícios no catálogo — entrou na [feature 10](../10-cabecalho-e-adicionar-exercicio/spec.md).
   - Escolher do catálogo na aba Plano (o `ItemEditor` continua com campo de texto) — fica no backlog.
-  - Vídeos e imagens dos exercícios (o CSV traz links de um bucket externo; o app é offline).
   - Análises por grupo muscular (os dados já estão no catálogo; a tela fica para depois).
 
 ## O que veio do hevy-ia

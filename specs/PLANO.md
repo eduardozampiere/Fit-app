@@ -19,6 +19,7 @@ Legenda: ✅ feito · 🟡 feito, falta verificar no iPhone · 🔨 em andamento
 | 07 | Importação, exportação, backup e integração com o Claude | 🟡 | [07-dados-e-claude](07-dados-e-claude/spec.md) |
 | 08 | Visual inspirado no Hevy (tabela de séries inline, tokens novos) | 🟡 | [08-design-hevy](08-design-hevy/spec.md) |
 | 09 | Descanso editável e troca de exercício (catálogo do hevy-ia) | 🟡 | [09-descanso-e-catalogo](09-descanso-e-catalogo/spec.md) |
+| 10 | Cabeçalho do treino, adicionar exercício e imagens | 🟡 | [10-cabecalho-e-adicionar-exercicio](10-cabecalho-e-adicionar-exercicio/spec.md) |
 
 Nada foi testado num iPhone de verdade ainda. Em 03/11/2026 o app rodou no simulador do iOS 27.2 (Mac,
 Xcode 27.2, `npx expo run:ios`). O que foi verificado em cada feature está no `spec.md` dela.
@@ -36,6 +37,8 @@ Xcode 27.2, `npx expo run:ios`). O que foi verificado em cada feature está no `
 |---|---|---|
 | "Desfazer" para sugestão aceita | revisão do incremento 2 | Hoje aceitar aplica direto no plano, sem volta. |
 | Escolher do catálogo também no editor da aba Plano | feature 09 | O `ItemEditor` ainda tem só campo de texto para o nome. |
+| Figura do corpo com os músculos trabalhados (como no cabeçalho do Hevy) | feature 10 | Precisa do desenho do corpo e do mapa exercício → músculo; as imagens do catálogo já mostram os músculos em vermelho. |
+| Imagens para os exercícios do plano original (ex.: "Puxada aberta") | feature 10 | Só aparecem para exercícios que estão no catálogo; ligar pelo nome ou trocar por um do catálogo. |
 | Volume por grupo muscular nas Análises | feature 09 | O catálogo já traz músculo principal e secundário; falta ligar o exercício do ciclo ao catálogo pelo nome. |
 | Validar com um export real do Hevy | feature 07 | O parser segue o formato documentado; ajustar se o arquivo real for diferente. |
 | Live Activity do descanso (tela bloqueada / Dynamic Island) | conversa sobre Swift | Exige módulo nativo; possível com instalação pelo Mac. Verificar se o Apple ID gratuito permite. |
@@ -70,4 +73,6 @@ Xcode 27.2, `npx expo run:ios`). O que foi verificado em cada feature está no `
 | 03/11/2026 | Visual Hevy, fase 5: modais, Ajustes/Dados e limpeza dos apelidos | `978b6c2` |
 | 03/11/2026 | Arrastar para apagar série e séries de aquecimento (banco v5) | `6a3d222` |
 | 03/11/2026 | Reordenar exercícios e séries arrastando | `a0edcec` |
-| 05/11/2026 | Descanso editável e troca de exercício com catálogo | este commit |
+| 05/11/2026 | Descanso editável e troca de exercício com catálogo | `b36fc98` |
+| 05/11/2026 | Editor de descanso como folha parcial com roda de tempos | `f608b99` |
+| 05/11/2026 | Cabeçalho do treino, adicionar exercício e imagens dos exercícios | este commit |

@@ -7,6 +7,7 @@ import type { PrescribedItem, Range, SetLog } from '../domain/types';
 import { font, radius, space, useTheme } from '../ui/theme';
 import type { SetDraft } from '../domain/logging';
 import type { DragHandleProps } from './DragList';
+import { ExerciseImage } from './ExerciseImage';
 import { SetTable, type SetInput, type SetKind } from './SetTable';
 import { IconButton } from './ui';
 
@@ -43,6 +44,8 @@ export function ExerciseCard({
   restSec,
   restOverridden,
   onRest,
+  image,
+  onImage,
   showRpe,
   pendingRpeIndex,
   lock,
@@ -77,6 +80,9 @@ export function ExerciseCard({
   restSec: number;
   restOverridden: boolean;
   onRest: () => void;
+  /** link da imagem do exercício (catálogo), se houver */
+  image: string | null;
+  onImage: () => void;
   showRpe: boolean;
   pendingRpeIndex: number | null;
   lock?: SetLock;
@@ -116,9 +122,16 @@ export function ExerciseCard({
           accessibilityHint={handle ? 'Segure e arraste para mudar a ordem dos exercícios' : undefined}
           {...handle}
         >
-          <View style={[styles.avatar, { backgroundColor: t.surface }]}>
+          <Pressable
+            style={[styles.avatar, { backgroundColor: t.surface }]}
+            disabled={!image}
+            onPress={onImage}
+            accessibilityRole={image ? 'button' : undefined}
+            accessibilityLabel={image ? `Ver imagem de ${item.name}` : undefined}
+          >
             <Ionicons name={isLift ? 'barbell' : 'fitness'} size={22} color={complete ? t.done : t.accent} />
-          </View>
+            {image ? <ExerciseImage uri={image} width={40} height={40} /> : null}
+          </Pressable>
           <View style={{ flex: 1, gap: 2 }}>
             <Text style={[styles.name, { color: t.accent }]}>{item.name}</Text>
             <Text style={[styles.kind, { color: complete ? t.done : t.muted }]}>
@@ -200,7 +213,7 @@ const styles = StyleSheet.create({
   blockCollapsed: { paddingVertical: space.sm },
   title: { flex: 1, flexDirection: 'row', alignItems: 'center', gap: space.md },
   header: { flexDirection: 'row', alignItems: 'center', gap: space.md },
-  avatar: { width: 40, height: 40, borderRadius: 20, alignItems: 'center', justifyContent: 'center' },
+  avatar: { width: 40, height: 40, borderRadius: 20, alignItems: 'center', justifyContent: 'center', overflow: 'hidden' },
   name: { ...font.headline },
   kind: { fontSize: 13 },
   prescription: { fontSize: 15, fontWeight: '500' },

@@ -13,6 +13,8 @@ export interface CatalogExercise {
   equipment: string;
   muscle: string;
   secondary: string[];
+  /** link da imagem (jpg), hospedada fora do app (precisa de internet na primeira vez) */
+  image: string | null;
 }
 
 export interface Catalog {
@@ -77,6 +79,12 @@ export function searchCatalog(list: readonly CatalogExercise[], query: string, m
   const first = words[0];
   const starts = (e: CatalogExercise) => (normalize(e.name).startsWith(first) ? 0 : 1);
   return [...matches].sort((a, b) => starts(a) - starts(b));
+}
+
+/** Item do catálogo de um exercício do ciclo (mesmo id ou mesmo nome), para mostrar a imagem e o grupo muscular. */
+export function findCatalogExercise(list: readonly CatalogExercise[], exercise: Pick<Exercise, 'id' | 'name'>): CatalogExercise | null {
+  const s = slugify(exercise.name);
+  return list.find((e) => e.id === exercise.id || e.id === s) ?? null;
 }
 
 /** "Peito · Barra" */

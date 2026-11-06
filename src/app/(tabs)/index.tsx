@@ -15,7 +15,9 @@ import { RestTimerBar } from '../../components/RestTimerBar';
 import { SetEditor, type EditableSet } from '../../components/SetEditor';
 import type { SetInput, SetKind } from '../../components/SetTable';
 import { ActionMenu, BigButton, Card, Chip, Divider, IconButton, type MenuOption } from '../../components/ui';
-import { WorkoutStats } from '../../components/WorkoutStats';
+import { WorkoutHeader } from '../../components/WorkoutHeader';
+import { ExercisePreview } from '../../components/ExercisePreview';
+import catalogJson from '../../../assets/catalog/exercicios.json';
 import {
   deleteSet,
   deleteSetAndRenumber,
@@ -33,7 +35,8 @@ import {
   setSetting,
   updateSet,
 } from '../../db/repo';
-import { swapExercise } from '../../domain/adjustments';
+import { addExerciseToSession, swapExercise } from '../../domain/adjustments';
+import { findCatalogExercise, type Catalog, type CatalogExercise } from '../../domain/catalog';
 import { toISODate } from '../../domain/dates';
 import { formatDateShort, formatNumber, formatRestDuration, WEEKDAY_NAMES, WEEKDAY_SHORT } from '../../domain/format';
 import type { SwapScope } from '../../domain/adjustments';
@@ -71,6 +74,7 @@ import { itemBlocks, moveItem, orderBlocks } from '../../domain/reorder';
 import { RPE_CHOICES } from '../../domain/rpe';
 import { font, space, useTheme } from '../../ui/theme';
 
+const catalog = catalogJson as unknown as Catalog;
 const GENERIC_NOTE = /^(% calculado|Registro:)/;
 
 export default function TodayScreen() {
@@ -121,6 +125,9 @@ export default function TodayScreen() {
   const [restOverrides, setRestOverrides] = useState<Record<string, number>>({});
   const [restEditing, setRestEditing] = useState<PrescribedItem | null>(null);
   const [swapping, setSwapping] = useState<PrescribedItem | null>(null);
+  const [adding, setAdding] = useState(false);
+  const [freeTimer, setFreeTimer] = useState(false);
+  const [preview, setPreview] = useState<{ exercise: CatalogExercise; name: string } | null>(null);
   const [failUnlocked, setFailUnlocked] = useState(false);
   const [redFlagSeen, setRedFlagSeen] = useState(false);
 
@@ -309,6 +316,16 @@ export default function TodayScreen() {
     await updateCycle(out.cycle);
   };
 
+  /** Acrescenta um exercício ao fim do treino do dia (só esta sessão do plano). */
+  const addExercise = async (exercise: Exercise) => {
+    if (!cycle || !ref) return;
+    setAdding(false);
+    await updateCycle(addExerciseToSession(cycle, ref.session.id, exercise).cycle);
+  };
+
+  const catalogOf = (item: PrescribedItem): CatalogExercise | null =>
+    findCatalogExercise(catalog.exercises, cycle?.exercises.find((e) => e.id === item.exerciseId) ?? { id: item.exerciseId, name: item.name });
+
   const allAsPlanned = async (item: PrescribedItem) => {
     const log = await ensureLog();
     await insertSets(db, log.id, missingPlanned(item));
@@ -435,6 +452,21 @@ export default function TodayScreen() {
 
   return (
     <SafeAreaView edges={['top']} style={{ flex: 1, backgroundColor: t.bg }}>
+      <WorkoutHeader
+        title={`${WEEKDAY_NAMES[ref.session.weekday]} — ${ref.session.title}`}
+        subtitle={
+          `Semana ${ref.week.number} · ${ref.week.block} · ` +
+          (isToday ? 'Hoje' : `Planejado para ${formatDateShort(ref.date)}`) +
+          (sessionLog && sessionLog.date !== ref.date ? ` · feito em ${formatDateShort(sessionLog.date)}` : '') +
+          (!isToday && !plannedToday && !sessionLog ? ' · hoje não tem treino no plano' : '')
+        }
+        stats={stats}
+        plannedSets={plannedSets}
+        running={!done && stats.sets > 0}
+        done={done}
+        onTimer={() => setFreeTimer(true)}
+        onFinish={finishSession}
+      />
       <ScrollView
         contentContainerStyle={styles.body}
         contentInsetAdjustmentBehavior="automatic"
@@ -472,20 +504,6 @@ export default function TodayScreen() {
             />
           ))}
         </View>
-
-        <View style={{ gap: 2 }}>
-          <Text style={[styles.dayTitle, { color: t.text }]}>
-            {WEEKDAY_NAMES[ref.session.weekday]} — {ref.session.title}
-          </Text>
-          <Text style={[styles.daySub, { color: t.muted }]}>
-            {isToday ? 'Hoje' : `Planejado para ${formatDateShort(ref.date)}`}
-            {sessionLog && sessionLog.date !== ref.date ? ` · feito em ${formatDateShort(sessionLog.date)}` : ''}
-            {!isToday && !plannedToday && !sessionLog ? ' · hoje não tem treino no plano' : ''}
-          </Text>
-        </View>
-
-        <WorkoutStats stats={stats} plannedSets={plannedSets} running={!done && stats.sets > 0} />
-        <Divider />
 
         {redFlagToday ? (
           <Card style={{ backgroundColor: t.dangerBg, borderColor: t.danger }}>
@@ -559,6 +577,11 @@ export default function TodayScreen() {
                       restSec={restOf(item)}
                       restOverridden={restOverride(restOverrides, item.exerciseId) !== null}
                       onRest={() => setRestEditing(item)}
+                      image={catalogOf(item)?.image ?? null}
+                      onImage={() => {
+                        const c = catalogOf(item);
+                        if (c) setPreview({ exercise: c, name: item.name });
+                      }}
                       showRpe={showRpe}
                       pendingRpeIndex={showRpe && last && last.rpe === null ? last.setIndex : null}
                       lock={lock}
@@ -586,9 +609,7 @@ export default function TodayScreen() {
           )}
         />
 
-        {setLogs.length > 0 ? (
-          <BigButton label={done ? 'Reabrir treino' : 'Finalizar treino'} variant="neutral" onPress={finishSession} />
-        ) : null}
+        <BigButton label="Adicionar exercício" icon="add" onPress={() => setAdding(true)} />
         <Text style={[styles.footer, { color: t.muted }]}>
           Máximos: agacho {formatNumber(maxes.squat)} · supino {formatNumber(maxes.bench)} · terra {formatNumber(maxes.deadlift)}
         </Text>
@@ -621,6 +642,26 @@ export default function TodayScreen() {
           onClose={() => setRestEditing(null)}
         />
       ) : null}
+      {adding ? (
+        <ExercisePicker mode="add" cycleExercises={cycle.exercises} onPick={(exercise) => addExercise(exercise)} onClose={() => setAdding(false)} />
+      ) : null}
+      {freeTimer ? (
+        <RestEditor
+          key="free-timer"
+          title="Timer de descanso"
+          name="Timer livre"
+          confirmLabel="Iniciar"
+          initialSec={120}
+          hasOverride={false}
+          onSave={(sec) => {
+            setFreeTimer(false);
+            timer.start(sec, 'Descanso');
+          }}
+          onReset={() => {}}
+          onClose={() => setFreeTimer(false)}
+        />
+      ) : null}
+      {preview ? <ExercisePreview exercise={preview.exercise} name={preview.name} onClose={() => setPreview(null)} /> : null}
       {swapping ? (
         <ExercisePicker
           key={swapping.id}
@@ -647,7 +688,5 @@ const styles = StyleSheet.create({
   weekTitle: { ...font.headline },
   weekSub: { fontSize: 13 },
   days: { flexDirection: 'row', flexWrap: 'wrap', gap: space.sm, justifyContent: 'center' },
-  dayTitle: { fontSize: 22, fontWeight: '700' },
-  daySub: { fontSize: 15 },
   footer: { fontSize: 13, textAlign: 'center' },
 });

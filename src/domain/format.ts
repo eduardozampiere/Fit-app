@@ -48,8 +48,17 @@ export function formatElapsed(totalSeconds: number): string {
   return m ? `${h}h ${m}min` : `${h}h`;
 }
 
-/** 'YYYY-MM-DD' -> 'dd/MM' */
-export function formatDateShort(iso: string): string {
+const MONTH_SHORT = ['jan', 'fev', 'mar', 'abr', 'mai', 'jun', 'jul', 'ago', 'set', 'out', 'nov', 'dez'];
+
+/** Data da interface: "05 nov" no ano corrente, "05 nov, 2025" em outro ano. `now` só para testes. */
+export function formatDate(iso: string, now: Date = new Date()): string {
+  const [y, m, d] = iso.split('-');
+  const month = MONTH_SHORT[Number(m) - 1] ?? m;
+  return Number(y) === now.getFullYear() ? `${d} ${month}` : `${d} ${month}, ${y}`;
+}
+
+/** 'YYYY-MM-DD' -> 'dd/MM'. Só para o texto do pacote do Claude (não depende do ano corrente). */
+export function formatDayMonth(iso: string): string {
   const [, m, d] = iso.split('-');
   return `${d}/${m}`;
 }
@@ -63,9 +72,10 @@ export function formatRestDuration(total: number): string {
   return s < 60 ? `${s}s` : `${Math.floor(s / 60)}min ${s % 60}s`;
 }
 
-/** Duração do treino: "45s", "6min 13s", "1h 15min". */
+/** Duração do treino, sempre com os segundos: "45s", "6min 13s", "1h 15min 3s". */
 export function formatWorkoutTime(total: number): string {
-  return total >= 3600 ? formatElapsed(total) : formatRestDuration(total);
+  const s = Math.max(0, Math.round(total));
+  return s >= 3600 ? `${Math.floor(s / 3600)}h ${Math.floor((s % 3600) / 60)}min ${s % 60}s` : formatRestDuration(s);
 }
 
 export function formatSeconds(total: number): string {

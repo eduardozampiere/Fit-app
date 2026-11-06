@@ -34,7 +34,7 @@ function set(item: PrescribedItem, setIndex: number, extra: Partial<SetLog> = {}
     belt: null,
     failed: false,
     asPlanned: true,
-    warmup: false,
+    warmup: false, setType: 'normal',
     note: null,
     doneAt: '',
     ...extra,

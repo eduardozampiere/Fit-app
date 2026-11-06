@@ -3,7 +3,7 @@ import { Pressable, StyleSheet, Text, View } from 'react-native';
 import { formatRange, formatRestDuration } from '../domain/format';
 import { KIND_LABEL } from '../domain/plan';
 import type { SetLock } from '../domain/rules';
-import type { PrescribedItem, Range, SetLog } from '../domain/types';
+import type { PrescribedItem, Range, SetLog, SetType } from '../domain/types';
 import { font, radius, space, useTheme } from '../ui/theme';
 import type { SetDraft } from '../domain/logging';
 import type { DragHandleProps } from './DragList';
@@ -58,6 +58,7 @@ export function ExerciseCard({
   onRpe,
   onAdd,
   onAddWarmup,
+  pendingTypes,
   onMoveSet,
   onSetDrag,
   handle,
@@ -94,6 +95,7 @@ export function ExerciseCard({
   onRpe: (log: SetLog) => void;
   onAdd: () => void;
   onAddWarmup: () => void;
+  pendingTypes: Record<number, SetType>;
   onMoveSet: (kind: SetKind, from: number, to: number) => void;
   onSetDrag: (dragging: boolean) => void;
   /** Segurar o cabeçalho para arrastar o exercício. */
@@ -190,6 +192,7 @@ export function ExerciseCard({
             onRpe={onRpe}
             onAdd={onAdd}
             onAddWarmup={onAddWarmup}
+            pendingTypes={pendingTypes}
             onMoveSet={onMoveSet}
             onDragChange={onSetDrag}
           />

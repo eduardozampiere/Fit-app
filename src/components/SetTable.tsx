@@ -4,9 +4,11 @@ import { Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
 import { formatNumber, formatRange } from '../domain/format';
 import type { SetDraft } from '../domain/logging';
 import type { SetLock } from '../domain/rules';
-import type { PrescribedItem, SetLog } from '../domain/types';
+import type { PrescribedItem, SetLog, SetType } from '../domain/types';
 import { radius, space, useTheme } from '../ui/theme';
+import { choiceOf, setRowLabel } from '../domain/setTypes';
 import { DragList, type DragHandleProps } from './DragList';
+import { setChoiceColor } from './SetTypeSheet';
 import { SwipeToDelete } from './SwipeToDelete';
 import { BigButton } from './ui';
 
@@ -47,6 +49,7 @@ export function SetTable({
   onRpe,
   onAdd,
   onAddWarmup,
+  pendingTypes,
   onMoveSet,
   onDragChange,
 }: {
@@ -70,6 +73,8 @@ export function SetTable({
   onRpe: (log: SetLog) => void;
   onAdd: () => void;
   onAddWarmup: () => void;
+  /** Tipo escolhido para linhas ainda não registradas (série até a falha, drop set), por número da série. */
+  pendingTypes: Record<number, SetType>;
   /** Arrastou a série de `from` para `to` (posições 1…n dentro do mesmo tipo). */
   onMoveSet: (kind: SetKind, from: number, to: number) => void;
   onDragChange: (dragging: boolean) => void;
@@ -141,12 +146,13 @@ export function SetTable({
         renderItem={(idx, _i, handle) => {
           const log = logs.find((l) => l.setIndex === idx) ?? null;
           const optional = idx > plannedCount;
+          const choice = log ? choiceOf(log) : (pendingTypes[idx] ?? 'normal');
           return (
             <SwipeToDelete label={`série ${idx}`} onDelete={() => onRemove('work', idx, log)}>
               <SetRow
                 key={`${idx}-${log?.id ?? 'new'}-${log?.loadKg}-${log?.reps}-${log?.durationSec}`}
-                label={String(idx)}
-                labelColor={optional && !log ? t.muted : t.text}
+                label={setRowLabel(choice, idx)}
+                labelColor={choice !== 'normal' ? setChoiceColor(t, choice) : optional && !log ? t.muted : t.text}
                 a11yName={`Série ${idx}${optional ? ', opcional' : ''}`}
                 log={log}
                 plannedText={log?.failed ? 'falhou' : optional && !log ? `${plannedText} opc.` : plannedText}

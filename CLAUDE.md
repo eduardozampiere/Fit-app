@@ -42,7 +42,7 @@ generalize o que existe em vez de copiar. Ao precisar da mesma coisa em um segun
 | Precisa de… | Use (não reescreva) |
 |---|---|
 | Datas `YYYY-MM-DD`, somar dias, dia da semana | `src/domain/dates.ts` |
-| Número, kg, faixa, data `dd/MM`, segundos (pt-BR) | `src/domain/format.ts` |
+| Número, kg, faixa, data (`formatDate`: "05 nov" / "05 nov, 2025"), segundos (pt-BR) | `src/domain/format.ts` |
 | Ler texto do plano ("4x4", "205-210", "≤8", "5 min") e valores soltos de CSV | `src/domain/parsing.ts` |
 | Ler/escrever CSV | `src/domain/csv.ts` |
 | Tirar acento, slug, cabeçalho de CSV | `stripAccents` / `slugify` em `src/domain/text.ts` |
@@ -55,9 +55,10 @@ generalize o que existe em vez de copiar. Ao precisar da mesma coisa em um segun
 | Botão, pílula, cartão, stepper, campo de texto, seção, linha de lista, resumo em colunas, ícone, menu de ações, cabeçalho de modal | `src/components/ui.tsx` (`BigButton`, `Chip`, `Card`, `Stepper`, `TextField`, `Section`, `ListRow`, `StatRow`, `IconButton`, `ActionMenu`, `SheetHeader`) |
 | Tabela de séries do treino | `src/components/SetTable.tsx` |
 | Recordes, série por treino e histórico de um exercício | `src/domain/exerciseStats.ts` |
+| Folha de tipo de série (aquecimento, normal, falha, drop set) | `src/domain/setTypes.ts` + `src/components/SetTypeSheet.tsx` |
 | Botão em Liquid Glass (com reserva sem iOS 26) | `src/components/GlassButton.tsx` |
 | Cabeçalho do treino (duração, volume, séries) | `src/components/WorkoutHeader.tsx` + `WorkoutStats.tsx` |
-| Folha de baixo para cima (menus, editor de descanso) | `BottomSheet` em `src/components/ui.tsx` |
+| Folha de baixo para cima que fecha arrastando (menus, descanso, avisos). **Modais não têm botão Cancelar** | `BottomSheet` em `src/components/ui.tsx` (telas quase cheias: `Modal presentationStyle="pageSheet"` + `SheetHeader`) |
 | Catálogo de exercícios, busca e troca de exercício | `src/domain/catalog.ts` + `swapExercise` em `src/domain/adjustments.ts` |
 | Descanso (padrão, ajuste do usuário, limites) | `restSeconds`, `restOverride`, `withRestOverride` em `src/domain/plan.ts` |
 | Lista reordenável (segurar e arrastar) | `src/components/DragList.tsx` + `src/domain/reorder.ts` |
@@ -83,7 +84,7 @@ Regras de DRY:
 
 - **TypeScript estrito**, sem `any`. Tipos do domínio em `src/domain/types.ts` (ou no módulo dono do conceito).
 - **Funções pequenas e nomeadas pelo que fazem**; comentário explica o porquê, não o quê.
-- **Interface sempre em pt-BR** e formatada por `format.ts` (vírgula decimal, ponto de milhar, `dd/MM`).
+- **Interface sempre em pt-BR** e formatada por `format.ts` (vírgula decimal, ponto de milhar, datas "05 nov" ou "05 nov, 2025").
   Nunca `toFixed` ou `toLocaleString` direto na tela.
 - **React:**
   - Nada de `setState` síncrono dentro de `useEffect` para "sincronizar" props: remonte com `key`

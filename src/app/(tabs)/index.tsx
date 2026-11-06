@@ -14,11 +14,14 @@ import { RedFlagModal } from '../../components/RedFlagModal';
 import { RestTimerBar } from '../../components/RestTimerBar';
 import { SetEditor, type EditableSet } from '../../components/SetEditor';
 import type { SetInput, SetKind } from '../../components/SetTable';
-import { ActionMenu, BigButton, Card, Chip, Divider, IconButton, type MenuOption } from '../../components/ui';
+import { ActionMenu, BigButton, BottomSheet, Card, Chip, Divider, IconButton, type MenuOption } from '../../components/ui';
 import { WorkoutHeader } from '../../components/WorkoutHeader';
+import { WorkoutStats } from '../../components/WorkoutStats';
 import {
   deleteSet,
   deleteSetAndRenumber,
+  moveSetToGroup,
+  updateSetType,
   ensureSessionLog,
   exerciseOrderKey,
   getSetting,
@@ -35,7 +38,7 @@ import {
 } from '../../db/repo';
 import { addExerciseToSession, swapExercise } from '../../domain/adjustments';
 import { toISODate } from '../../domain/dates';
-import { formatDateShort, formatNumber, formatRestDuration, WEEKDAY_NAMES, WEEKDAY_SHORT } from '../../domain/format';
+import { formatDate, formatNumber, formatRestDuration, WEEKDAY_NAMES, WEEKDAY_SHORT } from '../../domain/format';
 import type { SwapScope } from '../../domain/adjustments';
 import {
   asPlannedSets,
@@ -63,7 +66,9 @@ import {
   type SessionRef,
 } from '../../domain/plan';
 import { gripForSet, gripTip, hasRedFlags, sessionLocks } from '../../domain/rules';
-import type { Exercise, PrescribedItem, SessionLog, SetLog } from '../../domain/types';
+import type { Exercise, PrescribedItem, SessionLog, SetLog, SetType } from '../../domain/types';
+import { choiceOf, startsRest, type SetChoice } from '../../domain/setTypes';
+import { SetTypeSheet } from '../../components/SetTypeSheet';
 import { useAppData } from '../../state/AppData';
 import { useRestTimer } from '../../state/RestTimer';
 import { useCoach } from '../../state/useCoach';
@@ -121,6 +126,10 @@ export default function TodayScreen() {
   const [restOverrides, setRestOverrides] = useState<Record<string, number>>({});
   const [restEditing, setRestEditing] = useState<PrescribedItem | null>(null);
   const [swapping, setSwapping] = useState<PrescribedItem | null>(null);
+  // Tipo escolhido para linhas ainda não registradas: `${itemId}:${nº da série}` → falha ou drop set.
+  const [pendingTypes, setPendingTypes] = useState<Record<string, SetType>>({});
+  const [typeSheet, setTypeSheet] = useState<{ item: PrescribedItem; kind: SetKind; idx: number; log: SetLog | null } | null>(null);
+  const [notesOpen, setNotesOpen] = useState(false);
   const [adding, setAdding] = useState(false);
   const [freeTimer, setFreeTimer] = useState(false);
   const [failUnlocked, setFailUnlocked] = useState(false);
@@ -231,11 +240,21 @@ export default function TodayScreen() {
 
   const checkSet = async (kind: SetKind, item: PrescribedItem, idx: number, input: SetInput) => {
     const log = await ensureLog();
-    await insertSets(db, log.id, [draftFromInput(draftFor(kind, item, idx), input)]);
-    // Aquecimento não dispara o descanso: a próxima série costuma vir logo.
-    if (kind === 'work') startRest(item, idx);
+    const pendingKey = `${item.id}:${idx}`;
+    const setType: SetType = kind === 'work' ? (pendingTypes[pendingKey] ?? 'normal') : 'normal';
+    await insertSets(db, log.id, [{ ...draftFromInput(draftFor(kind, item, idx), input), setType }]);
+    clearPending(item.id);
+    // Aquecimento e drop set não disparam o descanso: a próxima série vem logo.
+    if (startsRest(kind === 'warmup' ? 'warmup' : setType)) startRest(item, idx);
     bump();
   };
+
+  /** Esquece os tipos escolhidos de um exercício (os números das linhas mudam quando uma é removida ou movida). */
+  const clearPending = (itemId: string) =>
+    setPendingTypes((p) => Object.fromEntries(Object.entries(p).filter(([k]) => !k.startsWith(`${itemId}:`))));
+
+  const pendingOf = (item: PrescribedItem): Record<number, SetType> =>
+    Object.fromEntries(Object.entries(pendingTypes).filter(([k]) => k.startsWith(`${item.id}:`)).map(([k, v]) => [Number(k.split(':')[1]), v]));
 
   const uncheckSet = async (log: SetLog) => {
     await deleteSet(db, log.id);
@@ -271,6 +290,34 @@ export default function TodayScreen() {
     const sameKind = kind === 'warmup' ? warmupsOf(item) : logsOf(item);
     await deleteSetAndRenumber(db, log?.id ?? null, renumberAfterRemoval(sameKind, idx));
     await saveCount(kind, item, rowsOfKind(kind, item) - 1);
+    clearPending(item.id);
+    bump();
+  };
+
+  /** Escolha na folha "tipo de série": muda o tipo ou passa a série entre aquecimento e trabalho. */
+  const chooseSetType = async (sheet: NonNullable<typeof typeSheet>, choice: SetChoice) => {
+    const { item, kind, idx, log } = sheet;
+    setTypeSheet(null);
+    const current: SetChoice = log ? choiceOf(log) : kind === 'warmup' ? 'warmup' : (pendingTypes[`${item.id}:${idx}`] ?? 'normal');
+    if (choice === current) return;
+    const toWarmup = choice === 'warmup';
+    if ((kind === 'warmup') === toWarmup) {
+      // Continua no mesmo grupo: só muda o tipo (gravado, ou guardado até registrar a série).
+      if (log) await updateSetType(db, log.id, choice as SetType);
+      else setPendingTypes((p) => ({ ...p, [`${item.id}:${idx}`]: choice as SetType }));
+      bump();
+      return;
+    }
+    // Troca de grupo: vai para o fim do outro grupo e as seguintes do grupo de origem sobem uma posição.
+    const toKind: SetKind = toWarmup ? 'warmup' : 'work';
+    const fromLogs = kind === 'warmup' ? warmupsOf(item) : logsOf(item);
+    const newIndex = rowsOfKind(toKind, item) + 1;
+    const newType: SetType = toWarmup ? 'normal' : (choice as SetType);
+    await moveSetToGroup(db, log?.id ?? null, { warmup: toWarmup, setIndex: newIndex, setType: newType }, renumberAfterRemoval(fromLogs, idx));
+    await saveCount(kind, item, rowsOfKind(kind, item) - 1);
+    await saveCount(toKind, item, newIndex);
+    clearPending(item.id);
+    if (!log && !toWarmup && newType !== 'normal') setPendingTypes((p) => ({ ...p, [`${item.id}:${newIndex}`]: newType }));
     bump();
   };
 
@@ -354,18 +401,7 @@ export default function TodayScreen() {
       ],
     });
 
-  const openSetMenu = (kind: SetKind, item: PrescribedItem, idx: number, log: SetLog | null) =>
-    setMenu({
-      title: `${item.name} · ${kind === 'warmup' ? 'aquecimento' : 'série'} ${idx}`,
-      options: [
-        {
-          label: log ? 'Detalhes (RPE, pegada, cinto, falha)' : 'Registrar com detalhes',
-          icon: 'create-outline',
-          onPress: () => openEditor(item, idx, log, kind),
-        },
-        { label: 'Remover série', icon: 'trash-outline', destructive: true, onPress: () => removeSet(kind, item, idx, log) },
-      ],
-    });
+  const openSetMenu = (kind: SetKind, item: PrescribedItem, idx: number, log: SetLog | null) => setTypeSheet({ item, kind, idx, log });
 
   const openExerciseMenu = (item: PrescribedItem) => {
     const kg = loadOf(item)?.min ?? null;
@@ -383,7 +419,7 @@ export default function TodayScreen() {
   };
 
   const openEditor = (item: PrescribedItem, idx: number, log: SetLog | null, kind: SetKind = 'work') => {
-    setEditor({ item, draft: log ?? draftFor(kind, item, idx), key: `${item.id}-${kind}-${idx}-${log?.id ?? 'new'}` });
+    setEditor({ item, draft: log ?? { ...draftFor(kind, item, idx), setType: pendingTypes[`${item.id}:${idx}`] ?? 'normal' }, key: `${item.id}-${kind}-${idx}-${log?.id ?? 'new'}` });
   };
 
   const saveEditor = async (s: EditableSet) => {
@@ -395,7 +431,8 @@ export default function TodayScreen() {
       const log = await ensureLog();
       const { id: _id, ...draft } = s;
       await insertSets(db, log.id, [draft]);
-      if (!draft.warmup) startRest(editor.item, s.setIndex);
+      clearPending(editor.item.id);
+      if (startsRest(choiceOf(draft))) startRest(editor.item, s.setIndex);
     }
     setEditor(null);
     bump();
@@ -445,17 +482,9 @@ export default function TodayScreen() {
   return (
     <SafeAreaView edges={['top']} style={{ flex: 1, backgroundColor: t.bg }}>
       <WorkoutHeader
-        title={`${WEEKDAY_NAMES[ref.session.weekday]} — ${ref.session.title}`}
-        subtitle={
-          `Semana ${ref.week.number} · ${ref.week.block} · ` +
-          (isToday ? 'Hoje' : `Planejado para ${formatDateShort(ref.date)}`) +
-          (sessionLog && sessionLog.date !== ref.date ? ` · feito em ${formatDateShort(sessionLog.date)}` : '') +
-          (!isToday && !plannedToday && !sessionLog ? ' · hoje não tem treino no plano' : '')
-        }
-        stats={stats}
-        plannedSets={plannedSets}
-        running={!done && stats.sets > 0}
         done={done}
+        hasNotes={weekNotes.length > 0}
+        onNotes={() => setNotesOpen(true)}
         onTimer={() => setFreeTimer(true)}
         onFinish={finishSession}
       />
@@ -467,6 +496,9 @@ export default function TodayScreen() {
         automaticallyAdjustKeyboardInsets
         scrollEnabled={dragging === null}
       >
+        <WorkoutStats stats={stats} plannedSets={plannedSets} running={!done && stats.sets > 0} />
+        <Divider />
+
         <View style={styles.weekNav}>
           <View style={{ opacity: weekIdx <= 0 ? 0.3 : 1 }}>
             <IconButton name="chevron-back" label="Semana anterior" onPress={() => goWeek(-1)} color={t.accent} />
@@ -476,7 +508,7 @@ export default function TodayScreen() {
               Semana {ref.week.number} · {ref.week.block}
             </Text>
             <Text style={[styles.weekSub, { color: t.muted }]}>
-              início {formatDateShort(ref.week.start)} · RPE alvo {ref.week.targetRpeText.replace(/\./g, ',')}
+              início {formatDate(ref.week.start)} · RPE alvo {ref.week.targetRpeText.replace(/\./g, ',')}
             </Text>
           </View>
           <View style={{ opacity: weekIdx >= cycle.weeks.length - 1 ? 0.3 : 1 }}>
@@ -496,6 +528,12 @@ export default function TodayScreen() {
             />
           ))}
         </View>
+        {/* O nome do treino saiu do cabeçalho fixo; aqui fica como uma linha discreta. */}
+        <Text style={{ color: t.muted, fontSize: 14, textAlign: 'center' }}>
+          {WEEKDAY_NAMES[ref.session.weekday]} — {ref.session.title} · {isToday ? 'Hoje' : `Planejado para ${formatDate(ref.date)}`}
+          {sessionLog && sessionLog.date !== ref.date ? ` · feito em ${formatDate(sessionLog.date)}` : ''}
+          {!isToday && !plannedToday && !sessionLog ? ' · hoje não tem treino no plano' : ''}
+        </Text>
 
         {redFlagToday ? (
           <Card style={{ backgroundColor: t.dangerBg, borderColor: t.danger }}>
@@ -512,16 +550,6 @@ export default function TodayScreen() {
           <AlertCard key={a.key} alert={a} onDecide={(status) => coach.decide(a, status)} />
         ))}
 
-        {weekNotes.length ? (
-          <Card style={{ backgroundColor: t.warnBg, borderColor: t.warnBg }}>
-            {weekNotes.map((n, i) => (
-              <Text key={i} style={{ color: t.text, fontSize: 15, lineHeight: 20 }}>
-                {n}
-              </Text>
-            ))}
-          </Card>
-        ) : null}
-
         {!done ? (
           <BigButton
             label="Treino feito conforme o plano"
@@ -532,7 +560,7 @@ export default function TodayScreen() {
         ) : (
           <Card style={{ backgroundColor: t.doneBg, borderColor: t.doneBg }}>
             <Text style={{ color: t.done, fontSize: 16, fontWeight: '600' }}>
-              Treino concluído{sessionLog ? ` em ${formatDateShort(sessionLog.date)}` : ''}. Dá para ajustar qualquer série na tabela.
+              Treino concluído{sessionLog ? ` em ${formatDate(sessionLog.date)}` : ''}. Dá para ajustar qualquer série na tabela.
             </Text>
           </Card>
         )}
@@ -584,6 +612,7 @@ export default function TodayScreen() {
                       onRpe={openRpeMenu}
                       onAdd={() => addSet(item)}
                       onAddWarmup={() => addSet(item, 'warmup')}
+                      pendingTypes={pendingOf(item)}
                       onMoveSet={(kind, from, to) => moveSet(kind, item, from, to)}
                       onSetDrag={(on) => setDragging(on ? 'set' : null)}
                       // O bloco inteiro (exercício + filhos) se arrasta pelo cabeçalho de qualquer um.
@@ -628,6 +657,38 @@ export default function TodayScreen() {
           onSave={(sec) => saveRest(restEditing, sec)}
           onReset={() => saveRest(restEditing, null)}
           onClose={() => setRestEditing(null)}
+        />
+      ) : null}
+      {notesOpen ? (
+        <BottomSheet onClose={() => setNotesOpen(false)} dragAnywhere>
+          <Text style={{ color: t.text, fontSize: 18, fontWeight: '700' }} accessibilityRole="header">
+            Avisos da semana {ref.week.number}
+          </Text>
+          {weekNotes.map((n, i) => (
+            <Text key={i} style={{ color: t.text, fontSize: 16, lineHeight: 22 }}>
+              {n}
+            </Text>
+          ))}
+        </BottomSheet>
+      ) : null}
+      {typeSheet ? (
+        <SetTypeSheet
+          current={
+            typeSheet.log ? choiceOf(typeSheet.log) : typeSheet.kind === 'warmup' ? 'warmup' : (pendingTypes[`${typeSheet.item.id}:${typeSheet.idx}`] ?? 'normal')
+          }
+          index={typeSheet.idx}
+          onChoose={(choice) => chooseSetType(typeSheet, choice)}
+          onDetails={() => {
+            const s = typeSheet;
+            setTypeSheet(null);
+            openEditor(s.item, s.idx, s.log, s.kind);
+          }}
+          onRemove={() => {
+            const s = typeSheet;
+            setTypeSheet(null);
+            removeSet(s.kind, s.item, s.idx, s.log);
+          }}
+          onClose={() => setTypeSheet(null)}
         />
       ) : null}
       {adding ? (

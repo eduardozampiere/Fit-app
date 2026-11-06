@@ -2,7 +2,7 @@ import type { SQLiteDatabase } from 'expo-sqlite';
 import { flattenSets, type SetRow } from '../domain/analytics';
 import type { SetDraft } from '../domain/logging';
 import { NO_RED_FLAGS, type CheckIn, type LoggedSession } from '../domain/rules';
-import type { Cycle, Maxes, SessionLog, SetLog } from '../domain/types';
+import type { Cycle, Maxes, SessionLog, SetLog, SetType } from '../domain/types';
 
 export function newId(): string {
   return `${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 10)}`;
@@ -86,6 +86,7 @@ type SetLogRow = {
   failed: number;
   as_planned: number;
   warmup: number;
+  set_type: SetType;
   note: string | null;
   done_at: string;
 };
@@ -106,6 +107,7 @@ function toSetLog(r: SetLogRow): SetLog {
     failed: r.failed === 1,
     asPlanned: r.as_planned === 1,
     warmup: r.warmup === 1,
+    setType: r.set_type ?? 'normal',
     note: r.note,
     doneAt: r.done_at,
   };
@@ -176,8 +178,8 @@ export async function insertSets(db: SQLiteDatabase, sessionLogId: string, draft
     for (const d of drafts) {
       await db.runAsync(
         `INSERT INTO set_logs (id, session_log_id, item_id, exercise_id, set_index, load_kg, reps, duration_sec,
-           rpe, grip, belt, failed, as_planned, warmup, note, done_at)
-         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+           rpe, grip, belt, failed, as_planned, warmup, set_type, note, done_at)
+         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
         newId(),
         sessionLogId,
         d.itemId,
@@ -192,10 +194,31 @@ export async function insertSets(db: SQLiteDatabase, sessionLogId: string, draft
         d.failed ? 1 : 0,
         d.asPlanned ? 1 : 0,
         d.warmup ? 1 : 0,
+        d.setType,
         d.note,
         now,
       );
     }
+  });
+}
+
+export async function updateSetType(db: SQLiteDatabase, id: string, setType: SetType): Promise<void> {
+  await db.runAsync('UPDATE set_logs SET set_type = ? WHERE id = ?', setType, id);
+}
+
+/**
+ * Passa uma série de aquecimento para trabalho (ou o contrário): ela vai para o fim do outro grupo e as
+ * seguintes do grupo de origem sobem uma posição. `id` nulo = linha ainda não registrada (só renumera).
+ */
+export async function moveSetToGroup(
+  db: SQLiteDatabase,
+  id: string | null,
+  to: { warmup: boolean; setIndex: number; setType: SetType },
+  renumber: { id: string; setIndex: number }[],
+): Promise<void> {
+  await db.withTransactionAsync(async () => {
+    for (const r of renumber) await db.runAsync('UPDATE set_logs SET set_index = ? WHERE id = ?', r.setIndex, r.id);
+    if (id) await db.runAsync('UPDATE set_logs SET warmup = ?, set_index = ?, set_type = ? WHERE id = ?', to.warmup ? 1 : 0, to.setIndex, to.setType, id);
   });
 }
 

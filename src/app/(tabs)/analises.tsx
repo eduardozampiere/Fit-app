@@ -4,7 +4,7 @@ import { ScrollView, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { BarChart, ChartCard, LineChart } from '../../components/charts';
 import { checkinLine } from '../../components/CheckinSummary';
-import { Card, Chip, StatRow } from '../../components/ui';
+import { Card, Chip, ChipRow, StatRow } from '../../components/ui';
 import { listAllMealEntries, listWeights } from '../../db/nutritionRepo';
 import { listAllSetRows, listCheckins } from '../../db/repo';
 import {
@@ -21,7 +21,7 @@ import {
 } from '../../domain/analytics';
 import { movingAverageSeries, type WeightEntry } from '../../domain/body';
 import { isoWeekday, toISODate } from '../../domain/dates';
-import { formatDateShort, formatKg, formatNumber, WEEKDAY_NAMES } from '../../domain/format';
+import { formatDate, formatKg, formatNumber, WEEKDAY_NAMES } from '../../domain/format';
 import { MEAL_LABEL, sumMacros, type MealEntry } from '../../domain/nutrition';
 import { LIFT_LABEL, LIFTS } from '../../domain/plan';
 import type { CheckIn } from '../../domain/rules';
@@ -87,11 +87,11 @@ export default function AnalysisScreen() {
         <Text style={[styles.title, { color: t.text }]} accessibilityRole="header">
           Análises
         </Text>
-        <View style={styles.wrap}>
+        <ChipRow>
           <Chip label="Gráficos" selected={view === 'graficos'} onPress={() => setView('graficos')} />
           <Chip label="Agrupar" selected={view === 'grupos'} onPress={() => setView('grupos')} />
           <Chip label="Por dia" selected={view === 'dias'} onPress={() => setView('dias')} />
-        </View>
+        </ChipRow>
 
         {view === 'graficos' ? (
           <>
@@ -119,11 +119,11 @@ export default function AnalysisScreen() {
                 <BarChart data={pvd.map((p) => ({ x: `S${p.week}`, value: p.doneSets, ref: p.plannedSets }))} refLabel="planejado" />
               </ChartCard>
             )}
-            <View style={styles.wrap}>
+            <ChipRow>
               {TRAINING_CHARTS.map((c) => (
                 <Chip key={c.key} label={c.label} selected={trainingChart === c.key} onPress={() => setTrainingChart(c.key)} />
               ))}
-            </View>
+            </ChipRow>
 
             {bodyChart === 'peso' ? (
               <ChartCard title="Peso" subtitle="Pesagens (pontos) e média móvel de 7 dias (linha)">
@@ -144,21 +144,21 @@ export default function AnalysisScreen() {
                 <BarChart data={days.map((d) => ({ x: d.date, value: d.protein, ref: d.proteinTarget }))} slot={2} />
               </ChartCard>
             )}
-            <View style={styles.wrap}>
+            <ChipRow>
               {BODY_CHARTS.map((c) => (
                 <Chip key={c.key} label={c.label} selected={bodyChart === c.key} onPress={() => setBodyChart(c.key)} />
               ))}
-            </View>
+            </ChipRow>
           </>
         ) : null}
 
         {view === 'grupos' ? (
           <>
-            <View style={styles.wrap}>
+            <ChipRow>
               {(Object.keys(GROUP_LABEL) as GroupBy[]).map((g) => (
                 <Chip key={g} label={GROUP_LABEL[g]} selected={groupBy === g} onPress={() => setGroupBy(g)} />
               ))}
-            </View>
+            </ChipRow>
             {groups.map((g) => (
               <Card key={g.key} style={{ gap: space.md }}>
                 <Text style={[styles.cardTitle, { color: t.text }]}>{g.label}</Text>
@@ -184,16 +184,16 @@ export default function AnalysisScreen() {
 
         {view === 'dias' ? (
           <>
-            <View style={styles.wrap}>
+            <ChipRow>
               <Chip label="Treino" selected={cardKind === 'treino'} onPress={() => setCardKind('treino')} />
               <Chip label="Alimentação" selected={cardKind === 'comida'} onPress={() => setCardKind('comida')} />
-            </View>
+            </ChipRow>
             {cardKind === 'treino'
               ? cards.map((c) => (
                   <Card key={c.sessionLogId} style={{ gap: 6 }}>
                     <Text style={[styles.cardTitle, { color: t.text }]}>{c.title}</Text>
                     <Text style={{ color: t.muted, fontSize: 13 }}>
-                      {WEEKDAY_NAMES[isoWeekday(c.date)]} {formatDateShort(c.date)}
+                      {WEEKDAY_NAMES[isoWeekday(c.date)]} {formatDate(c.date)}
                       {c.week ? ` · S${c.week}` : ''}
                     </Text>
                     <StatRow
@@ -226,7 +226,7 @@ export default function AnalysisScreen() {
                     return (
                       <Card key={date} style={{ gap: 6 }}>
                         <Text style={[styles.cardTitle, { color: t.text }]}>
-                          {WEEKDAY_NAMES[isoWeekday(date)]} {formatDateShort(date)}
+                          {WEEKDAY_NAMES[isoWeekday(date)]} {formatDate(date)}
                         </Text>
                         <Text style={{ color: t.muted, fontSize: 14 }}>
                           {formatNumber(total.kcal, 0)}

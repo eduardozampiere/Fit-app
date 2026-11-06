@@ -57,7 +57,7 @@ export function ExercisePicker({
   return (
     <Modal visible animationType="slide" presentationStyle="pageSheet" onRequestClose={onClose}>
       <View style={{ flex: 1, backgroundColor: t.bg }}>
-        <SheetHeader title={mode === 'add' ? 'Adicionar exercício' : 'Trocar exercício'} onCancel={onClose} />
+        <SheetHeader title={mode === 'add' ? 'Adicionar exercício' : 'Trocar exercício'} />
         <View style={styles.top}>
           {mode === 'swap' ? (
             <Text style={{ color: t.muted, fontSize: 14 }} numberOfLines={1}>

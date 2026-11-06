@@ -2,7 +2,7 @@ import { useMemo, useState } from 'react';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 import { formatRestDuration } from '../domain/format';
 import { nearestRestIndex, restChoices } from '../domain/plan';
-import { font, space, useTheme } from '../ui/theme';
+import { font, useTheme } from '../ui/theme';
 import { BigButton, BottomSheet } from './ui';
 import { WheelPicker } from './WheelPicker';
 
@@ -39,8 +39,7 @@ export function RestEditor({
   const start = nearestRestIndex(initialSec);
   const [index, setIndex] = useState(start);
   return (
-    <BottomSheet onClose={onClose} animation="slide">
-      <View style={[styles.grabber, { backgroundColor: t.separator }]} />
+    <BottomSheet onClose={onClose}>
       <View style={{ alignItems: 'center', gap: 2 }}>
         <Text style={[styles.title, { color: t.text }]} accessibilityRole="header">
           {title}
@@ -62,7 +61,6 @@ export function RestEditor({
 }
 
 const styles = StyleSheet.create({
-  grabber: { alignSelf: 'center', width: 40, height: 5, borderRadius: 3, marginBottom: space.xs },
   title: { ...font.headline },
   reset: { minHeight: 44, alignItems: 'center', justifyContent: 'center' },
 });

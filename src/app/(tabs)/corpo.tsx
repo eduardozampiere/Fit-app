@@ -5,10 +5,10 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { checkinLine } from '../../components/CheckinSummary';
 import { MeasurementsSection, WeightSection } from '../../components/BodySections';
 import { RedFlagModal } from '../../components/RedFlagModal';
-import { BigButton, Card, Chip, ListRow, Section, Stepper, TextField } from '../../components/ui';
+import { BigButton, Card, Chip, ChipRow, ListRow, Section, Stepper, TextField } from '../../components/ui';
 import { saveCheckin } from '../../db/repo';
 import { addDays } from '../../domain/dates';
-import { formatDateShort, formatNumber } from '../../domain/format';
+import { formatDate, formatNumber } from '../../domain/format';
 import { hasRedFlags, NO_RED_FLAGS, type CheckIn, type RedFlags } from '../../domain/rules';
 import { useAppData } from '../../state/AppData';
 import { useCoach } from '../../state/useCoach';
@@ -47,19 +47,19 @@ export default function BodyScreen() {
         <Text style={[styles.title, { color: t.text }]} accessibilityRole="header">
           Corpo
         </Text>
-        <View style={styles.wrap}>
+        <ChipRow>
           <Chip label="Check-in" selected={section === 'checkin'} onPress={() => setSection('checkin')} />
           <Chip label="Peso" selected={section === 'peso'} onPress={() => setSection('peso')} />
           <Chip label="Medidas" selected={section === 'medidas'} onPress={() => setSection('medidas')} />
-        </View>
+        </ChipRow>
         {section === 'peso' ? <WeightSection /> : null}
         {section === 'medidas' ? <MeasurementsSection /> : null}
         {section === 'checkin' ? (
         <>
-        <View style={styles.wrap}>
-          <Chip label={`Hoje ${formatDateShort(coach.today)}`} selected={date === coach.today} onPress={() => setDate(coach.today)} />
-          <Chip label={`Ontem ${formatDateShort(yesterday)}`} selected={date === yesterday} onPress={() => setDate(yesterday)} />
-        </View>
+        <ChipRow>
+          <Chip label={`Hoje ${formatDate(coach.today)}`} selected={date === coach.today} onPress={() => setDate(coach.today)} />
+          <Chip label={`Ontem ${formatDate(yesterday)}`} selected={date === yesterday} onPress={() => setDate(yesterday)} />
+        </ChipRow>
         {/* key: remonta o formulário ao trocar de dia ou depois de salvar */}
         <CheckinForm
           key={`${date}-${existing ? 'e' : 'n'}`}
@@ -74,7 +74,7 @@ export default function BodyScreen() {
             {coach.checkins.slice(0, 21).map((c, i, arr) => (
               <ListRow
                 key={c.date}
-                title={`${formatDateShort(c.date)}${hasRedFlags(c) ? '  ⚠️' : ''}`}
+                title={`${formatDate(c.date)}${hasRedFlags(c) ? '  ⚠️' : ''}`}
                 subtitle={c.note ? `${checkinLine(c)}\n${c.note}` : checkinLine(c)}
                 last={i === arr.length - 1}
               />
@@ -126,7 +126,7 @@ function CheckinForm({
     <>
       <Card>
         <Text style={{ color: t.muted, fontSize: 14 }}>
-          {existing ? 'Check-in já feito: ajuste e salve de novo.' : previous ? `Valores do último check-in (${formatDateShort(previous.date)}). Mude só o que mudou.` : '0 = sem dor, 10 = dor máxima.'}
+          {existing ? 'Check-in já feito: ajuste e salve de novo.' : previous ? `Valores do último check-in (${formatDate(previous.date)}). Mude só o que mudou.` : '0 = sem dor, 10 = dor máxima.'}
         </Text>
         {AREAS.map((a) => (
           <Stepper

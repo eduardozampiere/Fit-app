@@ -2,7 +2,7 @@ import { useState, type ReactNode } from 'react';
 import { Platform, Pressable, StyleSheet, Text, View, type GestureResponderEvent, type LayoutChangeEvent } from 'react-native';
 import Svg, { Circle, G, Line, Path, Rect, Text as SvgText } from 'react-native-svg';
 import type { Point } from '../domain/analytics';
-import { formatNumber } from '../domain/format';
+import { formatDate, formatNumber } from '../domain/format';
 import { useTheme } from '../ui/theme';
 import { Card } from './ui';
 
@@ -68,7 +68,7 @@ export function LineChart({
   series,
   height = 180,
   yFormat = (v: number) => formatNumber(v, 0),
-  xFormat = (x: string) => (x.length === 10 ? `${x.slice(8, 10)}/${x.slice(5, 7)}` : x),
+  xFormat = (x: string) => (x.length === 10 ? formatDate(x) : x),
   empty = 'Sem dados ainda.',
 }: {
   series: LineSeries[];
@@ -196,7 +196,7 @@ export function BarChart({
   slot = 0,
   refLabel = 'alvo',
   yFormat = (v: number) => formatNumber(v, 0),
-  xFormat = (x: string) => (x.length === 10 ? `${x.slice(8, 10)}/${x.slice(5, 7)}` : x),
+  xFormat = (x: string) => (x.length === 10 ? formatDate(x) : x),
   empty = 'Sem dados ainda.',
 }: {
   data: BarDatum[];

@@ -1,6 +1,21 @@
 import Ionicons from '@expo/vector-icons/Ionicons';
-import type { ComponentProps, ReactNode } from 'react';
-import { Modal, Pressable, StyleSheet, Text, TextInput, View, type StyleProp, type TextInputProps, type ViewStyle } from 'react-native';
+import { useCallback, useEffect, useMemo, useState, type ComponentProps, type ReactNode } from 'react';
+import {
+  Animated,
+  KeyboardAvoidingView,
+  Modal,
+  PanResponder,
+  Platform,
+  Pressable,
+  ScrollView,
+  StyleSheet,
+  Text,
+  TextInput,
+  View,
+  type StyleProp,
+  type TextInputProps,
+  type ViewStyle,
+} from 'react-native';
 import { font, radius, space, TOUCH, useTheme } from '../ui/theme';
 
 export type IconName = ComponentProps<typeof Ionicons>['name'];
@@ -61,15 +76,12 @@ export function Chip({
   onPress,
   accessibilityLabel,
   tone,
-  compact,
 }: {
   label: string;
   selected?: boolean;
   onPress?: () => void;
   accessibilityLabel?: string;
   tone?: 'success' | 'warn';
-  /** Pílula mais baixa e fina, para linhas de filtro com rolagem. */
-  compact?: boolean;
 }) {
   const t = useTheme();
   const bg = selected ? t.accent : tone === 'success' ? t.doneBg : tone === 'warn' ? t.warnBg : t.surface;
@@ -80,9 +92,10 @@ export function Chip({
       accessibilityLabel={accessibilityLabel ?? label}
       accessibilityState={{ selected: !!selected }}
       onPress={onPress}
-      style={({ pressed }) => [styles.chip, compact && styles.chipCompact, { backgroundColor: bg, opacity: pressed ? 0.75 : 1 }]}
+      hitSlop={{ top: 7, bottom: 7 }}
+      style={({ pressed }) => [styles.chip, { backgroundColor: bg, opacity: pressed ? 0.75 : 1 }]}
     >
-      <Text style={[styles.chipText, compact && styles.chipTextCompact, { color: fg }]} maxFontSizeMultiplier={1.6}>
+      <Text style={[styles.chipText, { color: fg }]} maxFontSizeMultiplier={1.6}>
         {label}
       </Text>
     </Pressable>
@@ -102,6 +115,24 @@ export function Badge({ label, tone = 'neutral' }: { label: string; tone?: 'neut
     <View style={[styles.badge, { backgroundColor: bg }]}>
       <Text style={[styles.badgeText, { color: fg }]}>{label}</Text>
     </View>
+  );
+}
+
+/**
+ * Linha de pílulas com rolagem horizontal, que vai até as bordas da tela (compense o padding da tela de
+ * `space.lg`). Use no lugar de uma linha que quebra em duas.
+ */
+export function ChipRow({ children }: { children: ReactNode }) {
+  return (
+    <ScrollView
+      horizontal
+      showsHorizontalScrollIndicator={false}
+      style={{ marginHorizontal: -space.lg, flexGrow: 0 }}
+      contentContainerStyle={styles.chipRow}
+      keyboardShouldPersistTaps="handled"
+    >
+      {children}
+    </ScrollView>
   );
 }
 
@@ -280,8 +311,10 @@ export function StatRow({ items }: { items: { label: string; value: string; acce
     <View style={styles.statRow}>
       {items.map((it) => (
         <View key={it.label} style={{ flex: 1, gap: 2 }} accessible accessibilityLabel={`${it.label}: ${it.value}`}>
-          <Text style={[styles.statLabel, { color: t.muted }]}>{it.label}</Text>
-          <Text style={[styles.statValue, { color: it.accent ? t.accent : t.text }]} maxFontSizeMultiplier={1.4}>
+          <Text style={[styles.statLabel, { color: t.muted }]} numberOfLines={1}>
+            {it.label}
+          </Text>
+          <Text style={[styles.statValue, { color: it.accent ? t.accent : t.text }]} maxFontSizeMultiplier={1.4} numberOfLines={1}>
             {it.value}
           </Text>
         </View>
@@ -318,32 +351,37 @@ export function IconButton({
   );
 }
 
-/** Barra do topo das folhas (modais), como no iOS e no Hevy: Cancelar · título · ação. */
+/** Barra do topo das folhas (modais): título e uma ação opcional. Folhas fecham arrastando para baixo. */
 export function SheetHeader({
   title,
-  onCancel,
-  cancelLabel = 'Cancelar',
+  onBack,
   action,
   onAction,
   actionDisabled,
 }: {
   title: string;
-  onCancel: () => void;
-  cancelLabel?: string;
+  /** Só para voltar de um passo para o anterior dentro da folha; fechar é arrastando para baixo. */
+  onBack?: () => void;
   action?: string;
   onAction?: () => void;
   actionDisabled?: boolean;
 }) {
   const t = useTheme();
+  // Os lados só ocupam espaço quando há voltar ou ação (o título fica centrado); senão o título usa a largura toda.
+  const side = onBack || (action && onAction) ? styles.sheetSide : styles.sheetSideEmpty;
   return (
     <View style={[styles.sheetHeader, { backgroundColor: t.bg, borderBottomColor: t.separator }]}>
-      <Pressable accessibilityRole="button" accessibilityLabel={cancelLabel} onPress={onCancel} hitSlop={12} style={styles.sheetSide}>
-        <Text style={[styles.sheetLink, { color: t.accent }]}>{cancelLabel}</Text>
-      </Pressable>
+      <View style={side}>
+        {onBack ? (
+          <Pressable accessibilityRole="button" accessibilityLabel="Voltar" onPress={onBack} hitSlop={12}>
+            <Text style={[styles.sheetLink, { color: t.accent }]}>Voltar</Text>
+          </Pressable>
+        ) : null}
+      </View>
       <Text style={[styles.sheetTitle, { color: t.text }]} numberOfLines={1} accessibilityRole="header">
         {title}
       </Text>
-      <View style={[styles.sheetSide, { alignItems: 'flex-end' }]}>
+      <View style={[side, { alignItems: 'flex-end' }]}>
         {action && onAction ? (
           <Pressable
             accessibilityRole="button"
@@ -368,27 +406,52 @@ export interface MenuOption {
   icon?: IconName;
 }
 
+const SHEET_OFFSCREEN = 700;
+
 /**
- * Folha de baixo para cima com altura do conteúdo (não ocupa a tela toda), com fundo escurecido;
- * tocar fora fecha. Base do `ActionMenu` e do editor de descanso.
+ * Folha de baixo para cima com altura do conteúdo (não ocupa a tela toda). Fecha arrastando para baixo
+ * (pela alça; com `dragAnywhere`, por qualquer ponto da folha) ou tocando no fundo escurecido, sem
+ * botão de cancelar. Base do `ActionMenu`, do editor de descanso e da folha do tipo de série.
  */
-export function BottomSheet({
-  onClose,
-  animation = 'fade',
-  children,
-}: {
-  onClose: () => void;
-  animation?: 'fade' | 'slide';
-  children: ReactNode;
-}) {
+export function BottomSheet({ onClose, dragAnywhere = false, children }: { onClose: () => void; dragAnywhere?: boolean; children: ReactNode }) {
   const t = useTheme();
+  const [y] = useState(() => new Animated.Value(SHEET_OFFSCREEN));
+  useEffect(() => {
+    Animated.timing(y, { toValue: 0, duration: 220, useNativeDriver: true }).start();
+  }, [y]);
+  const close = useCallback(() => {
+    Animated.timing(y, { toValue: SHEET_OFFSCREEN, duration: 160, useNativeDriver: true }).start(() => onClose());
+  }, [y, onClose]);
+  const pan = useMemo(
+    () =>
+      PanResponder.create({
+        onMoveShouldSetPanResponder: (_, g) => g.dy > 4 && Math.abs(g.dy) > Math.abs(g.dx),
+        onPanResponderMove: (_, g) => y.setValue(Math.max(0, g.dy)),
+        onPanResponderRelease: (_, g) => {
+          if (g.dy > 60 || g.vy > 0.5) close();
+          else Animated.spring(y, { toValue: 0, useNativeDriver: true }).start();
+        },
+        onPanResponderTerminate: () => Animated.spring(y, { toValue: 0, useNativeDriver: true }).start(),
+      }),
+    [y, close],
+  );
   return (
-    <Modal visible transparent animationType={animation} onRequestClose={onClose}>
-      <Pressable style={styles.menuBackdrop} onPress={onClose} accessibilityLabel="Fechar">
-        <Pressable style={[styles.menuSheet, { backgroundColor: t.card }]} onPress={() => {}}>
-          {children}
+    <Modal visible transparent animationType="fade" onRequestClose={close}>
+      <KeyboardAvoidingView style={{ flex: 1 }} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
+        <Pressable style={styles.menuBackdrop} onPress={close} accessibilityLabel="Fechar">
+          <Animated.View
+            style={[styles.menuSheet, { backgroundColor: t.card, transform: [{ translateY: y }] }]}
+            {...(dragAnywhere ? pan.panHandlers : {})}
+          >
+            <Pressable onPress={() => {}} style={{ gap: space.sm }}>
+              <View {...(dragAnywhere ? {} : pan.panHandlers)} style={styles.grabZone} accessibilityElementsHidden importantForAccessibility="no">
+                <View style={[styles.grabber, { backgroundColor: t.separator }]} />
+              </View>
+              {children}
+            </Pressable>
+          </Animated.View>
         </Pressable>
-      </Pressable>
+      </KeyboardAvoidingView>
     </Modal>
   );
 }
@@ -411,7 +474,7 @@ export function ActionMenu({
 }) {
   const t = useTheme();
   return (
-    <BottomSheet onClose={onClose}>
+    <BottomSheet onClose={onClose} dragAnywhere>
       {title ? <Text style={[styles.menuTitle, { color: t.muted }]}>{title}</Text> : null}
       {columns ? (
         <View style={styles.menuGrid}>
@@ -452,7 +515,6 @@ export function ActionMenu({
           </View>
         ))
       )}
-      <BigButton label="Cancelar" variant="neutral" compact onPress={onClose} />
     </BottomSheet>
   );
 }
@@ -466,10 +528,13 @@ const styles = StyleSheet.create({
     borderBottomWidth: StyleSheet.hairlineWidth,
   },
   sheetSide: { width: 96 },
+  sheetSideEmpty: { width: 0 },
   sheetLink: { fontSize: 17 },
   sheetTitle: { ...font.headline, flex: 1, textAlign: 'center' },
   menuBackdrop: { flex: 1, justifyContent: 'flex-end', backgroundColor: 'rgba(0,0,0,0.35)' },
   menuSheet: { borderTopLeftRadius: radius.card, borderTopRightRadius: radius.card, padding: space.lg, paddingBottom: 36, gap: space.sm },
+  grabZone: { alignSelf: 'stretch', alignItems: 'center', paddingBottom: space.sm },
+  grabber: { width: 40, height: 5, borderRadius: 3 },
   menuTitle: { ...font.label, textAlign: 'center', marginBottom: space.xs },
   menuRow: { minHeight: TOUCH, flexDirection: 'row', alignItems: 'center', gap: space.md },
   menuRowText: { fontSize: 17 },
@@ -489,10 +554,10 @@ const styles = StyleSheet.create({
   buttonCompact: { minHeight: 48 },
   buttonText: { fontSize: 17, fontWeight: '600' },
   buttonTextCompact: { fontSize: 16 },
-  chip: { minHeight: 44, minWidth: 44, borderRadius: 22, paddingHorizontal: space.lg, alignItems: 'center', justifyContent: 'center' },
-  chipText: { fontSize: 15, fontWeight: '600' },
-  chipCompact: { minHeight: 34, minWidth: 0, borderRadius: 17, paddingHorizontal: 14 },
-  chipTextCompact: { fontSize: 14 },
+  // Pílula fina (a área de toque chega a 44 pelo hitSlop).
+  chip: { minHeight: 30, borderRadius: 15, paddingHorizontal: 12, alignItems: 'center', justifyContent: 'center' },
+  chipText: { fontSize: 13, fontWeight: '600' },
+  chipRow: { gap: space.sm, paddingHorizontal: space.lg },
   badge: { borderRadius: 6, paddingHorizontal: space.sm, paddingVertical: 2, alignSelf: 'flex-start' },
   badgeText: { fontSize: 12, fontWeight: '600' },
   stepper: { gap: space.sm },
@@ -511,7 +576,7 @@ const styles = StyleSheet.create({
   rowSub: { fontSize: 13 },
   rowValue: { fontSize: 16, fontVariant: ['tabular-nums'] },
   statRow: { flexDirection: 'row', gap: space.md },
-  statLabel: { ...font.label },
-  statValue: { fontSize: 17, fontWeight: '500', fontVariant: ['tabular-nums'] },
+  statLabel: { fontSize: 12, fontWeight: '500' },
+  statValue: { fontSize: 16, fontWeight: '600', fontVariant: ['tabular-nums'] },
   iconBtn: { width: 44, height: 44, alignItems: 'center', justifyContent: 'center' },
 });

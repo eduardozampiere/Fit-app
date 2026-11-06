@@ -40,7 +40,7 @@ export function SetEditor({
   return (
     <Modal visible={visible} animationType="slide" presentationStyle="pageSheet" onRequestClose={onClose}>
       <KeyboardAvoidingView style={{ flex: 1, backgroundColor: t.bg }} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
-        <SheetHeader title={`Série ${s.setIndex}`} onCancel={onClose} action="Salvar" onAction={() => onSave(s)} />
+        <SheetHeader title={`Série ${s.setIndex}`} action="Salvar" onAction={() => onSave(s)} />
         <ScrollView style={{ backgroundColor: t.bg }} contentContainerStyle={styles.body} keyboardShouldPersistTaps="handled">
           <Text style={[styles.title, { color: t.accent }]}>{title}</Text>
 

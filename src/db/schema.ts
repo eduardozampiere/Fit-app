@@ -3,7 +3,7 @@ import bundledCycle from '../../assets/plan/ciclo_out26_jan27.json';
 import { DEFAULT_FAVORITES, DEFAULT_FOODS } from '../domain/nutrition';
 import type { Cycle } from '../domain/types';
 
-const DATABASE_VERSION = 5;
+const DATABASE_VERSION = 6;
 
 /** Migrações por PRAGMA user_version. Nunca editar uma migração já publicada: criar a próxima. */
 export async function migrateDbIfNeeded(db: SQLiteDatabase) {
@@ -164,6 +164,12 @@ CREATE INDEX IF NOT EXISTS idx_meal_entries_source ON meal_entries(source_key);
     // Séries de aquecimento: numeração própria e fora de volume, regras e análises.
     await db.execAsync(`ALTER TABLE set_logs ADD COLUMN warmup INTEGER NOT NULL DEFAULT 0;`);
     version = 5;
+  }
+
+  if (version === 5) {
+    // Tipo da série de trabalho: normal, até a falha ou drop set (aquecimento continua na coluna warmup).
+    await db.execAsync(`ALTER TABLE set_logs ADD COLUMN set_type TEXT NOT NULL DEFAULT 'normal';`);
+    version = 6;
   }
 
   await db.execAsync(`PRAGMA user_version = ${DATABASE_VERSION}`);

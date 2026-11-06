@@ -14,7 +14,7 @@
 - **O Claude é o treinador.** O atleta mantém um projeto no claude.ai com o histórico. O app é o
   caderno: registra e manda um pacote para o Claude, e o Claude devolve ajustes ou ciclos novos num
   formato que o app aplica, sempre com confirmação.
-- Interface em **português do Brasil**: kg e g, datas `dd/MM`, vírgula decimal e ponto de milhar.
+- Interface em **português do Brasil**: kg e g, datas "05 nov" (ano corrente) ou "05 nov, 2025", vírgula decimal e ponto de milhar.
 - Preferências do usuário nas conversas: respostas diretas, debater ideias, empatia.
 
 ## Restrições que definem a arquitetura
@@ -38,7 +38,7 @@ Caminhos avaliados e descartados (não reabrir sem motivo novo):
 
 - **Expo SDK 58**, React Native 0.88, React 19, TypeScript estrito.
 - **Expo Router** com rotas em `src/app/`. No iOS as abas são nativas (`expo-router/native-tabs`): Liquid Glass no iOS 26+, cronômetro no `BottomAccessory`. Na web as abas são em JS (`_layout.web.tsx`), só para a prévia.
-- **expo-sqlite** com migrações por `PRAGMA user_version` (`src/db/schema.ts`; versão atual **5**).
+- **expo-sqlite** com migrações por `PRAGMA user_version` (`src/db/schema.ts`; versão atual **6**).
 - **expo-notifications** só local (`enableRemoteNotifications: false`, sem entitlement de push, para o Apple ID gratuito conseguir assinar).
 - **react-native-svg** para gráficos feitos à mão (`src/components/charts.tsx`).
 - expo-haptics, expo-file-system (API nova `File`/`Paths`), expo-document-picker, expo-sharing, expo-clipboard.

@@ -139,7 +139,8 @@ describe('descanso editável', () => {
     expect(formatRestDuration(90)).toBe('1min 30s');
     expect(formatRestDuration(45)).toBe('45s');
     expect(formatWorkoutTime(373)).toBe('6min 13s');
-    expect(formatWorkoutTime(75 * 60)).toBe('1h 15min');
+    expect(formatWorkoutTime(75 * 60)).toBe('1h 15min 0s');
+    expect(formatWorkoutTime(3600 + 5 * 60 + 3)).toBe('1h 5min 3s');
   });
 });
 

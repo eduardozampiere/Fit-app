@@ -20,6 +20,7 @@ Legenda: ✅ feito · 🟡 feito, falta verificar no iPhone · 🔨 em andamento
 | 08 | Visual inspirado no Hevy (tabela de séries inline, tokens novos) | 🟡 | [08-design-hevy](08-design-hevy/spec.md) |
 | 09 | Descanso editável e troca de exercício (catálogo do hevy-ia) | 🟡 | [09-descanso-e-catalogo](09-descanso-e-catalogo/spec.md) |
 | 10 | Cabeçalho do treino, adicionar exercício e tela do exercício | 🟡 | [10-cabecalho-e-adicionar-exercicio](10-cabecalho-e-adicionar-exercicio/spec.md) |
+| 11 | Tipo de série, datas "05 nov" e folhas que fecham arrastando | 🟡 | [11-tipo-de-serie-datas-folhas](11-tipo-de-serie-datas-folhas/spec.md) |
 
 Nada foi testado num iPhone de verdade ainda. Em 03/11/2026 o app rodou no simulador do iOS 27.2 (Mac,
 Xcode 27.2, `npx expo run:ios`). O que foi verificado em cada feature está no `spec.md` dela.
@@ -77,4 +78,6 @@ Xcode 27.2, `npx expo run:ios`). O que foi verificado em cada feature está no `
 | 05/11/2026 | Editor de descanso como folha parcial com roda de tempos | `f608b99` |
 | 05/11/2026 | Cabeçalho do treino, adicionar exercício e imagens dos exercícios | `acc7924` |
 | 05/11/2026 | Tela do exercício (resumo, recordes, histórico); imagem só nela e na busca | `3a4b520` |
-| 05/11/2026 | Apelidos plano → catálogo; cabeçalho próprio na tela do exercício (modo escuro) | este commit |
+| 05/11/2026 | Apelidos plano → catálogo; cabeçalho próprio na tela do exercício (modo escuro) | `7cd2056` |
+| 05/11/2026 | Ajustes visuais: pílulas, gráfico, botões de vidro, tabela | `e9f0e1d` |
+| 05/11/2026 | Tipo de série, datas, folhas sem Cancelar, cabeçalho enxuto | este commit |

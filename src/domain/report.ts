@@ -4,7 +4,7 @@ import type { NutritionDay, SetRow } from './analytics';
 import { e1rmSeries } from './analytics';
 import { movingAverage7, weeklyTrend, type WeightEntry } from './body';
 import { addDays, diffDays } from './dates';
-import { formatDateShort, formatNumber, WEEKDAY_NAMES } from './format';
+import { formatDayMonth, formatNumber, WEEKDAY_NAMES } from './format';
 import { LIFT_LABEL, LIFTS, sessionDate } from './plan';
 import type { Alert, CheckIn } from './rules';
 import type { Cycle, Maxes, PrescribedItem } from './types';
@@ -24,7 +24,7 @@ export interface ReportInput {
 }
 
 const n1 = (v: number) => formatNumber(v, 1);
-const dm = formatDateShort;
+const dm = formatDayMonth;
 
 function planned(it: PrescribedItem): string {
   const parts = [it.setsText];

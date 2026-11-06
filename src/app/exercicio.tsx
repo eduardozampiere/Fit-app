@@ -5,11 +5,11 @@ import { Pressable, ScrollView, StyleSheet, Text, View, useWindowDimensions } fr
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { ChartCard, LineChart } from '../components/charts';
 import { ExerciseImage } from '../components/ExerciseImage';
-import { Card, Chip, IconButton, ListRow, Section } from '../components/ui';
+import { Card, Chip, ChipRow, IconButton, ListRow, Section } from '../components/ui';
 import { listAllSetRows } from '../db/repo';
 import type { SetRow } from '../domain/analytics';
 import { findCatalogExercise, MUSCLE_LABEL, type Catalog } from '../domain/catalog';
-import { formatDateShort, formatKg, formatNumber } from '../domain/format';
+import { formatDate, formatKg, formatNumber } from '../domain/format';
 import {
   exerciseHistory,
   exerciseRows,
@@ -120,40 +120,35 @@ export default function ExerciseScreen() {
                       empty="Sem séries com carga e repetições."
                     />
                   </ChartCard>
-                  <ScrollView
-                    horizontal
-                    showsHorizontalScrollIndicator={false}
-                    style={styles.chipScroll}
-                    contentContainerStyle={styles.chipRow}
-                  >
+                  <ChipRow>
                     {METRICS.map((m) => (
-                      <Chip key={m} compact label={STAT_METRIC_LABEL[m]} selected={metric === m} onPress={() => setMetric(m)} />
+                      <Chip key={m} label={STAT_METRIC_LABEL[m]} selected={metric === m} onPress={() => setMetric(m)} />
                     ))}
-                  </ScrollView>
+                  </ChipRow>
 
                   <Section title="Recordes pessoais">
                     {records.maxLoad ? (
                       <View>
                         <ListRow
                           title="Maior peso"
-                          subtitle={formatDateShort(records.maxLoad.date)}
+                          subtitle={formatDate(records.maxLoad.date)}
                           value={formatKg(records.maxLoad.kg)}
                         />
                         <ListRow
                           title="Melhor 1RM (estimado)"
-                          subtitle={records.best1rm ? formatDateShort(records.best1rm.date) : undefined}
+                          subtitle={records.best1rm ? formatDate(records.best1rm.date) : undefined}
                           value={records.best1rm ? formatKg(records.best1rm.kg) : '—'}
                         />
                         <ListRow
                           title="Melhor volume de série"
-                          subtitle={records.bestSetVolume ? formatDateShort(records.bestSetVolume.date) : undefined}
+                          subtitle={records.bestSetVolume ? formatDate(records.bestSetVolume.date) : undefined}
                           value={
                             records.bestSetVolume ? `${formatKg(records.bestSetVolume.kg)} × ${records.bestSetVolume.reps}` : '—'
                           }
                         />
                         <ListRow
                           title="Melhor volume de sessão"
-                          subtitle={records.bestSessionVolume ? formatDateShort(records.bestSessionVolume.date) : undefined}
+                          subtitle={records.bestSessionVolume ? formatDate(records.bestSessionVolume.date) : undefined}
                           value={records.bestSessionVolume ? formatKg(records.bestSessionVolume.kg) : '—'}
                           last
                         />
@@ -171,7 +166,7 @@ export default function ExerciseScreen() {
                           <ListRow
                             key={r.reps}
                             title={`${r.reps} ${r.reps === 1 ? 'repetição' : 'repetições'}`}
-                            subtitle={formatDateShort(r.date)}
+                            subtitle={formatDate(r.date)}
                             value={formatKg(r.kg)}
                             last={i === records.byReps.length - 1}
                           />
@@ -193,7 +188,7 @@ export default function ExerciseScreen() {
               history.map((s) => (
                 <Card key={s.sessionLogId}>
                   <Text style={{ color: t.text, fontSize: 17, fontWeight: '600' }}>{s.title}</Text>
-                  <Text style={{ color: t.muted, fontSize: 13 }}>{formatDateShort(s.date)}</Text>
+                  <Text style={{ color: t.muted, fontSize: 13 }}>{formatDate(s.date)}</Text>
                   {s.sets.map((x) => (
                     <View key={`${s.sessionLogId}-${x.setIndex}`} style={styles.setLine}>
                       <Text style={[styles.setIdx, { color: t.muted }]}>{x.setIndex}</Text>
@@ -227,9 +222,6 @@ const styles = StyleSheet.create({
   },
   body: { padding: space.lg, gap: space.lg },
   title: { ...font.title },
-  // Sangra até as bordas da tela para a rolagem horizontal não cortar a pílula no meio do conteúdo.
-  chipScroll: { marginHorizontal: -space.lg },
-  chipRow: { paddingHorizontal: space.lg, gap: space.sm },
   setLine: { flexDirection: 'row', alignItems: 'center', gap: space.md, minHeight: 32 },
   setIdx: { width: 24, fontSize: 15, fontWeight: '600', textAlign: 'center' },
 });

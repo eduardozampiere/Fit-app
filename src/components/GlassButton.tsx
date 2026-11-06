@@ -5,7 +5,7 @@ import { space, useTheme } from '../ui/theme';
 
 type IconName = React.ComponentProps<typeof Ionicons>['name'];
 
-const SIZE = 44;
+const SIZE = 40;
 
 /**
  * Botão em Liquid Glass (iOS 26): só ícone (redondo) ou ícone + texto (pílula). Com `tint` o vidro
@@ -17,16 +17,19 @@ export function GlassButton({
   onPress,
   accessibilityLabel,
   tint,
+  color,
 }: {
   label?: string;
   icon?: IconName;
   onPress: () => void;
   accessibilityLabel: string;
   tint?: string;
+  /** cor do ícone/texto quando não há `tint` */
+  color?: string;
 }) {
   const t = useTheme();
   const glass = isLiquidGlassAvailable();
-  const fg = tint ? t.accentText : t.accent;
+  const fg = tint ? t.accentText : (color ?? t.accent);
   const shape = { borderRadius: SIZE / 2 };
   return (
     <Pressable
@@ -40,7 +43,7 @@ export function GlassButton({
       ) : (
         <View pointerEvents="none" style={[StyleSheet.absoluteFill, shape, { backgroundColor: tint ?? t.surface }]} />
       )}
-      {icon ? <Ionicons name={icon} size={22} color={fg} /> : null}
+      {icon ? <Ionicons name={icon} size={21} color={fg} /> : null}
       {label ? <Text style={[styles.label, { color: fg }]}>{label}</Text> : null}
     </Pressable>
   );
@@ -56,5 +59,5 @@ const styles = StyleSheet.create({
     gap: space.xs,
   },
   round: { width: SIZE, paddingHorizontal: 0 },
-  label: { fontSize: 16, fontWeight: '600' },
+  label: { fontSize: 15, fontWeight: '600' },
 });

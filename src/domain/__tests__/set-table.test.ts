@@ -14,6 +14,7 @@ import {
   warmupSet,
 } from '../logging';
 import { barChoices, platesFor } from '../plates';
+import { SET_CHOICES, choiceOf, setRowLabel, startsRest } from '../setTypes';
 import { dragShift, dropIndex, itemBlocks, moveItem, orderBlocks, settleOffset, slotSize } from '../reorder';
 import type { Cycle } from '../types';
 
@@ -171,5 +172,29 @@ describe('reordenar', () => {
     expect(settleOffset(slots, 0, 2)).toBe(120);
     expect(settleOffset(slots, 3, 1)).toBe(-120);
     expect(settleOffset(slots, 1, 1)).toBe(0);
+  });
+});
+
+describe('tipo de série', () => {
+  it('letra no lugar do número, e o descanso só depois de série normal ou até a falha', () => {
+    expect(setRowLabel('normal', 3)).toBe('3');
+    expect(setRowLabel('failure', 3)).toBe('F');
+    expect(setRowLabel('dropset', 3)).toBe('D');
+    expect(setRowLabel('warmup', 1)).toBe('A');
+    expect(startsRest('normal')).toBe(true);
+    expect(startsRest('failure')).toBe(true);
+    expect(startsRest('dropset')).toBe(false);
+    expect(startsRest('warmup')).toBe(false);
+  });
+
+  it('o tipo vem do aquecimento ou do setType', () => {
+    expect(choiceOf({ warmup: true, setType: 'normal' })).toBe('warmup');
+    expect(choiceOf({ warmup: false, setType: 'dropset' })).toBe('dropset');
+    expect(SET_CHOICES.map((c) => c.key)).toEqual(['warmup', 'normal', 'failure', 'dropset']);
+  });
+
+  it('séries novas nascem normais', () => {
+    expect(plannedSet(squat, squat.load, 1).setType).toBe('normal');
+    expect(warmupSet(squat, 145, 1, 2, 20).setType).toBe('normal');
   });
 });

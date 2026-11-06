@@ -9,7 +9,8 @@ do exercício no cartão.
 
 ## Escopo
 - Entra:
-  - **Cabeçalho fixo** no topo da tela Hoje: dia e semana, timer de descanso, "Concluir", e Duração · Volume · Séries.
+  - **Cabeçalho fixo** no topo da tela Hoje: só botões (avisos, timer de descanso, "Concluir"); Duração · Volume ·
+    Séries ficam logo abaixo, na lista (ver spec 11, que ajustou esta parte).
   - **"Adicionar exercício"** no fim da lista (antes do rodapé), com o mesmo seletor do catálogo.
   - **"Adicionar série" e "Aquecimento"** com a mesma largura.
   - **Tela do exercício** (toque no cabeçalho do cartão): imagem, músculos, gráfico, recordes e histórico.

@@ -41,6 +41,7 @@ export function plannedSet(item: PrescribedItem, load: Range | null, setIndex: n
       failed: false,
       asPlanned: true,
       warmup: false,
+      setType: 'normal',
       note: null,
   };
 }
@@ -149,6 +150,7 @@ export function warmupSet(
     failed: false,
     asPlanned: false,
     warmup: true,
+    setType: 'normal',
     note: null,
   };
 }

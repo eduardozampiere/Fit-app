@@ -48,7 +48,7 @@ export function PlateCalculator({
   const r = platesFor(kg, bar, gym.plates);
   return (
     <Modal visible={visible} animationType="slide" presentationStyle="pageSheet" onRequestClose={onClose}>
-      <SheetHeader title="Calculadora de anilhas" onCancel={onClose} cancelLabel="Fechar" />
+      <SheetHeader title="Calculadora de anilhas" />
       <ScrollView style={{ backgroundColor: t.bg }} contentContainerStyle={styles.body}>
         <Stepper label="Carga total" value={kg} step={2.5} onChange={setKg} format={(v) => formatKg(v)} min={bar} />
 

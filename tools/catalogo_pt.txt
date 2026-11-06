@@ -1,0 +1,413 @@
+21s Bicep Curl|Rosca 21
+Ab Scissors|Abdominal tesoura
+Ab Wheel|Roda abdominal
+Aerobics|Aeróbica
+Air Bike|Bicicleta de ar (Air bike)
+Arnold Press (Dumbbell)|Desenvolvimento Arnold (Halter)
+Around The World|Voltas ao mundo (Halter)
+Assisted Pistol Squats|Agachamento pistola assistido
+Back Extension (Hyperextension)|Extensão lombar (Hiperextensão)
+Back Extension (Machine)|Extensão lombar (Máquina)
+Back Extension (Weighted Hyperextension)|Extensão lombar (Hiperextensão com peso)
+Ball Slams|Arremesso de bola ao chão
+Band Pullaparts|Abertura de ombro (Elástico)
+Battle Ropes|Cordas navais
+Behind the Back Bicep Wrist Curl (Barbell)|Rosca de punho atrás das costas (Barra)
+Bench Dip|Mergulho no banco
+Bench Press (Barbell)|Supino reto (Barra)
+Bench Press (Cable)|Supino reto (Polia)
+Bench Press (Dumbbell)|Supino reto (Halter)
+Bench Press (Smith Machine)|Supino reto (Smith)
+Bench Press - Close Grip (Barbell)|Supino pegada fechada (Barra)
+Bench Press - Wide Grip (Barbell)|Supino pegada aberta (Barra)
+Bent Over Row (Band)|Remada curvada (Elástico)
+Bent Over Row (Barbell)|Remada curvada (Barra)
+Bent Over Row (Dumbbell)|Remada curvada (Halter)
+Bicep Curl (Barbell)|Rosca direta (Barra)
+Bicep Curl (Cable)|Rosca direta (Polia)
+Bicep Curl (Dumbbell)|Rosca direta (Halter)
+Bicep Curl (Machine)|Rosca direta (Máquina)
+Bicep Curl (Suspension)|Rosca direta (Suspensão)
+Bicycle Crunch|Abdominal bicicleta
+Bicycle Crunch Raised Legs|Abdominal bicicleta com pernas elevadas
+Bird Dog|Bird dog
+Box Jump|Salto na caixa
+Box Squat (Barbell)|Agachamento no caixote (Barra)
+Boxing|Boxe
+Bulgarian Split Squat|Agachamento búlgaro
+Burpee|Burpee
+Burpee Over the Bar|Burpee sobre a barra
+Butterfly (Pec Deck)|Crucifixo na máquina (Peck deck)
+Cable Core Palloff Press|Pallof press (Polia)
+Cable Crunch|Abdominal na polia
+Cable Fly Crossovers|Crucifixo cruzado (Polia)
+Cable Pull Through|Pull through (Polia)
+Cable Twist (Down to up)|Rotação na polia (De baixo para cima)
+Cable Twist (Up to down)|Rotação na polia (De cima para baixo)
+Calf Extension (Machine)|Extensão de panturrilha (Máquina)
+Calf Press (Machine)|Panturrilha no leg press (Máquina)
+Chest Dip|Paralelas para peito
+Chest Dip (Assisted)|Paralelas para peito (Assistida)
+Chest Dip (Weighted)|Paralelas para peito (Com peso)
+Chest Fly (Band)|Crucifixo (Elástico)
+Chest Fly (Dumbbell)|Crucifixo (Halter)
+Chest Fly (Machine)|Crucifixo (Máquina)
+Chest Fly (Suspension)|Crucifixo (Suspensão)
+Chest Press (Band)|Supino (Elástico)
+Chest Press (Machine)|Supino (Máquina)
+Chest Supported Incline Row (Dumbbell)|Remada apoiada no banco inclinado (Halter)
+Chest Supported Reverse Fly (Dumbbell)|Crucifixo inverso apoiado (Halter)
+Chest Supported Y Raise (Dumbbell)|Elevação em Y apoiada (Halter)
+Chin Up|Barra fixa supinada
+Chin Up (Assisted)|Barra fixa supinada (Assistida)
+Chin Up (Weighted)|Barra fixa supinada (Com peso)
+Clamshell|Abdução deitada (Clamshell)
+Clap Push Ups|Flexão com palma
+Clean|Clean
+Clean and Jerk|Arremesso (Clean and jerk)
+Clean and Press|Clean and press
+Clean Pull|Clean pull
+Climbing|Escalada
+Concentration Curl|Rosca concentrada
+Cross Body Hammer Curl|Rosca martelo cruzada
+Crunch|Abdominal crunch
+Crunch (Machine)|Abdominal crunch (Máquina)
+Crunch (Weighted)|Abdominal crunch (Com peso)
+Curtsy Lunge (Dumbbell)|Afundo cruzado (Halter)
+Cycling|Ciclismo
+Dead Bug|Dead bug
+Dead Hang|Pendurar na barra
+Deadlift (Band)|Levantamento terra (Elástico)
+Deadlift (Barbell)|Levantamento terra (Barra)
+Deadlift (Dumbbell)|Levantamento terra (Halter)
+Deadlift (Smith Machine)|Levantamento terra (Smith)
+Deadlift (Trap bar)|Levantamento terra (Barra hexagonal)
+Deadlift High Pull|Terra com puxada alta
+Decline Bench Press (Barbell)|Supino declinado (Barra)
+Decline Bench Press (Dumbbell)|Supino declinado (Halter)
+Decline Bench Press (Machine)|Supino declinado (Máquina)
+Decline Bench Press (Smith Machine)|Supino declinado (Smith)
+Decline Chest Fly (Dumbbell)|Crucifixo declinado (Halter)
+Decline Crunch|Abdominal declinado
+Decline Crunch (Weighted)|Abdominal declinado (Com peso)
+Decline Push Up|Flexão declinada
+Diamond Push Up|Flexão diamante
+Downward Dog|Cachorro olhando para baixo
+Drag Curl|Rosca arrastada
+Dragon Flag|Dragon flag
+Dragonfly|Dragonfly
+Dumbbell Row|Remada unilateral (Halter)
+Dumbbell Snatch|Arranco (Halter)
+Dumbbell Squeeze Press|Supino com halteres juntos
+Dumbbell Step Up|Subida no caixote (Halter)
+Elbow to Knee|Cotovelo ao joelho
+Elliptical Trainer|Elíptico
+EZ Bar Biceps Curl|Rosca direta (Barra W)
+Face Pull|Face pull
+Farmers Walk|Caminhada do fazendeiro
+Fire Hydrants|Hidrante
+Floor Press (Barbell)|Supino no chão (Barra)
+Floor Press (Dumbbell)|Supino no chão (Halter)
+Floor Triceps Dip|Mergulho de tríceps no chão
+Flutter Kicks|Batida de pernas
+Frog Jumps|Saltos de sapo
+Frog Pumps (Dumbbell)|Bombeamento de sapo (Halter)
+Front Lever Hold|Front lever (Isometria)
+Front Lever Raise|Front lever (Elevação)
+Front Raise (Band)|Elevação frontal (Elástico)
+Front Raise (Barbell)|Elevação frontal (Barra)
+Front Raise (Cable)|Elevação frontal (Polia)
+Front Raise (Dumbbell)|Elevação frontal (Halter)
+Front Raise (Suspension)|Elevação frontal (Suspensão)
+Front Squat|Agachamento frontal
+Full Squat|Agachamento completo
+Glute Bridge|Ponte de glúteo
+Glute Ham Raise|Elevação glúteo-isquio (GHR)
+Glute Kickback (Machine)|Coice de glúteo (Máquina)
+Glute Kickback on Floor|Coice de glúteo no chão
+Goblet Squat|Agachamento goblet
+Good Morning (Barbell)|Bom dia (Barra)
+Gorilla Row (Kettlebell)|Remada gorila (Kettlebell)
+Hack Squat|Agachamento hack
+Hack Squat (Machine)|Agachamento hack (Máquina)
+Hammer Curl (Band)|Rosca martelo (Elástico)
+Hammer Curl (Cable)|Rosca martelo (Polia)
+Hammer Curl (Dumbbell)|Rosca martelo (Halter)
+Handstand Hold|Parada de mão
+Handstand Push Up|Flexão em parada de mão
+Hang Clean|Hang clean
+Hang Snatch|Hang snatch
+Hanging Knee Raise|Elevação de joelhos na barra
+Hanging Leg Raise|Elevação de pernas na barra
+Heel Taps|Toque no calcanhar
+Hex Press (Dumbbell)|Supino hex (Halter)
+High Knee Skips|Skipping alto
+High Knees|Corrida com joelho alto
+HIIT|HIIT
+Hiking|Trilha
+Hip Abduction (Machine)|Cadeira abdutora (Máquina)
+Hip Adduction (Machine)|Cadeira adutora (Máquina)
+Hip Thrust|Elevação pélvica
+Hip Thrust (Barbell)|Elevação pélvica (Barra)
+Hip Thrust (Machine)|Elevação pélvica (Máquina)
+Hollow Rock|Hollow rock
+Incline Bench Press (Barbell)|Supino inclinado (Barra)
+Incline Bench Press (Dumbbell)|Supino inclinado (Halter)
+Incline Bench Press (Smith Machine)|Supino inclinado (Smith)
+Incline Chest Fly (Dumbbell)|Crucifixo inclinado (Halter)
+Incline Chest Press (Machine)|Supino inclinado (Máquina)
+Incline Push Ups|Flexão inclinada
+Inverted Row|Remada invertida
+Iso-Lateral Chest Press (Machine)|Supino isolateral (Máquina)
+Iso-Lateral High Row (Machine)|Remada alta isolateral (Máquina)
+Iso-Lateral Low Row|Remada baixa isolateral
+Iso-Lateral Row (Machine)|Remada isolateral (Máquina)
+Jack Knife (Suspension)|Canivete (Suspensão)
+Jackknife Sit Up|Abdominal canivete
+JM Press (Barbell)|JM press (Barra)
+Jump Rope|Pular corda
+Jump Shrug|Encolhimento com salto
+Jump Squat|Agachamento com salto
+Jumping Jack|Polichinelo
+Jumping Lunge|Afundo com salto
+Kettlebell Clean|Clean (Kettlebell)
+Kettlebell Curl|Rosca (Kettlebell)
+Kettlebell Goblet Squat|Agachamento goblet (Kettlebell)
+Kettlebell High Pull|Puxada alta (Kettlebell)
+Kettlebell Shoulder Press|Desenvolvimento (Kettlebell)
+Kettlebell Snatch|Arranco (Kettlebell)
+Kettlebell Swing|Swing (Kettlebell)
+Kettlebell Turkish Get Up|Levantamento turco (Kettlebell)
+Kipping Pull Up|Barra fixa kipping
+Knee Raise Parallel Bars|Elevação de joelhos nas paralelas
+Kneeling Pulldown (band)|Puxada ajoelhado (Elástico)
+Kneeling Push Up|Flexão com joelhos no chão
+L-Sit Hold|L-sit (Isometria)
+Landmine 180|Landmine 180
+Landmine Row|Remada landmine
+Landmine Squat and Press|Agachamento e desenvolvimento landmine
+Lat Pulldown (Band)|Puxada alta (Elástico)
+Lat Pulldown (Cable)|Puxada alta (Polia)
+Lat Pulldown (Machine)|Puxada alta (Máquina)
+Lat Pulldown - Close Grip (Cable)|Puxada pegada fechada (Polia)
+Lateral Band Walks|Caminhada lateral (Elástico)
+Lateral Box Jump|Salto lateral na caixa
+Lateral Leg Raises|Elevação lateral de perna
+Lateral Lunge|Afundo lateral
+Lateral Raise (Band)|Elevação lateral (Elástico)
+Lateral Raise (Cable)|Elevação lateral (Polia)
+Lateral Raise (Dumbbell)|Elevação lateral (Halter)
+Lateral Raise (Machine)|Elevação lateral (Máquina)
+Lateral Squat|Agachamento lateral
+Leg Extension (Machine)|Cadeira extensora (Máquina)
+Leg Press (Machine)|Leg press (Máquina)
+Leg Press Horizontal (Machine)|Leg press horizontal (Máquina)
+Leg Raise Parallel Bars|Elevação de pernas nas paralelas
+Low Cable Fly Crossovers|Crucifixo cruzado baixo (Polia)
+Low Row (Suspension)|Remada baixa (Suspensão)
+Lunge|Afundo
+Lunge (Barbell)|Afundo (Barra)
+Lunge (Dumbbell)|Afundo (Halter)
+Lying Knee Raise|Elevação de joelhos deitado
+Lying Leg Curl (Machine)|Mesa flexora (Máquina)
+Lying Leg Raise|Elevação de pernas deitado
+Lying Neck Curls|Flexão de pescoço deitado
+Lying Neck Curls (Weighted)|Flexão de pescoço deitado (Com peso)
+Lying Neck Extension|Extensão de pescoço deitado
+Lying Neck Extension (Weighted)|Extensão de pescoço deitado (Com peso)
+Meadows Rows (Barbell)|Remada Meadows (Barra)
+Mountain Climber|Escalador
+Muscle Up|Muscle up
+Negative Pull Up|Barra fixa negativa
+Nordic Hamstrings Curls|Flexão nórdica
+Oblique Crunch|Abdominal oblíquo
+One Arm Push Up|Flexão com um braço
+Overhead Curl (Cable)|Rosca acima da cabeça (Polia)
+Overhead Dumbbell Lunge|Afundo com halter acima da cabeça
+Overhead Press (Barbell)|Desenvolvimento em pé (Barra)
+Overhead Press (Dumbbell)|Desenvolvimento em pé (Halter)
+Overhead Press (Smith Machine)|Desenvolvimento em pé (Smith)
+Overhead Squat|Agachamento overhead
+Pause Squat (Barbell)|Agachamento com pausa (Barra)
+Pendlay Row (Barbell)|Remada Pendlay (Barra)
+Pendulum Squat (Machine)|Agachamento pêndulo (Máquina)
+Pike Pushup|Flexão pike
+Pilates|Pilates
+Pinwheel Curl (Dumbbell)|Rosca cata-vento (Halter)
+Pistol Squat|Agachamento pistola
+Plank|Prancha
+Plank Pushup|Flexão da prancha
+Plate Curl|Rosca com anilha
+Plate Front Raise|Elevação frontal com anilha
+Plate Press|Supino com anilha
+Plate Squeeze (Svend Press)|Svend press (Anilha)
+Power Clean|Power clean
+Power Snatch|Power snatch
+Preacher Curl (Barbell)|Rosca Scott (Barra)
+Preacher Curl (Dumbbell)|Rosca Scott (Halter)
+Preacher Curl (Machine)|Rosca Scott (Máquina)
+Press Under|Press under
+Pull Up|Barra fixa
+Pull Up (Assisted)|Barra fixa (Assistida)
+Pull Up (Band)|Barra fixa (Elástico)
+Pull Up (Weighted)|Barra fixa (Com peso)
+Pullover (Dumbbell)|Pullover (Halter)
+Pullover (Machine)|Pullover (Máquina)
+Push Press|Push press
+Push Up|Flexão de braços
+Push Up (Weighted)|Flexão de braços (Com peso)
+Push Up - Close Grip|Flexão pegada fechada
+Rack Pull|Rack pull
+Rear Delt Reverse Fly (Cable)|Crucifixo inverso (Polia)
+Rear Delt Reverse Fly (Dumbbell)|Crucifixo inverso (Halter)
+Rear Delt Reverse Fly (Machine)|Crucifixo inverso (Máquina)
+Renegade Row (Dumbbell)|Remada renegada (Halter)
+Reverse Crunch|Abdominal inverso
+Reverse Curl (Barbell)|Rosca inversa (Barra)
+Reverse Curl (Cable)|Rosca inversa (Polia)
+Reverse Curl (Dumbbell)|Rosca inversa (Halter)
+Reverse Fly Single Arm (Cable)|Crucifixo inverso unilateral (Polia)
+Reverse Grip Concentration Curl|Rosca concentrada pegada inversa
+Reverse Grip Lat Pulldown (Cable)|Puxada pegada supinada (Polia)
+Reverse Hyperextension|Extensão reversa
+Reverse Lunge|Afundo reverso
+Reverse Lunge (Barbell)|Afundo reverso (Barra)
+Reverse Lunge (Dumbbell)|Afundo reverso (Halter)
+Reverse Plank|Prancha invertida
+Ring Dips|Paralelas nas argolas
+Romanian Deadlift (Barbell)|Stiff romeno (Barra)
+Romanian Deadlift (Dumbbell)|Stiff romeno (Halter)
+Rope Cable Curl|Rosca na corda (Polia)
+Rope Straight Arm Pulldown|Pulldown de braço estendido na corda
+Rowing Machine|Remo (Máquina)
+Running|Corrida
+Russian Twist (Bodyweight)|Rotação russa (Peso corporal)
+Russian Twist (Weighted)|Rotação russa (Com peso)
+Scapular Pull Ups|Barra fixa escapular
+Seated Cable Row - Bar Grip|Remada sentada (Polia, barra reta)
+Seated Cable Row - Bar Wide Grip|Remada sentada (Polia, barra aberta)
+Seated Cable Row - V Grip (Cable)|Remada sentada (Polia, triângulo)
+Seated Calf Raise|Panturrilha sentado
+Seated Chest Flys (Cable)|Crucifixo sentado (Polia)
+Seated Dip Machine|Paralelas sentado (Máquina)
+Seated Incline Curl (Dumbbell)|Rosca inclinada sentado (Halter)
+Seated Lateral Raise (Dumbbell)|Elevação lateral sentado (Halter)
+Seated Leg Curl (Machine)|Cadeira flexora (Máquina)
+Seated Overhead Press (Barbell)|Desenvolvimento sentado (Barra)
+Seated Overhead Press (Dumbbell)|Desenvolvimento sentado (Halter)
+Seated Palms Up Wrist Curl|Rosca de punho sentado (Palmas para cima)
+Seated Row (Machine)|Remada sentada (Máquina)
+Seated Shoulder Press (Machine)|Desenvolvimento sentado (Máquina)
+Seated Triceps Press|Tríceps sentado acima da cabeça
+Seated Wrist Extension (Barbell)|Extensão de punho sentado (Barra)
+Shoulder Press (Dumbbell)|Desenvolvimento de ombros (Halter)
+Shoulder Press (Machine Plates)|Desenvolvimento de ombros (Máquina de anilhas)
+Shoulder Taps|Toque no ombro
+Shrug (Barbell)|Encolhimento (Barra)
+Shrug (Cable)|Encolhimento (Polia)
+Shrug (Dumbbell)|Encolhimento (Halter)
+Shrug (Machine)|Encolhimento (Máquina)
+Shrug (Smith Machine)|Encolhimento (Smith)
+Side Bend|Flexão lateral de tronco
+Side Bend (Dumbbell)|Flexão lateral de tronco (Halter)
+Side Plank|Prancha lateral
+Single Arm Cable Crossover|Crucifixo cruzado unilateral (Polia)
+Single Arm Cable Row|Remada unilateral (Polia)
+Single Arm Curl (Cable)|Rosca unilateral (Polia)
+Single Arm Landmine Press (Barbell)|Desenvolvimento landmine unilateral (Barra)
+Single Arm Lat Pulldown|Puxada unilateral
+Single Arm Lateral Raise (Cable)|Elevação lateral unilateral (Polia)
+Single Arm Tricep Extension (Dumbbell)|Tríceps unilateral acima da cabeça (Halter)
+Single Arm Triceps Pushdown (Cable)|Tríceps pulley unilateral (Polia)
+Single Leg Extensions|Extensão unilateral de perna
+Single Leg Glute Bridge|Ponte de glúteo unilateral
+Single Leg Hip Thrust|Elevação pélvica unilateral
+Single Leg Hip Thrust (Dumbbell)|Elevação pélvica unilateral (Halter)
+Single Leg Press (Machine)|Leg press unilateral (Máquina)
+Single Leg Romanian Deadlift (Barbell)|Stiff unilateral (Barra)
+Single Leg Romanian Deadlift (Dumbbell)|Stiff unilateral (Halter)
+Single Leg Standing Calf Raise|Panturrilha unilateral em pé
+Single Leg Standing Calf Raise (Barbell)|Panturrilha unilateral em pé (Barra)
+Single Leg Standing Calf Raise (Dumbbell)|Panturrilha unilateral em pé (Halter)
+Single Leg Standing Calf Raise (Machine)|Panturrilha unilateral em pé (Máquina)
+Sissy Squat (Weighted)|Agachamento sissy (Com peso)
+Sit Up|Abdominal remador
+Sit Up (Weighted)|Abdominal remador (Com peso)
+Skating|Patinação
+Skiing|Esqui
+Skullcrusher (Barbell)|Tríceps testa (Barra)
+Skullcrusher (Dumbbell)|Tríceps testa (Halter)
+Sled Push|Empurrar trenó
+Snatch|Arranco (Snatch)
+Snowboarding|Snowboard
+Spider Curl (Barbell)|Rosca aranha (Barra)
+Spider Curl (Dumbbell)|Rosca aranha (Halter)
+Spiderman|Homem-aranha (Alongamento)
+Spinning|Spinning
+Split Jerk|Split jerk
+Split Squat (Dumbbell)|Agachamento split (Halter)
+Sprints|Tiros de corrida
+Squat (Band)|Agachamento (Elástico)
+Squat (Barbell)|Agachamento livre (Barra)
+Squat (Bodyweight)|Agachamento (Peso corporal)
+Squat (Dumbbell)|Agachamento (Halter)
+Squat (Machine)|Agachamento (Máquina)
+Squat (Smith Machine)|Agachamento (Smith)
+Squat (Suspension)|Agachamento (Suspensão)
+Squat Row|Agachamento com remada
+Stair Machine|Simulador de escada
+Standing Cable Glute Kickbacks|Coice de glúteo em pé (Polia)
+Standing Calf Raise|Panturrilha em pé
+Standing Calf Raise (Barbell)|Panturrilha em pé (Barra)
+Standing Calf Raise (Dumbbell)|Panturrilha em pé (Halter)
+Standing Calf Raise (Machine)|Panturrilha em pé (Máquina)
+Standing Calf Raise (Smith)|Panturrilha em pé (Smith)
+Standing Leg Curls|Flexão de perna em pé
+Standing Military Press (Barbell)|Desenvolvimento militar (Barra)
+Step Up|Subida no caixote
+Sternum Pull up (Gironda)|Barra fixa até o esterno (Gironda)
+Straight Arm Lat Pulldown (Cable)|Pulldown de braço estendido (Polia)
+Straight Leg Deadlift|Stiff (Pernas estendidas)
+Stretching|Alongamento
+Sumo Deadlift|Levantamento terra sumô
+Sumo Squat|Agachamento sumô
+Sumo Squat (Barbell)|Agachamento sumô (Barra)
+Sumo Squat (Dumbbell)|Agachamento sumô (Halter)
+Sumo Squat (Kettlebell)|Agachamento sumô (Kettlebell)
+Superman|Superman
+Swimming|Natação
+T Bar Row|Remada cavalinho (Barra T)
+Thruster (Barbell)|Thruster (Barra)
+Thruster (Kettlebell)|Thruster (Kettlebell)
+Toe Touch|Toque nos pés
+Toes to Bar|Pés à barra
+Torso Rotation|Rotação de tronco
+Treadmill|Esteira
+Triceps Dip|Mergulho de tríceps
+Triceps Dip (Assisted)|Mergulho de tríceps (Assistido)
+Triceps Dip (Weighted)|Mergulho de tríceps (Com peso)
+Triceps Extension (Barbell)|Tríceps francês (Barra)
+Triceps Extension (Cable)|Tríceps francês (Polia)
+Triceps Extension (Dumbbell)|Tríceps francês (Halter)
+Triceps Extension (Machine)|Tríceps francês (Máquina)
+Triceps Extension (Suspension)|Tríceps francês (Suspensão)
+Triceps Kickback (Cable)|Tríceps coice (Polia)
+Triceps Kickback (Dumbbell)|Tríceps coice (Halter)
+Triceps Pressdown|Tríceps pressdown
+Triceps Pushdown|Tríceps pulley
+Triceps Rope Pushdown|Tríceps corda (Polia)
+Upright Row (Barbell)|Remada alta (Barra)
+Upright Row (Cable)|Remada alta (Polia)
+Upright Row (Dumbbell)|Remada alta (Halter)
+V Up|Abdominal em V
+Walking|Caminhada
+Walking Lunge|Afundo andando
+Walking Lunge (Dumbbell)|Afundo andando (Halter)
+Wall Ball|Wall ball
+Wall Sit|Cadeirinha na parede
+Warm Up|Aquecimento geral
+Wide Pull Up|Barra fixa pegada aberta
+Wrist Roller|Rolo de punho
+Yoga|Yoga
+Zercher Squat|Agachamento Zercher
+Zottman Curl (Dumbbell)|Rosca Zottman (Halter)

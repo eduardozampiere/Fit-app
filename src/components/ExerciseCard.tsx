@@ -41,6 +41,8 @@ export function ExerciseCard({
   warmupDrafts,
   complete,
   restSec,
+  restOverridden,
+  onRest,
   showRpe,
   pendingRpeIndex,
   lock,
@@ -71,7 +73,10 @@ export function ExerciseCard({
   warmups: SetLog[];
   warmupDrafts: SetDraft[];
   complete: boolean;
+  /** descanso em vigor (ajuste do usuário ou plano) */
   restSec: number;
+  restOverridden: boolean;
+  onRest: () => void;
   showRpe: boolean;
   pendingRpeIndex: number | null;
   lock?: SetLock;
@@ -95,6 +100,11 @@ export function ExerciseCard({
 }) {
   const t = useTheme();
   const prescription = prescriptionLine(item, load);
+  const restLabel = restOverridden
+    ? `${formatSeconds(restSec)} · seu ajuste`
+    : item.restText && item.restText !== '—'
+      ? item.restText
+      : formatSeconds(restSec);
 
   return (
     <View style={[styles.block, collapsed && styles.blockCollapsed, isChild && { paddingLeft: space.md, borderLeftWidth: 2, borderLeftColor: t.separator }]}>
@@ -128,12 +138,17 @@ export function ExerciseCard({
           {prescription ? <Text style={[styles.prescription, { color: t.text }]}>{prescription}</Text> : null}
           {item.notes ? <Text style={[styles.notes, { color: t.muted }]}>{item.notes}</Text> : null}
           {tip ? <Text style={[styles.tip, { color: t.accent }]}>{tip}</Text> : null}
-          <View style={styles.restRow}>
+          <Pressable
+            style={styles.restRow}
+            accessibilityRole="button"
+            accessibilityLabel={`Descanso: ${restLabel}. Editar`}
+            onPress={onRest}
+            hitSlop={8}
+          >
             <Ionicons name="timer-outline" size={16} color={t.accent} />
-            <Text style={[styles.rest, { color: t.accent }]}>
-              Descanso: {item.restText && item.restText !== '—' ? item.restText : formatSeconds(restSec)}
-            </Text>
-          </View>
+            <Text style={[styles.rest, { color: t.accent }]}>Descanso: {restLabel}</Text>
+            <Ionicons name="create-outline" size={14} color={t.accent} />
+          </Pressable>
 
           {lock ? (
             <View style={[styles.lockBox, { backgroundColor: t.warnBg }]}>
@@ -191,7 +206,7 @@ const styles = StyleSheet.create({
   prescription: { fontSize: 15, fontWeight: '500' },
   notes: { fontSize: 14, lineHeight: 19 },
   tip: { fontSize: 14, fontWeight: '600' },
-  restRow: { flexDirection: 'row', alignItems: 'center', gap: space.xs },
+  restRow: { flexDirection: 'row', alignItems: 'center', gap: space.xs, minHeight: 28 },
   rest: { fontSize: 14, fontWeight: '500' },
   lockBox: { borderRadius: radius.button, padding: space.md, flexDirection: 'row', alignItems: 'center', gap: space.sm },
   unlockBtn: { minHeight: 40, borderRadius: radius.cell, paddingHorizontal: space.md, justifyContent: 'center' },

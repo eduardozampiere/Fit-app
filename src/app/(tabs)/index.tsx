@@ -6,7 +6,9 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { AlertCard } from '../../components/AlertCard';
 import { CheckinSummary } from '../../components/CheckinSummary';
 import { DragList } from '../../components/DragList';
+import { ExercisePicker } from '../../components/ExercisePicker';
 import { ExerciseCard } from '../../components/ExerciseCard';
+import { RestEditor } from '../../components/RestEditor';
 import { PlateCalculator } from '../../components/PlateCalculator';
 import { RedFlagModal } from '../../components/RedFlagModal';
 import { RestTimerBar } from '../../components/RestTimerBar';
@@ -23,14 +25,18 @@ import {
   insertSets,
   listSessionLogs,
   listSetLogs,
+  restOverridesKey,
+  retagSetLogs,
   setCountsKey,
   warmupCountsKey,
   setSessionStatus,
   setSetting,
   updateSet,
 } from '../../db/repo';
+import { swapExercise } from '../../domain/adjustments';
 import { toISODate } from '../../domain/dates';
-import { formatDateShort, formatNumber, WEEKDAY_NAMES, WEEKDAY_SHORT } from '../../domain/format';
+import { formatDateShort, formatNumber, formatSeconds, WEEKDAY_NAMES, WEEKDAY_SHORT } from '../../domain/format';
+import type { SwapScope } from '../../domain/adjustments';
 import {
   asPlannedSets,
   draftFromInput,
@@ -48,14 +54,16 @@ import {
   findSession,
   liftOf,
   nextSessionFrom,
+  restOverride,
   restSeconds,
+  withRestOverride,
   RPE_KINDS,
   sessionForDate,
   sessionItems,
   type SessionRef,
 } from '../../domain/plan';
 import { gripForSet, gripTip, hasRedFlags, sessionLocks } from '../../domain/rules';
-import type { PrescribedItem, SessionLog, SetLog } from '../../domain/types';
+import type { Exercise, PrescribedItem, SessionLog, SetLog } from '../../domain/types';
 import { useAppData } from '../../state/AppData';
 import { useRestTimer } from '../../state/RestTimer';
 import { useCoach } from '../../state/useCoach';
@@ -68,7 +76,7 @@ const GENERIC_NOTE = /^(% calculado|Registro:)/;
 export default function TodayScreen() {
   const t = useTheme();
   const db = useSQLiteContext();
-  const { cycle, maxes, gym, version, bump } = useAppData();
+  const { cycle, maxes, gym, version, bump, updateCycle } = useAppData();
   const timer = useRestTimer();
   const coach = useCoach();
   const params = useLocalSearchParams<{ sessionId?: string; at?: string }>();
@@ -109,6 +117,10 @@ export default function TodayScreen() {
   const [exerciseOrder, setExerciseOrder] = useState<string[]>([]);
   // Arraste em andamento: trava a rolagem; arrastando exercício, os cartões ficam só com o cabeçalho.
   const [dragging, setDragging] = useState<'exercise' | 'set' | null>(null);
+  // Descanso ajustado pelo usuário, por exercício (vale em todos os treinos).
+  const [restOverrides, setRestOverrides] = useState<Record<string, number>>({});
+  const [restEditing, setRestEditing] = useState<PrescribedItem | null>(null);
+  const [swapping, setSwapping] = useState<PrescribedItem | null>(null);
   const [failUnlocked, setFailUnlocked] = useState(false);
   const [redFlagSeen, setRedFlagSeen] = useState(false);
 
@@ -122,7 +134,9 @@ export default function TodayScreen() {
     let alive = true;
     (async () => {
       const logs = await listSessionLogs(db, cycle.id);
+      const rests = await getSetting<Record<string, number>>(db, restOverridesKey, {});
       if (!alive) return;
+      setRestOverrides(rests);
       setSessionLogs(logs);
       const current = ref ? logs.find((l) => l.sessionId === ref.session.id) : undefined;
       setSetLogs(current ? await listSetLogs(db, current.id) : []);
@@ -201,9 +215,13 @@ export default function TodayScreen() {
     [items, logsOf],
   );
 
+  const restOf = useCallback(
+    (item: PrescribedItem) => restSeconds(item, restOverride(restOverrides, item.exerciseId)),
+    [restOverrides],
+  );
   const startRest = useCallback(
-    (item: PrescribedItem, setIndex: number) => timer.start(restSeconds(item), nextLabel(item, setIndex)),
-    [timer, nextLabel],
+    (item: PrescribedItem, setIndex: number) => timer.start(restOf(item), nextLabel(item, setIndex)),
+    [timer, restOf, nextLabel],
   );
 
   const draftFor = (kind: SetKind, item: PrescribedItem, idx: number) =>
@@ -274,6 +292,23 @@ export default function TodayScreen() {
     bump();
   };
 
+  /** `null` volta ao descanso do plano. */
+  const saveRest = async (item: PrescribedItem, sec: number | null) => {
+    const next = withRestOverride(restOverrides, item.exerciseId, sec);
+    setRestOverrides(next);
+    setRestEditing(null);
+    await setSetting(db, restOverridesKey, next);
+  };
+
+  /** Troca o exercício do item e leva as séries já registradas junto (antes de recarregar o plano). */
+  const swapItem = async (item: PrescribedItem, exercise: Exercise, scope: SwapScope) => {
+    if (!cycle) return;
+    const out = swapExercise(cycle, item.id, exercise, scope);
+    setSwapping(null);
+    await retagSetLogs(db, out.itemIds, exercise.id);
+    await updateCycle(out.cycle);
+  };
+
   const allAsPlanned = async (item: PrescribedItem) => {
     const log = await ensureLog();
     await insertSets(db, log.id, missingPlanned(item));
@@ -328,6 +363,8 @@ export default function TodayScreen() {
     setMenu({
       title: item.name,
       options: [
+        { label: 'Trocar exercício', icon: 'swap-horizontal-outline', onPress: () => setSwapping(item) },
+        { label: 'Tempo de descanso', icon: 'timer-outline', onPress: () => setRestEditing(item) },
         { label: 'Calculadora de anilhas', icon: 'calculator-outline', onPress: () => setPlates({ kg, exerciseId: item.exerciseId }) },
         { label: 'Completar conforme o plano', icon: 'checkmark-done-outline', onPress: () => allAsPlanned(item) },
         { label: 'Adicionar série', icon: 'add-circle-outline', onPress: () => addSet(item) },
@@ -519,7 +556,9 @@ export default function TodayScreen() {
                       warmups={warmupsOf(item)}
                       warmupDrafts={warmupDraftsOf(item)}
                       complete={logs.length >= effective && (logs.length > 0 || effective === 0)}
-                      restSec={restSeconds(item)}
+                      restSec={restOf(item)}
+                      restOverridden={restOverride(restOverrides, item.exerciseId) !== null}
+                      onRest={() => setRestEditing(item)}
                       showRpe={showRpe}
                       pendingRpeIndex={showRpe && last && last.rpe === null ? last.setIndex : null}
                       lock={lock}
@@ -568,6 +607,28 @@ export default function TodayScreen() {
           onSave={saveEditor}
           onDelete={editor.draft.id ? removeFromEditor : undefined}
           onClose={() => setEditor(null)}
+        />
+      ) : null}
+      {restEditing ? (
+        <RestEditor
+          key={restEditing.id}
+          name={restEditing.name}
+          planText={restEditing.restText && restEditing.restText !== '—' ? restEditing.restText : formatSeconds(restSeconds(restEditing))}
+          initialSec={restOf(restEditing)}
+          hasOverride={restOverride(restOverrides, restEditing.exerciseId) !== null}
+          onSave={(sec) => saveRest(restEditing, sec)}
+          onReset={() => saveRest(restEditing, null)}
+          onClose={() => setRestEditing(null)}
+        />
+      ) : null}
+      {swapping ? (
+        <ExercisePicker
+          key={swapping.id}
+          currentName={swapping.name}
+          isLift={liftOf(cycle, swapping) !== null}
+          cycleExercises={cycle.exercises}
+          onPick={(exercise, scope) => swapItem(swapping, exercise, scope)}
+          onClose={() => setSwapping(null)}
         />
       ) : null}
       {menu ? <ActionMenu title={menu.title} options={menu.options} columns={menu.columns} onClose={() => setMenu(null)} /> : null}

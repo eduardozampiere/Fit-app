@@ -17,7 +17,19 @@ export async function getActiveCycle(db: SQLiteDatabase): Promise<Cycle | null> 
 }
 
 export async function saveCycleData(db: SQLiteDatabase, cycle: Cycle) {
-  await db.runAsync('UPDATE cycles SET data = ?, name = ? WHERE id = ?', JSON.stringify(cycle), cycle.name, cycle.id);
+  await db.withTransactionAsync(async () => {
+    await db.runAsync('UPDATE cycles SET data = ?, name = ? WHERE id = ?', JSON.stringify(cycle), cycle.name, cycle.id);
+    // Exercício novo (item adicionado ou troca de exercício) entra na tabela usada pelos nomes das análises.
+    for (const e of cycle.exercises) {
+      await db.runAsync('INSERT OR IGNORE INTO exercises (id, name, lift, category) VALUES (?, ?, ?, ?)', e.id, e.name, e.lift, e.category);
+    }
+  });
+}
+
+/** Depois de trocar o exercício de itens: as séries já registradas deles passam para o exercício novo. */
+export async function retagSetLogs(db: SQLiteDatabase, itemIds: string[], exerciseId: string): Promise<void> {
+  if (!itemIds.length) return;
+  await db.runAsync(`UPDATE set_logs SET exercise_id = ? WHERE item_id IN (${itemIds.map(() => '?').join(',')})`, exerciseId, ...itemIds);
 }
 
 // ---- Ajustes ----
@@ -224,6 +236,9 @@ export const setCountsKey = (sessionLogId: string) => `set-counts:${sessionLogId
 
 /** Linhas de aquecimento adicionadas no treino do dia, por item. */
 export const warmupCountsKey = (sessionLogId: string) => `warmup-counts:${sessionLogId}`;
+
+/** Ajustes de descanso por exercício: { [exerciseId]: segundos }. */
+export const restOverridesKey = 'rest-overrides';
 
 /** Ordem dos exercícios no treino do dia (ids do primeiro item de cada bloco). */
 export const exerciseOrderKey = (sessionLogId: string) => `exercise-order:${sessionLogId}`;

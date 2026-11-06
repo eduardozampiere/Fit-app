@@ -18,6 +18,7 @@ Legenda: ✅ feito · 🟡 feito, falta verificar no iPhone · 🔨 em andamento
 | 06 | Análises (gráficos, agrupamentos, cartões por dia) | 🟡 | [06-analises](06-analises/spec.md) |
 | 07 | Importação, exportação, backup e integração com o Claude | 🟡 | [07-dados-e-claude](07-dados-e-claude/spec.md) |
 | 08 | Visual inspirado no Hevy (tabela de séries inline, tokens novos) | 🟡 | [08-design-hevy](08-design-hevy/spec.md) |
+| 09 | Descanso editável e troca de exercício (catálogo do hevy-ia) | 🟡 | [09-descanso-e-catalogo](09-descanso-e-catalogo/spec.md) |
 
 Nada foi testado num iPhone de verdade ainda. Em 03/11/2026 o app rodou no simulador do iOS 27.2 (Mac,
 Xcode 27.2, `npx expo run:ios`). O que foi verificado em cada feature está no `spec.md` dela.
@@ -34,6 +35,8 @@ Xcode 27.2, `npx expo run:ios`). O que foi verificado em cada feature está no `
 | Item | Origem | Observação |
 |---|---|---|
 | "Desfazer" para sugestão aceita | revisão do incremento 2 | Hoje aceitar aplica direto no plano, sem volta. |
+| Escolher do catálogo também no editor da aba Plano | feature 09 | O `ItemEditor` ainda tem só campo de texto para o nome. |
+| Volume por grupo muscular nas Análises | feature 09 | O catálogo já traz músculo principal e secundário; falta ligar o exercício do ciclo ao catálogo pelo nome. |
 | Validar com um export real do Hevy | feature 07 | O parser segue o formato documentado; ajustar se o arquivo real for diferente. |
 | Live Activity do descanso (tela bloqueada / Dynamic Island) | conversa sobre Swift | Exige módulo nativo; possível com instalação pelo Mac. Verificar se o Apple ID gratuito permite. |
 | App do Apple Watch (registrar série, ver descanso) | conversa sobre Swift | Só em Swift, ao lado do app atual. |
@@ -66,4 +69,5 @@ Xcode 27.2, `npx expo run:ios`). O que foi verificado em cada feature está no `
 | 03/11/2026 | Visual Hevy, fase 4: Análises, Corpo e Comida | `299e9c9` |
 | 03/11/2026 | Visual Hevy, fase 5: modais, Ajustes/Dados e limpeza dos apelidos | `978b6c2` |
 | 03/11/2026 | Arrastar para apagar série e séries de aquecimento (banco v5) | `6a3d222` |
-| 03/11/2026 | Reordenar exercícios e séries arrastando | este commit |
+| 03/11/2026 | Reordenar exercícios e séries arrastando | `a0edcec` |
+| 05/11/2026 | Descanso editável e troca de exercício com catálogo | este commit |

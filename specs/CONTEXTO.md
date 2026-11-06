@@ -56,6 +56,7 @@ src/components/ peças de UI
 src/app/        telas (Expo Router)
 tools/          importador da planilha (Python) e build da .ipa
 assets/plan/    ciclo embutido (JSON gerado da planilha)
+assets/catalog/ catálogo de 413 exercícios em português (JSON gerado do CSV do hevy-ia)
 data/           planilha original
 docs/           formatos e guias para o usuário
 specs/          este acompanhamento
@@ -65,6 +66,7 @@ Princípios:
 - **Toda regra de negócio é função pura com teste**, em `src/domain`. Telas só orquestram.
 - **Regras nunca mudam o plano sozinhas:** geram alertas e sugestões, e o usuário aceita ou ignora.
 - **Os números das regras vêm do ciclo** (`ruleParams`), não do código, para ciclos novos feitos pelo Claude trazerem os seus.
+- **Descanso por exercício é preferência, não plano:** `settings['rest-overrides']` (feature 09).
 - **Registro "conforme o plano" não inventa RPE.** O RPE só existe se o usuário informar; o app pede logo depois do principal.
 - **Macros das refeições ficam gravados** no registro (snapshot): editar um alimento não muda o passado.
 
@@ -90,6 +92,7 @@ npm run typecheck        # tsc
 npx expo lint
 npx expo-doctor
 npm run import-plan      # regera assets/plan a partir da planilha
+npm run import-catalog   # regera assets/catalog a partir de data/catalogo-hevy-ia.csv + tools/catalogo_pt.txt
 npm run iphone           # Mac: instala no iPhone (Release, Apple ID gratuito)
 npm run ipa              # Mac: .ipa sem assinatura para SideStore/AltStore
 ```

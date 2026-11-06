@@ -34,7 +34,8 @@ Operações:
 - {"op":"set_load","week":8,"lift":"squat","loadKg":170}
     carga do(s) principal(is) daquele movimento na semana. lift: squat | bench | deadlift
 - {"op":"edit_item","itemId":"w8-d3-2","patch":{"setsText":"3x4","load":"200","rpe":"8","rest":"5 min","notes":"...","name":"..."}}
-    patch com qualquer subconjunto dos campos. Textos no formato da planilha:
+    patch com qualquer subconjunto dos campos (`exerciseId` troca o exercício do item e precisa ser um id que já
+    está em `exercises` do ciclo; junto dele vá `name`). Textos no formato da planilha:
     setsText "4x4" | "3x8-12" | "2-3x10"; load 140 | "205-210" | "100+" | "—"; rpe "7" | "7-7.5" | "≤8"
 - {"op":"add_item","sessionId":"w8-d4","afterItemId":"w8-d4-3","item":{"name":"Face pull","setsText":"3x15-20","rest":"1 min","kind":"accessory"}}
     kind: main | variation | activation_single | walkout | backoff | accessory | core

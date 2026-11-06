@@ -43,8 +43,13 @@ do exercício no cartão.
     Não sei a licença. Se o bucket sair do ar os links quebram e o ícone cobre. Se o app for publicado, revisar.
   - **Onde aparece:** só na tela do exercício (grande, faixa inteira) e na lista do seletor (miniatura larga).
     No cartão do treino não: recortada em círculo a faixa ficava ruim (pedido do usuário).
-  - Só para exercício que está no catálogo (mesmo id ou mesmo nome). Os exercícios do plano original (ex.:
-    "Puxada aberta") não estão; ganham imagem se forem trocados por um do catálogo.
+  - Só para exercício que está no catálogo: mesmo id, mesmo nome ou **apelido** (`aliases` em
+    `assets/catalog/exercicios.json`, gerado de `tools/catalogo_aliases.txt`). Os apelidos ligam 35 dos 41
+    exercícios do plano original ao catálogo (ex.: "Puxada aberta" → "Puxada alta (Polia)"; todos os supinos de
+    competição → "Supino reto (Barra)"), o que dá o grupo muscular a todos eles; só 4 têm imagem
+    (crucifixo inverso, panturrilha em pé, puxada pegada neutra, tríceps francês), porque as outras figuras
+    do catálogo são vídeo. A foto de um apelido é a do exercício parecido, não do exato (ex.: supino com
+    pausa mostra o supino reto).
 - **Tela do exercício** (`src/app/exercicio.tsx`, rota `/exercicio?id=…`): abas **Resumo** e **Histórico**
   (Instruções e Ranking do Hevy não entram: não temos o texto e o ranking depende de servidor). Resumo:
   imagem e músculos primário/secundário (do catálogo, quando o exercício está nele), gráfico por treino com
@@ -52,7 +57,9 @@ do exercício no cartão.
   melhor volume de série e de sessão) e Recordes por repetições (maior carga com pelo menos N repetições).
   Histórico: treinos com as séries. Os cálculos são funções puras em `src/domain/exerciseStats.ts`; as séries
   vêm de todos os ciclos (`listAllSetRows`, também usada nas Análises). Séries falhadas ficam no histórico,
-  mas não entram em gráfico nem recorde; aquecimento nunca entra.
+  mas não entram em gráfico nem recorde; aquecimento nunca entra. O cabeçalho da tela é próprio (voltar,
+  título e abas com as cores do tema): o cabeçalho nativo do iOS 26 ficava branco com título preto no
+  modo escuro nas telas empilhadas.
   - **1RM estimado pela fórmula de Epley** (carga × (1 + reps/30)), que serve para qualquer série. É diferente
     do e1RM das Análises (tabela RTS, exige RPE): lá é o termômetro do treinador; aqui é o "melhor 1RM" do Hevy.
 
@@ -90,4 +97,6 @@ do exercício no cartão.
 | 05/11/2026 | Spec criada a partir das capturas e perguntas do usuário. |
 | 05/11/2026 | Conferido no simulador (com internet): cabeçalho fixo com Duração em segundos; botões de série do mesmo tamanho; "Adicionar exercício" pôs "Remada alta isolateral (Máquina)" no fim do treino (3 séries, séries do dia foram de 16 para 19); miniatura no cartão; tocar abriu a imagem grande. Imagens são faixas largas: miniatura do seletor é larga (72×44, imagem inteira) e a do cartão é redonda com recorte. Não verificado: timer livre (relógio), Concluir/Reabrir, sem internet, tema escuro, iPhone. |
 | 05/11/2026 | Pedido do usuário (capturas do Hevy): tocar no exercício abre a tela dele e a imagem fica só nela e na busca. Feito: tela com Resumo e Histórico, `exerciseStats` com testes, ícone de volta no cartão, `ExercisePreview` removido. Conferido no simulador: "Supino pegada fechada" (gráfico, recordes de 1 treino) e "Remada alta isolateral" (imagem inteira, Primário: Dorsais, sem séries ainda). Histórico com vários treinos e tema escuro não vistos. |
+| 05/11/2026 | Pedido: "por que os outros exercícios estão sem foto?". Causas: (1) 38 dos 41 exercícios do plano não estão no catálogo por nome; (2) 222 do catálogo só têm vídeo. Feito (1): apelidos plano → catálogo. (2) segue aberto (ver abaixo). |
+| 05/11/2026 | Modo escuro conferido no simulador: Hoje, cabeçalho, editor de descanso, seletor, tela do exercício (Resumo e Histórico). Achado e corrigido: cabeçalho nativo da tela do exercício branco no escuro → cabeçalho próprio. |
 | 05/11/2026 | Vídeo descartado a pedido do usuário (`expo-video` e `expo-image` saíram); só imagens com o `Image` do RN. |

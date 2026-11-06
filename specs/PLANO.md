@@ -38,7 +38,7 @@ Xcode 27.2, `npx expo run:ios`). O que foi verificado em cada feature está no `
 | "Desfazer" para sugestão aceita | revisão do incremento 2 | Hoje aceitar aplica direto no plano, sem volta. |
 | Escolher do catálogo também no editor da aba Plano | feature 09 | O `ItemEditor` ainda tem só campo de texto para o nome. |
 | Figura do corpo com os músculos trabalhados (como no cabeçalho do Hevy) | feature 10 | Precisa do desenho do corpo e do mapa exercício → músculo; as imagens do catálogo já mostram os músculos em vermelho. |
-| Imagens para os exercícios do plano original (ex.: "Puxada aberta") | feature 10 | Só aparecem para exercícios que estão no catálogo; ligar pelo nome ou trocar por um do catálogo. |
+| Imagem para os exercícios que só têm vídeo no catálogo (222) | feature 10 | Tirar o primeiro quadro de cada mp4 (ffmpeg já instalado no Mac) e embutir no app. Exige baixar ~223 vídeos (~93 MB) do bucket de terceiros e guardar ~8 MB de imagens no repositório; precisa de OK do usuário. |
 | Volume por grupo muscular nas Análises | feature 09 | O catálogo já traz músculo principal e secundário; falta ligar o exercício do ciclo ao catálogo pelo nome. |
 | Validar com um export real do Hevy | feature 07 | O parser segue o formato documentado; ajustar se o arquivo real for diferente. |
 | Live Activity do descanso (tela bloqueada / Dynamic Island) | conversa sobre Swift | Exige módulo nativo; possível com instalação pelo Mac. Verificar se o Apple ID gratuito permite. |
@@ -76,4 +76,5 @@ Xcode 27.2, `npx expo run:ios`). O que foi verificado em cada feature está no `
 | 05/11/2026 | Descanso editável e troca de exercício com catálogo | `b36fc98` |
 | 05/11/2026 | Editor de descanso como folha parcial com roda de tempos | `f608b99` |
 | 05/11/2026 | Cabeçalho do treino, adicionar exercício e imagens dos exercícios | `acc7924` |
-| 05/11/2026 | Tela do exercício (resumo, recordes, histórico); imagem só nela e na busca | este commit |
+| 05/11/2026 | Tela do exercício (resumo, recordes, histórico); imagem só nela e na busca | `3a4b520` |
+| 05/11/2026 | Apelidos plano → catálogo; cabeçalho próprio na tela do exercício (modo escuro) | este commit |

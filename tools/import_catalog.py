@@ -4,6 +4,8 @@ hevy-ia) e tools/catalogo_pt.txt (nome em português de cada exercício, "Inglê
 
 Uso: python3 tools/import_catalog.py
 "image" é o link da imagem (jpg) do exercício, quando o CSV traz uma (os links de vídeo não entram).
+"aliases" liga o id de um exercício do plano ao do catálogo (tools/catalogo_aliases.txt), para mostrar o
+grupo muscular e a imagem de exercícios com nome diferente.
 O id é o slug do nome em português (mesma regra de slugify em src/domain/text.ts).
 """
 import csv
@@ -16,6 +18,7 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parent.parent
 CSV_PATH = ROOT / "data" / "catalogo-hevy-ia.csv"
 PT_PATH = ROOT / "tools" / "catalogo_pt.txt"
+ALIASES_PATH = ROOT / "tools" / "catalogo_aliases.txt"
 OUT_PATH = ROOT / "assets" / "catalog" / "exercicios.json"
 
 
@@ -64,7 +67,15 @@ def build() -> dict:
     if pt:
         raise SystemExit(f"Traduções sem exercício no CSV: {sorted(pt)}")
     exercises.sort(key=lambda e: e["name"].lower())
-    return {"format": "fitapp.catalog/v1", "source": "hevy-ia/exercices.csv", "exercises": exercises}
+    by_name = {e["name"]: e["id"] for e in exercises}
+    aliases = {}
+    for line in ALIASES_PATH.read_text(encoding="utf-8").splitlines():
+        if line.strip():
+            plan_id, _, name = line.partition("|")
+            if name.strip() not in by_name:
+                raise SystemExit(f"Apelido aponta para exercício que não existe: {line}")
+            aliases[plan_id.strip()] = by_name[name.strip()]
+    return {"format": "fitapp.catalog/v1", "source": "hevy-ia/exercices.csv", "exercises": exercises, "aliases": aliases}
 
 
 def main() -> int:

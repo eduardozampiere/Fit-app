@@ -67,6 +67,15 @@ describe('catálogo', () => {
     expect(catalogSubtitle(e)).toBe('Peito · Barra');
   });
 
+  it('todo apelido aponta para um exercício do catálogo e para um exercício do plano', () => {
+    const ids = new Set(catalog.exercises.map((e) => e.id));
+    const plan = new Set(cycle.exercises.map((e) => e.id));
+    for (const [planId, catId] of Object.entries(catalog.aliases)) {
+      expect(ids.has(catId), catId).toBe(true);
+      expect(plan.has(planId), planId).toBe(true);
+    }
+  });
+
   it('imagem: link https de um jpg, ou nenhuma (vídeo não entra)', () => {
     const withImage = catalog.exercises.filter((e) => e.image);
     expect(withImage.length).toBeGreaterThan(100);
@@ -78,9 +87,11 @@ describe('catálogo', () => {
 
   it('acha o item do catálogo de um exercício do ciclo pelo id ou pelo nome', () => {
     const bench = catalog.exercises.find((e) => e.name === 'Supino reto (Barra)')!;
-    expect(findCatalogExercise(catalog.exercises, { id: bench.id, name: 'qualquer' })).toBe(bench);
-    expect(findCatalogExercise(catalog.exercises, { id: 'x', name: 'Supino reto (Barra)' })).toBe(bench);
-    expect(findCatalogExercise(catalog.exercises, { id: 'puxada-aberta', name: 'Puxada aberta' })).toBeNull();
+    expect(findCatalogExercise(catalog, { id: bench.id, name: 'qualquer' })).toBe(bench);
+    expect(findCatalogExercise(catalog, { id: 'x', name: 'Supino reto (Barra)' })).toBe(bench);
+    // exercício do plano com nome diferente: vem pelo apelido
+    expect(findCatalogExercise(catalog, { id: 'puxada-aberta', name: 'Puxada aberta' })?.name).toBe('Puxada alta (Polia)');
+    expect(findCatalogExercise(catalog, { id: 'sem-apelido', name: 'Sem apelido' })).toBeNull();
   });
 
   it('reaproveita o exercício do ciclo de mesmo nome; senão cria sem movimento', () => {

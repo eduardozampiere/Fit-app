@@ -1,11 +1,11 @@
-import { Stack, useLocalSearchParams } from 'expo-router';
+import { router, useLocalSearchParams } from 'expo-router';
 import { useSQLiteContext } from 'expo-sqlite';
 import { useEffect, useMemo, useState } from 'react';
 import { Pressable, ScrollView, StyleSheet, Text, View, useWindowDimensions } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { ChartCard, LineChart } from '../components/charts';
 import { ExerciseImage } from '../components/ExerciseImage';
-import { Card, Chip, ListRow, Section } from '../components/ui';
+import { Card, Chip, IconButton, ListRow, Section } from '../components/ui';
 import { listAllSetRows } from '../db/repo';
 import type { SetRow } from '../domain/analytics';
 import { findCatalogExercise, MUSCLE_LABEL, type Catalog } from '../domain/catalog';
@@ -19,7 +19,7 @@ import {
   type StatMetric,
 } from '../domain/exerciseStats';
 import { useAppData } from '../state/AppData';
-import { font, space, useTheme } from '../ui/theme';
+import { font, space, TOUCH, useTheme } from '../ui/theme';
 import catalogJson from '../../assets/catalog/exercicios.json';
 
 const catalog = catalogJson as unknown as Catalog;
@@ -51,15 +51,22 @@ export default function ExerciseScreen() {
 
   const exercise = cycle?.exercises.find((e) => e.id === id);
   const title = exercise?.name ?? name ?? 'Exercício';
-  const info = findCatalogExercise(catalog.exercises, exercise ?? { id, name: title });
+  const info = findCatalogExercise(catalog, exercise ?? { id, name: title });
   const series = useMemo(() => exerciseSeries(rows ?? [], metric), [rows, metric]);
   const records = useMemo(() => personalRecords(rows ?? []), [rows]);
   const history = useMemo(() => exerciseHistory(rows ?? []), [rows]);
   const imageHeight = Math.round(width * 0.6);
 
   return (
-    <SafeAreaView edges={[]} style={{ flex: 1, backgroundColor: t.bg }}>
-      <Stack.Screen options={{ title }} />
+    <SafeAreaView edges={['top']} style={{ flex: 1, backgroundColor: t.bg }}>
+      {/* Cabeçalho próprio: o nativo do iOS 26 não segue o tema escuro nesta tela. */}
+      <View style={styles.header}>
+        <IconButton name="chevron-back" label="Voltar" onPress={() => router.back()} color={t.accent} />
+        <Text style={[styles.headerTitle, { color: t.text }]} numberOfLines={1} accessibilityRole="header">
+          {title}
+        </Text>
+        <View style={{ width: TOUCH }} />
+      </View>
       <View style={[styles.tabs, { borderBottomColor: t.separator }]}>
         {TABS.map((x) => (
           <Pressable
@@ -203,6 +210,8 @@ export default function ExerciseScreen() {
 }
 
 const styles = StyleSheet.create({
+  header: { flexDirection: 'row', alignItems: 'center', paddingHorizontal: space.sm, minHeight: 52 },
+  headerTitle: { ...font.headline, flex: 1, textAlign: 'center' },
   tabs: { flexDirection: 'row', borderBottomWidth: StyleSheet.hairlineWidth, paddingHorizontal: space.sm },
   tab: {
     minHeight: 48,

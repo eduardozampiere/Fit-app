@@ -20,6 +20,8 @@ export interface CatalogExercise {
 export interface Catalog {
   format: 'fitapp.catalog/v1';
   exercises: CatalogExercise[];
+  /** id de exercício do plano → id do catálogo (nome diferente, mesmo exercício) */
+  aliases: Record<string, string>;
 }
 
 export const MUSCLE_LABEL: Record<string, string> = {
@@ -81,10 +83,14 @@ export function searchCatalog(list: readonly CatalogExercise[], query: string, m
   return [...matches].sort((a, b) => starts(a) - starts(b));
 }
 
-/** Item do catálogo de um exercício do ciclo (mesmo id ou mesmo nome), para mostrar a imagem e o grupo muscular. */
-export function findCatalogExercise(list: readonly CatalogExercise[], exercise: Pick<Exercise, 'id' | 'name'>): CatalogExercise | null {
+/**
+ * Item do catálogo de um exercício do ciclo, para mostrar a imagem e o grupo muscular: mesmo id, mesmo
+ * nome ou apelido (`catalog.aliases`, para exercícios do plano com nome diferente).
+ */
+export function findCatalogExercise(catalog: Pick<Catalog, 'exercises' | 'aliases'>, exercise: Pick<Exercise, 'id' | 'name'>): CatalogExercise | null {
   const s = slugify(exercise.name);
-  return list.find((e) => e.id === exercise.id || e.id === s) ?? null;
+  const alias = catalog.aliases[exercise.id];
+  return catalog.exercises.find((e) => e.id === exercise.id || e.id === s) ?? catalog.exercises.find((e) => e.id === alias) ?? null;
 }
 
 /** "Peito · Barra" */

@@ -4000,5 +4000,42 @@
    "secondary": [],
    "image": null
   }
- ]
+ ],
+ "aliases": {
+  "agachamento-high-bar": "agachamento-livre-barra",
+  "agachamento-pausa-2-3s": "agachamento-com-pausa-barra",
+  "agachamento-single-de-ativacao": "agachamento-livre-barra",
+  "agachamento-walkout": "agachamento-livre-barra",
+  "agacho-back-off": "agachamento-livre-barra",
+  "agacho-duplas-de-volume": "agachamento-livre-barra",
+  "barra-fixa": "barra-fixa",
+  "crucifixo-inverso": "crucifixo-inverso-halter",
+  "elevacao-lateral": "elevacao-lateral-halter",
+  "flexora-deitada": "mesa-flexora-maquina",
+  "pallof-press-elastico": "pallof-press-polia",
+  "panturrilha-em-pe": "panturrilha-em-pe",
+  "prancha-frontal": "prancha",
+  "prancha-lateral": "prancha-lateral",
+  "puxada-aberta": "puxada-alta-polia",
+  "puxada-pegada-neutra": "puxada-pegada-fechada-polia",
+  "remada-apoiada-maquina-ou-banco-inclinado": "remada-apoiada-no-banco-inclinado-halter",
+  "remada-apoiada-peito-no-banco": "remada-apoiada-no-banco-inclinado-halter",
+  "rosca-scott": "rosca-scott-barra",
+  "stiff": "stiff-romeno-barra",
+  "stiff-terra-romeno": "stiff-romeno-barra",
+  "supino-back-off": "supino-reto-barra",
+  "supino-com-pausa-no-meio": "supino-reto-barra",
+  "supino-competicao-pausa": "supino-reto-barra",
+  "supino-duplas-de-volume": "supino-reto-barra",
+  "supino-pausa-3s": "supino-reto-barra",
+  "supino-pegada-fechada": "supino-pegada-fechada-barra",
+  "supino-single-de-ativacao": "supino-reto-barra",
+  "terra": "levantamento-terra-barra",
+  "terra-back-off": "levantamento-terra-barra",
+  "terra-convencional": "levantamento-terra-barra",
+  "terra-convencional-hook": "levantamento-terra-barra",
+  "terra-duplas-de-volume": "levantamento-terra-barra",
+  "terra-single-de-ativacao": "levantamento-terra-barra",
+  "triceps-frances-no-cabo": "triceps-frances-polia"
+ }
 }

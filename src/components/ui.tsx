@@ -363,6 +363,31 @@ export interface MenuOption {
 }
 
 /**
+ * Folha de baixo para cima com altura do conteúdo (não ocupa a tela toda), com fundo escurecido;
+ * tocar fora fecha. Base do `ActionMenu` e do editor de descanso.
+ */
+export function BottomSheet({
+  onClose,
+  animation = 'fade',
+  children,
+}: {
+  onClose: () => void;
+  animation?: 'fade' | 'slide';
+  children: ReactNode;
+}) {
+  const t = useTheme();
+  return (
+    <Modal visible transparent animationType={animation} onRequestClose={onClose}>
+      <Pressable style={styles.menuBackdrop} onPress={onClose} accessibilityLabel="Fechar">
+        <Pressable style={[styles.menuSheet, { backgroundColor: t.card }]} onPress={() => {}}>
+          {children}
+        </Pressable>
+      </Pressable>
+    </Modal>
+  );
+}
+
+/**
  * Folha de ações de baixo para cima (menu ⋮, menu da série, escolha de RPE). Funciona igual em
  * iOS, Android e na prévia web, ao contrário do `Alert` com botões.
  */
@@ -380,53 +405,49 @@ export function ActionMenu({
 }) {
   const t = useTheme();
   return (
-    <Modal visible transparent animationType="fade" onRequestClose={onClose}>
-      <Pressable style={styles.menuBackdrop} onPress={onClose} accessibilityLabel="Fechar menu">
-        <Pressable style={[styles.menuSheet, { backgroundColor: t.card }]} onPress={() => {}}>
-          {title ? <Text style={[styles.menuTitle, { color: t.muted }]}>{title}</Text> : null}
-          {columns ? (
-            <View style={styles.menuGrid}>
-              {options.map((o) => (
-                <Pressable
-                  key={o.label}
-                  accessibilityRole="button"
-                  accessibilityLabel={o.label}
-                  onPress={() => {
-                    onClose();
-                    o.onPress();
-                  }}
-                  style={({ pressed }) => [
-                    styles.menuCell,
-                    { width: `${100 / columns - 2}%`, backgroundColor: t.surface, opacity: pressed ? 0.7 : 1 },
-                  ]}
-                >
-                  <Text style={[styles.menuCellText, { color: t.text }]}>{o.label}</Text>
-                </Pressable>
-              ))}
-            </View>
-          ) : (
-            options.map((o, i) => (
-              <View key={o.label}>
-                {i > 0 ? <Divider /> : null}
-                <Pressable
-                  accessibilityRole="button"
-                  accessibilityLabel={o.label}
-                  onPress={() => {
-                    onClose();
-                    o.onPress();
-                  }}
-                  style={({ pressed }) => [styles.menuRow, { opacity: pressed ? 0.6 : 1 }]}
-                >
-                  {o.icon ? <Ionicons name={o.icon} size={22} color={o.destructive ? t.danger : t.accent} /> : null}
-                  <Text style={[styles.menuRowText, { color: o.destructive ? t.danger : t.text }]}>{o.label}</Text>
-                </Pressable>
-              </View>
-            ))
-          )}
-          <BigButton label="Cancelar" variant="neutral" compact onPress={onClose} />
-        </Pressable>
-      </Pressable>
-    </Modal>
+    <BottomSheet onClose={onClose}>
+      {title ? <Text style={[styles.menuTitle, { color: t.muted }]}>{title}</Text> : null}
+      {columns ? (
+        <View style={styles.menuGrid}>
+          {options.map((o) => (
+            <Pressable
+              key={o.label}
+              accessibilityRole="button"
+              accessibilityLabel={o.label}
+              onPress={() => {
+                onClose();
+                o.onPress();
+              }}
+              style={({ pressed }) => [
+                styles.menuCell,
+                { width: `${100 / columns - 2}%`, backgroundColor: t.surface, opacity: pressed ? 0.7 : 1 },
+              ]}
+            >
+              <Text style={[styles.menuCellText, { color: t.text }]}>{o.label}</Text>
+            </Pressable>
+          ))}
+        </View>
+      ) : (
+        options.map((o, i) => (
+          <View key={o.label}>
+            {i > 0 ? <Divider /> : null}
+            <Pressable
+              accessibilityRole="button"
+              accessibilityLabel={o.label}
+              onPress={() => {
+                onClose();
+                o.onPress();
+              }}
+              style={({ pressed }) => [styles.menuRow, { opacity: pressed ? 0.6 : 1 }]}
+            >
+              {o.icon ? <Ionicons name={o.icon} size={22} color={o.destructive ? t.danger : t.accent} /> : null}
+              <Text style={[styles.menuRowText, { color: o.destructive ? t.danger : t.text }]}>{o.label}</Text>
+            </Pressable>
+          </View>
+        ))
+      )}
+      <BigButton label="Cancelar" variant="neutral" compact onPress={onClose} />
+    </BottomSheet>
   );
 }
 

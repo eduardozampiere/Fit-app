@@ -57,6 +57,12 @@ export function formatDateShort(iso: string): string {
 export const WEEKDAY_NAMES = ['', 'Segunda', 'Terça', 'Quarta', 'Quinta', 'Sexta', 'Sábado', 'Domingo'];
 export const WEEKDAY_SHORT = ['', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb', 'Dom'];
 
+/** "4min 0s", "1min 30s", "45s" (como o timer de descanso do Hevy). */
+export function formatRestDuration(total: number): string {
+  const s = Math.max(0, Math.round(total));
+  return s < 60 ? `${s}s` : `${Math.floor(s / 60)}min ${s % 60}s`;
+}
+
 export function formatSeconds(total: number): string {
   const s = Math.max(0, Math.round(total));
   const m = Math.floor(s / 60);

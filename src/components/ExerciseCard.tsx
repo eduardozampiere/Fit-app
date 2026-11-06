@@ -1,6 +1,6 @@
 import Ionicons from '@expo/vector-icons/Ionicons';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
-import { formatRange, formatSeconds } from '../domain/format';
+import { formatRange, formatRestDuration } from '../domain/format';
 import { KIND_LABEL } from '../domain/plan';
 import type { SetLock } from '../domain/rules';
 import type { PrescribedItem, Range, SetLog } from '../domain/types';
@@ -101,10 +101,10 @@ export function ExerciseCard({
   const t = useTheme();
   const prescription = prescriptionLine(item, load);
   const restLabel = restOverridden
-    ? `${formatSeconds(restSec)} · seu ajuste`
+    ? `${formatRestDuration(restSec)} · seu ajuste`
     : item.restText && item.restText !== '—'
       ? item.restText
-      : formatSeconds(restSec);
+      : formatRestDuration(restSec);
 
   return (
     <View style={[styles.block, collapsed && styles.blockCollapsed, isChild && { paddingLeft: space.md, borderLeftWidth: 2, borderLeftColor: t.separator }]}>

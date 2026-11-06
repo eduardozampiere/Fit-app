@@ -1,4 +1,5 @@
 import { describe, expect, it } from 'vitest';
+import { formatRestDuration } from '../format';
 import catalogJson from '../../../assets/catalog/exercicios.json';
 import cycleJson from '../../../assets/plan/ciclo_out26_jan27.json';
 import { swapExercise, validateAdjustments } from '../adjustments';
@@ -15,9 +16,9 @@ import {
 import {
   REST_MAX_SEC,
   REST_MIN_SEC,
-  REST_PRESETS_SEC,
-  REST_STEP_SEC,
   liftOf,
+  nearestRestIndex,
+  restChoices,
   restOverride,
   restSeconds,
   sessionItems,
@@ -94,12 +95,21 @@ describe('descanso editável', () => {
     expect(restOverride({ x: 3 }, 'x')).toBeNull();
   });
 
-  it('atalhos são múltiplos do passo e cabem nos limites', () => {
-    for (const p of REST_PRESETS_SEC) {
-      expect(p % REST_STEP_SEC).toBe(0);
-      expect(p).toBeGreaterThanOrEqual(REST_MIN_SEC);
-      expect(p).toBeLessThanOrEqual(REST_MAX_SEC);
-    }
+  it('roda de tempos: de 15 s a 15 min, de 15 em 15, e acha o mais próximo', () => {
+    const c = restChoices();
+    expect(c[0]).toBe(REST_MIN_SEC);
+    expect(c[c.length - 1]).toBe(REST_MAX_SEC);
+    expect(c).toHaveLength(60);
+    expect(c[nearestRestIndex(240)]).toBe(240);
+    expect(c[nearestRestIndex(137)]).toBe(135);
+    expect(nearestRestIndex(0)).toBe(0);
+    expect(nearestRestIndex(99999)).toBe(59);
+  });
+
+  it('formata o tempo como o Hevy', () => {
+    expect(formatRestDuration(240)).toBe('4min 0s');
+    expect(formatRestDuration(90)).toBe('1min 30s');
+    expect(formatRestDuration(45)).toBe('45s');
   });
 });
 

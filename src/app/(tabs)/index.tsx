@@ -35,7 +35,7 @@ import {
 } from '../../db/repo';
 import { swapExercise } from '../../domain/adjustments';
 import { toISODate } from '../../domain/dates';
-import { formatDateShort, formatNumber, formatSeconds, WEEKDAY_NAMES, WEEKDAY_SHORT } from '../../domain/format';
+import { formatDateShort, formatNumber, formatRestDuration, WEEKDAY_NAMES, WEEKDAY_SHORT } from '../../domain/format';
 import type { SwapScope } from '../../domain/adjustments';
 import {
   asPlannedSets,
@@ -613,7 +613,7 @@ export default function TodayScreen() {
         <RestEditor
           key={restEditing.id}
           name={restEditing.name}
-          planText={restEditing.restText && restEditing.restText !== '—' ? restEditing.restText : formatSeconds(restSeconds(restEditing))}
+          planText={restEditing.restText && restEditing.restText !== '—' ? restEditing.restText : formatRestDuration(restSeconds(restEditing))}
           initialSec={restOf(restEditing)}
           hasOverride={restOverride(restOverrides, restEditing.exerciseId) !== null}
           onSave={(sec) => saveRest(restEditing, sec)}

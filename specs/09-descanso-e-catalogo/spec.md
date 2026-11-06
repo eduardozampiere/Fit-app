@@ -38,7 +38,9 @@ Projeto: API Python/FastAPI + Postgres (drizzle) com usuários, periodizações 
   O backup já leva `settings`. Alternativa descartada: reescrever o descanso em todas as semanas do plano.
 - **Descanso no cartão:** sem ajuste, mostra o texto do plano ("4-5 min"); com ajuste, "3 min · seu ajuste".
   O cronômetro usa o valor do ajuste ou, sem ele, o topo da faixa do plano (como antes).
-  Passo de 15 s, de 15 s a 15 min; atalhos de 1 a 5 min.
+  O editor é uma folha de baixo para cima com a altura do conteúdo (`BottomSheet`, base também do
+  `ActionMenu`) e uma roda de tempos (`WheelPicker`, só JavaScript) de 15 s a 15 min, de 15 em 15 s, como o
+  timer do Hevy; "Concluído" salva. Formato "2min 15s" (`formatRestDuration`).
 - **Trocar exercício passa pelo mesmo caminho de edição do plano:** `ItemPatch` ganhou `exerciseId`
   (junto de `name`) e o `edit_item` o aplica; o Claude também pode usar. Exercício que ainda não está em
   `cycle.exercises` é cadastrado ali (categoria `accessory`, ou `core` para abdominais) e na tabela `exercises`.
@@ -84,4 +86,5 @@ Projeto: API Python/FastAPI + Postgres (drizzle) com usuários, periodizações 
 | Data | Nota |
 |---|---|
 | 05/11/2026 | Spec criada; catálogo gerado a partir do `exercices.csv` do hevy-ia. |
+| 05/11/2026 | Editor do descanso refeito como folha parcial com roda de tempos (pedido do usuário, a partir de capturas do Hevy). Conferido no simulador: abre na posição do valor atual, rola e encaixa (2:15 → 2:45), "Concluído" gravou 165 s. |
 | 05/11/2026 | Feito e conferido no simulador: descanso 2:15 salvo e mostrado "seu ajuste"; troca de "Tríceps francês no cabo" por "Tríceps corda (Polia)" (só neste treino) e depois por "Tríceps pulley"; série já marcada acompanhou o exercício no banco; exercício novo entrou na tabela `exercises`. O alcance "Daqui para frente" está só nos testes de domínio. Não verificado: cronômetro com o ajuste, tema escuro, iPhone. |

@@ -82,11 +82,21 @@ export function restSeconds(item: Pick<PrescribedItem, 'restSec' | 'kind'>, over
   return override ?? item.restSec?.max ?? DEFAULT_REST_BY_KIND[item.kind];
 }
 
-/** Limites e atalhos do editor de descanso (segundos). */
+/** Limites do editor de descanso (segundos). */
 export const REST_STEP_SEC = 15;
 export const REST_MIN_SEC = 15;
 export const REST_MAX_SEC = 15 * 60;
-export const REST_PRESETS_SEC: readonly number[] = [60, 90, 120, 180, 240, 300];
+
+/** Tempos da roda do editor de descanso: do mínimo ao máximo, de 15 em 15 s. */
+export function restChoices(): number[] {
+  return Array.from({ length: (REST_MAX_SEC - REST_MIN_SEC) / REST_STEP_SEC + 1 }, (_, i) => REST_MIN_SEC + i * REST_STEP_SEC);
+}
+
+/** Posição na roda do tempo mais próximo (o plano pode ter valores fora do passo). */
+export function nearestRestIndex(sec: number): number {
+  const i = Math.round((sec - REST_MIN_SEC) / REST_STEP_SEC);
+  return Math.min(restChoices().length - 1, Math.max(0, i));
+}
 
 /** Ajustes de descanso por exercício (`settings['rest-overrides']`): valor válido ou nada. */
 export function restOverride(overrides: Record<string, number>, exerciseId: string): number | null {

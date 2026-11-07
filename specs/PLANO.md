@@ -35,7 +35,7 @@ Legenda: ✅ feito · 🟡 feito, falta verificar no iPhone · 🔨 em andamento
 | 22 | Análises por exercício principal: uma linha por principal, seletor de até 3 (parte 4 da 15; depende da 19) | ⏳ | [22-analises-por-exercicio](22-analises-por-exercicio/pbi.md) |
 | 23 | Evolução dos máximos: gráfico e passado (estimativa dos treinos + valores lançados); a sugestão de máximo pelo e1RM está **em aberto**, a redefinir com o usuário (depende de 21 e 22; fatias 23a, 23b) | ⏳ | [23-evolucao-dos-maximos](23-evolucao-dos-maximos/pbi.md) |
 | 24 | Séries com tipo: montar e editar grupos de séries do exercício (Normal, Aquecimento, Single de ativação, Back-off, Walkout) no Plano e na tela Hoje (depende da 19; logo depois dela, antes da 16) | ⏳ | [24-series-com-tipo](24-series-com-tipo/pbi.md) |
-| 25 | Recordes com medalha: aviso na hora e medalha dourada na série que bateu maior peso, maior volume de série, maior 1RM ou maior 1RM estimado (serve a qualquer usuário; 25a não depende de nada e pode sair antes da 19; 25b, resumo ao concluir o treino, depois da 24) | ⏳ | [25-recordes-com-medalha](25-recordes-com-medalha/pbi.md) |
+| 25 | Recordes com medalha: aviso na hora e medalha dourada na série que bateu maior peso, maior volume de série, maior 1RM (estimado sem RPE) ou maior 1RM com RPE (serve a qualquer usuário; 25a não depende de nada e pode sair antes da 19; 25b, resumo ao concluir o treino, depois da 24) | ⏳ | [25-recordes-com-medalha](25-recordes-com-medalha/pbi.md) |
 
 ### Ordem recomendada (visão de 06/11/2026: o app também para quem só faz academia normal)
 
@@ -45,7 +45,7 @@ Legenda: ✅ feito · 🟡 feito, falta verificar no iPhone · 🔨 em andamento
 2. **19** Modelo de treino v2: a base (uma migração só, com cópia de segurança). Maior risco; quase tudo depende dela.
 3. **24** Séries com tipo: devolve a criação de grupos pela tela e é o editor que a 16 vai usar. **25b** (resumo "Você bateu N recordes" ao concluir o treino) cabe aqui, pois é pequena e já conta com os tipos de série finais.
 4. **16** Periodizações: criar plano e treinos pela interface, sem planilha. É o maior valor para quem só faz academia normal.
-5. **22** Análises por exercício principal (serve a todos; depende só da 19) e **20** Máximos próprios (recurso avançado; pode ir antes da 22). A 22 e a 25 usam fórmulas diferentes de e1RM (RTS × Epley); ver PBI 25, P2.
+5. **22** Análises por exercício principal (serve a todos; depende só da 19) e **20** Máximos próprios (recurso avançado; pode ir antes da 22). A 22 e a 25 compartilham a mesma conta de e1RM com RPE (RTS, RPE 10 assumido sem RPE): quem vier primeiro cria a função, o outro reutiliza (DRY). O "Maior 1RM" da 25 usa Epley, sem RPE, como a tela do exercício.
 6. **21** Histórico de máximos logo depois da 20 (só acumula daqui para a frente).
 7. **23** Evolução dos máximos (a, b); a sugestão pelo e1RM fica em aberto.
 8. **18** Regras configuráveis (módulo avançado, só depois de 19 e 20 e de entrevista de escopo).
@@ -77,7 +77,7 @@ Xcode 27.2, `npx expo run:ios`). O que foi verificado em cada feature está no `
 | Recordes por repetições com medalha (maior carga com N repetições) | PBI 25 | Hoje só na lista da tela do exercício, sem medalha. |
 | Recordes de exercícios sem carga: repetições (peso corporal) e duração (prancha) | PBI 25 | Hoje esses exercícios não geram recorde; precisa de métrica própria. |
 | Medalha para o "Maior volume de sessão" (o exercício no treino inteiro) | PBI 25 | Fica só na lista; o aviso pode entrar no resumo do treino. |
-| Unificar a fórmula do e1RM (Epley na tela do exercício × tabela RTS nas Análises) | PBI 25 / 22 | Dois números diferentes para o mesmo exercício; decidir depois da 22 e da 25. |
+| Juntar "Maior 1RM" (Epley) e "Maior 1RM com RPE" (RTS) numa linha só, se a divergência confundir | PBI 25 | O usuário pediu os dois tipos (07/11/2026); só reavaliar se, na prática, os dois números confundirem. |
 | Medalhas/recordes no CSV exportado e no pacote para o Claude | PBI 25 | Fora do escopo; derivados, podem ser calculados na hora de exportar. |
 | Sugestão de máximo pelo e1RM | PBI 23 | Em aberto: o usuário quer decidir melhor (onde aparece, séries sem RPE, relação com a revisão do treinador). Sem aviso na aba Hoje por enquanto. |
 | Atalho "Desligar máximo em todos os treinos" ao apagar máximo em uso | PBI 20 | Só se desligar item por item incomodar. |

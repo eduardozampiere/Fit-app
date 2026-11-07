@@ -74,6 +74,9 @@ Princípios:
 
 - **Todo exercício é igual:** máximo, % do máximo, e1RM, gráfico e RPE valem para qualquer exercício; "principal / variação /
   acessório" é o papel dele no treino. Agacho, supino e terra deixam de ser casos especiais do código (spec 15).
+- **Máximos (spec 15):** lista de máximos própria (id estável + nome), por periodização, com **histórico do usuário** gravado a cada
+  mudança (`max_history`); o item do treino escolhe "carga baseada em" um máximo. Apagar máximo em uso é bloqueado. Gráfico de
+  carga: uma linha por exercício principal. Regras configuráveis pela interface ficam na spec 18.
 - **Plano = periodização:** o app comporta várias periodizações, **uma ativa**; criar e editar periodizações, semanas e treinos
   é pela interface, sem importação (spec 16). As regras do treinador são **opcionais por periodização**.
 - **Treino em andamento é um estado de verdade** (início, fim, descartar), não um efeito de ter marcado uma série (spec 13).

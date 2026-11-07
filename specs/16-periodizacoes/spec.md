@@ -33,7 +33,9 @@ periodizações, uma só ativa".
    `add_session`, `remove_session`, `edit_session` (título/dia), `add_week`, `remove_week`, `duplicate_week`; e
    `createCycle(params)` / `duplicateCycle(cycle, startDate)` em `src/domain/cycles.ts` (funções puras + testes).
    IDs seguem o padrão `w<semana>-d<dia>` (item `w<n>-d<d>-<k>`).
-6. **Sem regras do treinador** nas periodizações novas (`ruleParams: null`, spec 15). Máximos opcionais.
+6. **Sem regras do treinador** nas periodizações novas (`ruleParams: null`, spec 15; regras pela interface: spec 18). Os **máximos** da
+   nova periodização começam do **último valor do histórico do usuário** (`max_history`, spec 15) e podem ser ajustados; a tela de
+   Máximos passa a ser um item do menu da periodização.
 7. **Datas:** o início deve ser segunda-feira (ou ajusta para a segunda mais próxima); `endDate` = início + semanas.
    Datas sobrepostas entre periodizações são permitidas (só uma ativa).
 

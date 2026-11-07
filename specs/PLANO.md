@@ -24,9 +24,10 @@ Legenda: ✅ feito · 🟡 feito, falta verificar no iPhone · 🔨 em andamento
 | 12 | Single dentro do principal, arraste livre das folhas, lixeira e tipo ao adicionar exercício | 🟡 | [12-single-na-tabela-e-arraste-livre](12-single-na-tabela-e-arraste-livre/spec.md) |
 | 13 | Treino em andamento: iniciar, não perder, cancelar; Concluir só com treino iniciado | 🟡 | [13-treino-em-andamento](13-treino-em-andamento/spec.md) |
 | 14 | Timer de descanso retangular, persistente, com notificação | 🟡 | [14-timer-de-descanso-e-notificacao](14-timer-de-descanso-e-notificacao/spec.md) |
-| 15 | Exercício único: máximos, % e análises para qualquer exercício (formato v2) | ⏳ | [15-exercicio-unico](15-exercicio-unico/spec.md) |
+| 15 | Exercício único e máximos próprios: lista de máximos, histórico do usuário, análises por exercício (formato v2) | ⏳ | [15-exercicio-unico](15-exercicio-unico/spec.md) |
 | 16 | Periodizações: várias, uma ativa; criar plano e treinos pela UI | ⏳ | [16-periodizacoes](16-periodizacoes/spec.md) |
 | 17 | Live Activity do timer na Dynamic Island (começa por teste de viabilidade) | ⏳ | [17-live-activity](17-live-activity/spec.md) |
+| 18 | Regras do treinador configuráveis pela interface (depende da 15) | ⏳ | [18-regras-configuraveis](18-regras-configuraveis/spec.md) |
 
 Nada foi testado num iPhone de verdade ainda. Em 03/11/2026 o app rodou no simulador do iOS 27.2 (Mac,
 Xcode 27.2, `npx expo run:ios`). O que foi verificado em cada feature está no `spec.md` dela.
@@ -46,6 +47,7 @@ Xcode 27.2, `npx expo run:ios`). O que foi verificado em cada feature está no `
 | Escolher do catálogo também no editor da aba Plano | feature 09 | O `ItemEditor` ainda tem só campo de texto para o nome. |
 | Figura do corpo com os músculos trabalhados (como no cabeçalho do Hevy) | feature 10 | Precisa do desenho do corpo e do mapa exercício → músculo; as imagens do catálogo já mostram os músculos em vermelho. |
 | Imagem para os exercícios que só têm vídeo no catálogo (222) | feature 10 | Tirar o primeiro quadro de cada mp4 (ffmpeg já instalado no Mac) e embutir no app. Exige baixar ~223 vídeos (~93 MB) do bucket de terceiros e guardar ~8 MB de imagens no repositório. Decidido em 06/11/2026: **só quando o app estiver pronto**, não agora. |
+| Evolução dos máximos nas Análises (usa `max_history`) | feature 15 | O histórico do usuário é gravado na spec 15; a tela fica para depois. |
 | Recolocar o single removido pela lixeira | feature 12 | A linha "S" não tem botão de adicionar; hoje só pelo Plano/Claude. |
 | Volume por grupo muscular nas Análises | feature 09 | O catálogo já traz músculo principal e secundário; falta ligar o exercício do ciclo ao catálogo pelo nome. |
 | Validar com um export real do Hevy | feature 07 | O parser segue o formato documentado; ajustar se o arquivo real for diferente. |

@@ -20,7 +20,7 @@ o nome do novo exercício, sem sumir o histórico da antiga.
 ## Escopo
 - **Entra:**
   - **Carga dos principais**: uma linha por exercício com tipo Principal que tenha série registrada, com o nome do exercício na legenda.
-  - **Máximo estimado (e1RM)**: o mesmo critério de linhas (uma linha por exercício principal), calculado com as séries **Normais** do exercício. **Mudança nova:** série sem RPE registrado **entra no cálculo assumindo esforço máximo (RPE 10)** e é marcada na
+  - **Máximo estimado (e1RM)**: o mesmo critério de linhas (uma linha por exercício principal), calculado com as séries **Normais** do exercício (decisão de 07/11/2026: "o gráfico usa só as séries normais"; back-off, single, walkout e aquecimento ficam de fora dos gráficos; um single que bate recorde passa a contar quando o usuário troca o tipo dele para Normal). **Mudança nova:** série sem RPE registrado **entra no cálculo assumindo esforço máximo (RPE 10)** e é marcada na
     tela como estimativa sem RPE (ver Comportamento). O RPE assumido nunca é gravado no registro da série.
   - **Termômetro: single de ativação**: uma linha por exercício principal que tenha um grupo de séries do tipo Single de ativação, com RPE por semana.
   - Seletor de quais exercícios aparecem (até 3 por vez, por causa das cores), que lembra a escolha.

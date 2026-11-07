@@ -25,10 +25,14 @@ Legenda: ✅ feito · 🟡 feito, falta verificar no iPhone · 🔨 em andamento
 | 12 | Single dentro do principal, arraste livre das folhas, lixeira e tipo ao adicionar exercício | 🟡 | [12-single-na-tabela-e-arraste-livre](12-single-na-tabela-e-arraste-livre/spec.md) |
 | 13 | Treino em andamento: iniciar, não perder, cancelar; Concluir só com treino iniciado | 🟡 | [13-treino-em-andamento](13-treino-em-andamento/spec.md) |
 | 14 | Timer de descanso retangular, persistente, com notificação | 🟡 | [14-timer-de-descanso-e-notificacao](14-timer-de-descanso-e-notificacao/spec.md) |
-| 15 | Exercício único e máximos próprios: lista de máximos, histórico do usuário, análises por exercício (formato v2) | ⏳ | [15-exercicio-unico](15-exercicio-unico/spec.md) |
-| 16 | Periodizações: várias, uma ativa; criar plano e treinos pela UI | ⏳ | [16-periodizacoes](16-periodizacoes/spec.md) |
+| 15 | Exercício único e máximos próprios (formato v2). **Detalhada nos PBIs 19 a 22**; a spec guarda as decisões | ⏳ | [15-exercicio-unico](15-exercicio-unico/spec.md) |
+| 16 | Periodizações: várias, uma ativa; criar plano e treinos pela UI (depende dos PBIs 20 e 21) | ⏳ | [16-periodizacoes](16-periodizacoes/spec.md) |
 | 17 | Live Activity do timer na Dynamic Island (começa por teste de viabilidade) | ⏳ | [17-live-activity](17-live-activity/spec.md) |
-| 18 | Regras do treinador configuráveis pela interface (depende da 15) | ⏳ | [18-regras-configuraveis](18-regras-configuraveis/spec.md) |
+| 18 | Regras do treinador configuráveis pela interface (depende dos PBIs 19 e 20) | ⏳ | [18-regras-configuraveis](18-regras-configuraveis/spec.md) |
+| 19 | Formato v2 do ciclo: base invisível, plano atual idêntico, cópia de segurança, regras por máximo (parte 1 da 15) | ⏳ | [19-formato-v2](19-formato-v2/pbi.md) |
+| 20 | Máximos próprios: criar máximos, "Carga baseada em" em qualquer exercício, sem pergunta de movimento (parte 2 da 15; depende da 19) | ⏳ | [20-maximos-proprios](20-maximos-proprios/pbi.md) |
+| 21 | Histórico de máximos: toda mudança registrada e visível na folha do máximo (parte 3 da 15; depende da 20) | ⏳ | [21-historico-de-maximos](21-historico-de-maximos/pbi.md) |
+| 22 | Análises por exercício principal: uma linha por principal, seletor de até 3 (parte 4 da 15; depende da 19) | ⏳ | [22-analises-por-exercicio](22-analises-por-exercicio/pbi.md) |
 
 Nada foi testado num iPhone de verdade ainda. Em 03/11/2026 o app rodou no simulador do iOS 27.2 (Mac,
 Xcode 27.2, `npx expo run:ios`). O que foi verificado em cada feature está no `spec.md` dela.
@@ -48,7 +52,11 @@ Xcode 27.2, `npx expo run:ios`). O que foi verificado em cada feature está no `
 | Escolher do catálogo também no editor da aba Plano | feature 09 | O `ItemEditor` ainda tem só campo de texto para o nome. |
 | Figura do corpo com os músculos trabalhados (como no cabeçalho do Hevy) | feature 10 | Precisa do desenho do corpo e do mapa exercício → músculo; as imagens do catálogo já mostram os músculos em vermelho. |
 | Imagem para os exercícios que só têm vídeo no catálogo (222) | feature 10 | Tirar o primeiro quadro de cada mp4 (ffmpeg já instalado no Mac) e embutir no app. Exige baixar ~223 vídeos (~93 MB) do bucket de terceiros e guardar ~8 MB de imagens no repositório. Decidido em 06/11/2026: **só quando o app estiver pronto**, não agora. |
-| Evolução dos máximos nas Análises (usa `max_history`) | feature 15 | O histórico do usuário é gravado na spec 15; a tela fica para depois. |
+| Evolução dos máximos nas Análises (usa `max_history`) | feature 15 / PBI 21 | O histórico do usuário é gravado e listado na folha do máximo (PBI 21); o gráfico fica para depois. |
+| Lançar histórico retroativo de máximos à mão | PBI 21 | O "Valor inicial" tem a data da instalação, não a real. |
+| Atalho "Desligar máximo em todos os treinos" ao apagar máximo em uso | PBI 20 | Só se desligar item por item incomodar. |
+| Sugerir o máximo pelo nome do exercício ao adicionar principal/variação | PBI 20 | Só se ligar "Carga baseada em" à mão incomodar. |
+| Mais de 3 linhas por vez nos gráficos por exercício (ampliar a paleta) | PBI 22 | A paleta atual tem 3 cores. |
 | Recolocar o single removido pela lixeira | feature 12 | A linha "S" não tem botão de adicionar; hoje só pelo Plano/Claude. |
 | Volume por grupo muscular nas Análises | feature 09 | O catálogo já traz músculo principal e secundário; falta ligar o exercício do ciclo ao catálogo pelo nome. |
 | Validar com um export real do Hevy | feature 07 | O parser segue o formato documentado; ajustar se o arquivo real for diferente. |

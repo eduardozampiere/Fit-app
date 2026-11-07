@@ -1,5 +1,10 @@
 # 15 — Exercício único e máximos próprios (fim do "agacho/supino/terra" fixo)
 
+> **Nota (06/11/2026): esta spec foi dividida em quatro PBIs, que passam a ser o contrato de produto.** Ordem: [19 Formato v2](../19-formato-v2/pbi.md)
+> (15a, 15b, 15d e a migração de dados do 15g) → [20 Máximos próprios](../20-maximos-proprios/pbi.md) (15c e 15f) → [21 Histórico de máximos](../21-historico-de-maximos/pbi.md)
+> (`max_history` do 15g) e [22 Análises por exercício](../22-analises-por-exercicio/pbi.md) (15e; depende só da 19). As decisões abaixo continuam valendo; o plano técnico de cada fatia
+> nasce em `tech-plan.md` na pasta do PBI.
+
 **Status:** ⏳ a fazer — planejada com o usuário em 06/11/2026 (entrevista de decisões) — **pré-requisito das specs 16 e 18**
 
 ## Objetivo

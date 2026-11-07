@@ -1,6 +1,21 @@
 import Ionicons from '@expo/vector-icons/Ionicons';
-import type { ComponentProps, ReactNode } from 'react';
-import { Modal, Pressable, StyleSheet, Text, TextInput, View, type StyleProp, type TextInputProps, type ViewStyle } from 'react-native';
+import { useCallback, useEffect, useMemo, useState, type ComponentProps, type ReactNode } from 'react';
+import {
+  Animated,
+  KeyboardAvoidingView,
+  Modal,
+  PanResponder,
+  Platform,
+  Pressable,
+  ScrollView,
+  StyleSheet,
+  Text,
+  TextInput,
+  View,
+  type StyleProp,
+  type TextInputProps,
+  type ViewStyle,
+} from 'react-native';
 import { font, radius, space, TOUCH, useTheme } from '../ui/theme';
 
 export type IconName = ComponentProps<typeof Ionicons>['name'];
@@ -66,18 +81,21 @@ export function Chip({
   selected?: boolean;
   onPress?: () => void;
   accessibilityLabel?: string;
-  tone?: 'success' | 'warn';
+  /** success = concluído, warn = em andamento, partial = tem séries mas não foi concluído */
+  tone?: 'success' | 'warn' | 'partial';
 }) {
   const t = useTheme();
   const bg = selected ? t.accent : tone === 'success' ? t.doneBg : tone === 'warn' ? t.warnBg : t.surface;
-  const fg = selected ? t.accentText : tone === 'success' ? t.done : tone === 'warn' ? t.warn : t.text;
+  const fg = selected ? t.accentText : tone === 'success' ? t.done : tone === 'warn' || tone === 'partial' ? t.warn : t.text;
+  const outline = !selected && tone === 'partial' ? { borderWidth: 1.5, borderColor: t.warn } : null;
   return (
     <Pressable
       accessibilityRole="button"
       accessibilityLabel={accessibilityLabel ?? label}
       accessibilityState={{ selected: !!selected }}
       onPress={onPress}
-      style={({ pressed }) => [styles.chip, { backgroundColor: bg, opacity: pressed ? 0.75 : 1 }]}
+      hitSlop={{ top: 7, bottom: 7 }}
+      style={({ pressed }) => [styles.chip, { backgroundColor: bg, opacity: pressed ? 0.75 : 1 }, outline]}
     >
       <Text style={[styles.chipText, { color: fg }]} maxFontSizeMultiplier={1.6}>
         {label}
@@ -99,6 +117,24 @@ export function Badge({ label, tone = 'neutral' }: { label: string; tone?: 'neut
     <View style={[styles.badge, { backgroundColor: bg }]}>
       <Text style={[styles.badgeText, { color: fg }]}>{label}</Text>
     </View>
+  );
+}
+
+/**
+ * Linha de pílulas com rolagem horizontal, que vai até as bordas da tela (compense o padding da tela de
+ * `space.lg`). Use no lugar de uma linha que quebra em duas.
+ */
+export function ChipRow({ children }: { children: ReactNode }) {
+  return (
+    <ScrollView
+      horizontal
+      showsHorizontalScrollIndicator={false}
+      style={{ marginHorizontal: -space.lg, flexGrow: 0 }}
+      contentContainerStyle={styles.chipRow}
+      keyboardShouldPersistTaps="handled"
+    >
+      {children}
+    </ScrollView>
   );
 }
 
@@ -227,6 +263,7 @@ export function ListRow({
   value,
   onPress,
   icon,
+  leading,
   last,
 }: {
   title: string;
@@ -234,12 +271,14 @@ export function ListRow({
   value?: string;
   onPress?: () => void;
   icon?: IconName;
+  /** Miniatura ou outro elemento no lugar do ícone. */
+  leading?: ReactNode;
   last?: boolean;
 }) {
   const t = useTheme();
   const content = (
     <View style={styles.listRow}>
-      {icon ? <Ionicons name={icon} size={22} color={t.accent} /> : null}
+      {leading ?? (icon ? <Ionicons name={icon} size={22} color={t.accent} /> : null)}
       <View style={{ flex: 1, gap: 2 }}>
         <Text style={[styles.rowTitle, { color: t.text }]}>{title}</Text>
         {subtitle ? <Text style={[styles.rowSub, { color: t.muted }]}>{subtitle}</Text> : null}
@@ -274,8 +313,10 @@ export function StatRow({ items }: { items: { label: string; value: string; acce
     <View style={styles.statRow}>
       {items.map((it) => (
         <View key={it.label} style={{ flex: 1, gap: 2 }} accessible accessibilityLabel={`${it.label}: ${it.value}`}>
-          <Text style={[styles.statLabel, { color: t.muted }]}>{it.label}</Text>
-          <Text style={[styles.statValue, { color: it.accent ? t.accent : t.text }]} maxFontSizeMultiplier={1.4}>
+          <Text style={[styles.statLabel, { color: t.muted }]} numberOfLines={1}>
+            {it.label}
+          </Text>
+          <Text style={[styles.statValue, { color: it.accent ? t.accent : t.text }]} maxFontSizeMultiplier={1.4} numberOfLines={1}>
             {it.value}
           </Text>
         </View>
@@ -312,32 +353,37 @@ export function IconButton({
   );
 }
 
-/** Barra do topo das folhas (modais), como no iOS e no Hevy: Cancelar · título · ação. */
+/** Barra do topo das folhas (modais): título e uma ação opcional. Folhas fecham arrastando para baixo. */
 export function SheetHeader({
   title,
-  onCancel,
-  cancelLabel = 'Cancelar',
+  onBack,
   action,
   onAction,
   actionDisabled,
 }: {
   title: string;
-  onCancel: () => void;
-  cancelLabel?: string;
+  /** Só para voltar de um passo para o anterior dentro da folha; fechar é arrastando para baixo. */
+  onBack?: () => void;
   action?: string;
   onAction?: () => void;
   actionDisabled?: boolean;
 }) {
   const t = useTheme();
+  // Os lados só ocupam espaço quando há voltar ou ação (o título fica centrado); senão o título usa a largura toda.
+  const side = onBack || (action && onAction) ? styles.sheetSide : styles.sheetSideEmpty;
   return (
     <View style={[styles.sheetHeader, { backgroundColor: t.bg, borderBottomColor: t.separator }]}>
-      <Pressable accessibilityRole="button" accessibilityLabel={cancelLabel} onPress={onCancel} hitSlop={12} style={styles.sheetSide}>
-        <Text style={[styles.sheetLink, { color: t.accent }]}>{cancelLabel}</Text>
-      </Pressable>
+      <View style={side}>
+        {onBack ? (
+          <Pressable accessibilityRole="button" accessibilityLabel="Voltar" onPress={onBack} hitSlop={12}>
+            <Text style={[styles.sheetLink, { color: t.accent }]}>Voltar</Text>
+          </Pressable>
+        ) : null}
+      </View>
       <Text style={[styles.sheetTitle, { color: t.text }]} numberOfLines={1} accessibilityRole="header">
         {title}
       </Text>
-      <View style={[styles.sheetSide, { alignItems: 'flex-end' }]}>
+      <View style={[side, { alignItems: 'flex-end' }]}>
         {action && onAction ? (
           <Pressable
             accessibilityRole="button"
@@ -362,6 +408,93 @@ export interface MenuOption {
   icon?: IconName;
 }
 
+const SHEET_OFFSCREEN = 700;
+/** Fração da altura da folha abaixo da qual ela fecha ao soltar. */
+const SHEET_CLOSE_AT = 0.6;
+
+/**
+ * Folha de baixo para cima com altura do conteúdo (não ocupa a tela toda). Fecha arrastando para baixo
+ * (pela alça; com `dragAnywhere`, por qualquer ponto da folha) ou tocando no fundo escurecido, sem
+ * botão de cancelar. Base do `ActionMenu`, do editor de descanso e da folha do tipo de série.
+ */
+export function BottomSheet({
+  onClose,
+  dragAnywhere = false,
+  header,
+  children,
+}: {
+  onClose: () => void;
+  /** a folha toda arrasta (só para conteúdo sem rolagem, como menus) */
+  dragAnywhere?: boolean;
+  /** conteúdo fixo no alto (ex.: título) que também arrasta a folha; o resto pode ter rolagem própria */
+  header?: ReactNode;
+  children: ReactNode;
+}) {
+  const t = useTheme();
+  const [y] = useState(() => new Animated.Value(SHEET_OFFSCREEN));
+  useEffect(() => {
+    Animated.timing(y, { toValue: 0, duration: 220, useNativeDriver: true }).start();
+  }, [y]);
+  const close = useCallback(() => {
+    Animated.timing(y, { toValue: SHEET_OFFSCREEN, duration: 160, useNativeDriver: true }).start(() => onClose());
+  }, [y, onClose]);
+  // A folha acompanha o dedo e fica onde for solta; só fecha se passar de SHEET_CLOSE_AT da altura
+  // ou for arrastada rápido para baixo. Um arremesso rápido para cima traz de volta à posição aberta.
+  const sheet = useMemo(() => {
+    const g = { rest: 0, height: SHEET_OFFSCREEN }; // rest: pt abaixo da posição aberta
+    const clamp = (v: number) => Math.max(0, Math.min(g.height, v));
+    const handlers = {
+      onPanResponderMove: (_: unknown, p: { dy: number }) => y.setValue(clamp(g.rest + p.dy)),
+      onPanResponderRelease: (_: unknown, p: { dy: number; vy: number }) => {
+        const to = clamp(g.rest + p.dy);
+        if (p.vy > 1 || to > g.height * SHEET_CLOSE_AT) {
+          close();
+        } else if (p.vy < -1) {
+          g.rest = 0;
+          Animated.spring(y, { toValue: 0, useNativeDriver: true }).start();
+        } else {
+          g.rest = to;
+        }
+      },
+      onPanResponderTerminate: (_: unknown, p: { dy: number }) => {
+        g.rest = clamp(g.rest + p.dy);
+      },
+    };
+    // Folha inteira (menus): assume o gesto quando o dedo anda na vertical. Um filho do Pressable que já está
+    // respondendo nunca recebe essa chance, por isso a alça/título (`grab`) responde logo no toque.
+    const pan = PanResponder.create({
+      ...handlers,
+      onMoveShouldSetPanResponder: (_, p) => Math.abs(p.dy) > 4 && Math.abs(p.dy) > Math.abs(p.dx),
+    });
+    const grab = PanResponder.create({ ...handlers, onStartShouldSetPanResponder: () => true });
+    return { pan, grab, setHeight: (h: number) => void (g.height = h) };
+  }, [y, close]);
+  const pan = sheet.pan;
+  return (
+    <Modal visible transparent animationType="fade" onRequestClose={close}>
+      <KeyboardAvoidingView style={{ flex: 1 }} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
+        <Pressable style={styles.menuBackdrop} onPress={close} accessibilityLabel="Fechar">
+          <Animated.View
+            style={[styles.menuSheet, { backgroundColor: t.card, transform: [{ translateY: y }] }]}
+            onLayout={(e) => {
+              sheet.setHeight(e.nativeEvent.layout.height);
+            }}
+            {...(dragAnywhere ? pan.panHandlers : {})}
+          >
+            <Pressable onPress={() => {}} style={{ gap: space.sm }}>
+              <View {...(dragAnywhere ? {} : sheet.grab.panHandlers)} style={styles.grabZone}>
+                <View style={[styles.grabber, { backgroundColor: t.separator }]} accessibilityElementsHidden importantForAccessibility="no" />
+                {header}
+              </View>
+              {children}
+            </Pressable>
+          </Animated.View>
+        </Pressable>
+      </KeyboardAvoidingView>
+    </Modal>
+  );
+}
+
 /**
  * Folha de ações de baixo para cima (menu ⋮, menu da série, escolha de RPE). Funciona igual em
  * iOS, Android e na prévia web, ao contrário do `Alert` com botões.
@@ -380,53 +513,48 @@ export function ActionMenu({
 }) {
   const t = useTheme();
   return (
-    <Modal visible transparent animationType="fade" onRequestClose={onClose}>
-      <Pressable style={styles.menuBackdrop} onPress={onClose} accessibilityLabel="Fechar menu">
-        <Pressable style={[styles.menuSheet, { backgroundColor: t.card }]} onPress={() => {}}>
-          {title ? <Text style={[styles.menuTitle, { color: t.muted }]}>{title}</Text> : null}
-          {columns ? (
-            <View style={styles.menuGrid}>
-              {options.map((o) => (
-                <Pressable
-                  key={o.label}
-                  accessibilityRole="button"
-                  accessibilityLabel={o.label}
-                  onPress={() => {
-                    onClose();
-                    o.onPress();
-                  }}
-                  style={({ pressed }) => [
-                    styles.menuCell,
-                    { width: `${100 / columns - 2}%`, backgroundColor: t.surface, opacity: pressed ? 0.7 : 1 },
-                  ]}
-                >
-                  <Text style={[styles.menuCellText, { color: t.text }]}>{o.label}</Text>
-                </Pressable>
-              ))}
-            </View>
-          ) : (
-            options.map((o, i) => (
-              <View key={o.label}>
-                {i > 0 ? <Divider /> : null}
-                <Pressable
-                  accessibilityRole="button"
-                  accessibilityLabel={o.label}
-                  onPress={() => {
-                    onClose();
-                    o.onPress();
-                  }}
-                  style={({ pressed }) => [styles.menuRow, { opacity: pressed ? 0.6 : 1 }]}
-                >
-                  {o.icon ? <Ionicons name={o.icon} size={22} color={o.destructive ? t.danger : t.accent} /> : null}
-                  <Text style={[styles.menuRowText, { color: o.destructive ? t.danger : t.text }]}>{o.label}</Text>
-                </Pressable>
-              </View>
-            ))
-          )}
-          <BigButton label="Cancelar" variant="neutral" compact onPress={onClose} />
-        </Pressable>
-      </Pressable>
-    </Modal>
+    <BottomSheet onClose={onClose} dragAnywhere>
+      {title ? <Text style={[styles.menuTitle, { color: t.muted }]}>{title}</Text> : null}
+      {columns ? (
+        <View style={styles.menuGrid}>
+          {options.map((o) => (
+            <Pressable
+              key={o.label}
+              accessibilityRole="button"
+              accessibilityLabel={o.label}
+              onPress={() => {
+                onClose();
+                o.onPress();
+              }}
+              style={({ pressed }) => [
+                styles.menuCell,
+                { width: `${100 / columns - 2}%`, backgroundColor: t.surface, opacity: pressed ? 0.7 : 1 },
+              ]}
+            >
+              <Text style={[styles.menuCellText, { color: t.text }]}>{o.label}</Text>
+            </Pressable>
+          ))}
+        </View>
+      ) : (
+        options.map((o, i) => (
+          <View key={o.label}>
+            {i > 0 ? <Divider /> : null}
+            <Pressable
+              accessibilityRole="button"
+              accessibilityLabel={o.label}
+              onPress={() => {
+                onClose();
+                o.onPress();
+              }}
+              style={({ pressed }) => [styles.menuRow, { opacity: pressed ? 0.6 : 1 }]}
+            >
+              {o.icon ? <Ionicons name={o.icon} size={22} color={o.destructive ? t.danger : t.accent} /> : null}
+              <Text style={[styles.menuRowText, { color: o.destructive ? t.danger : t.text }]}>{o.label}</Text>
+            </Pressable>
+          </View>
+        ))
+      )}
+    </BottomSheet>
   );
 }
 
@@ -439,10 +567,13 @@ const styles = StyleSheet.create({
     borderBottomWidth: StyleSheet.hairlineWidth,
   },
   sheetSide: { width: 96 },
+  sheetSideEmpty: { width: 0 },
   sheetLink: { fontSize: 17 },
   sheetTitle: { ...font.headline, flex: 1, textAlign: 'center' },
   menuBackdrop: { flex: 1, justifyContent: 'flex-end', backgroundColor: 'rgba(0,0,0,0.35)' },
   menuSheet: { borderTopLeftRadius: radius.card, borderTopRightRadius: radius.card, padding: space.lg, paddingBottom: 36, gap: space.sm },
+  grabZone: { alignSelf: 'stretch', alignItems: 'center', paddingBottom: space.sm },
+  grabber: { width: 40, height: 5, borderRadius: 3 },
   menuTitle: { ...font.label, textAlign: 'center', marginBottom: space.xs },
   menuRow: { minHeight: TOUCH, flexDirection: 'row', alignItems: 'center', gap: space.md },
   menuRowText: { fontSize: 17 },
@@ -462,8 +593,10 @@ const styles = StyleSheet.create({
   buttonCompact: { minHeight: 48 },
   buttonText: { fontSize: 17, fontWeight: '600' },
   buttonTextCompact: { fontSize: 16 },
-  chip: { minHeight: 44, minWidth: 44, borderRadius: 22, paddingHorizontal: space.lg, alignItems: 'center', justifyContent: 'center' },
-  chipText: { fontSize: 15, fontWeight: '600' },
+  // Pílula fina (a área de toque chega a 44 pelo hitSlop).
+  chip: { minHeight: 30, borderRadius: 15, paddingHorizontal: 12, alignItems: 'center', justifyContent: 'center' },
+  chipText: { fontSize: 13, fontWeight: '600' },
+  chipRow: { gap: space.sm, paddingHorizontal: space.lg },
   badge: { borderRadius: 6, paddingHorizontal: space.sm, paddingVertical: 2, alignSelf: 'flex-start' },
   badgeText: { fontSize: 12, fontWeight: '600' },
   stepper: { gap: space.sm },
@@ -482,7 +615,7 @@ const styles = StyleSheet.create({
   rowSub: { fontSize: 13 },
   rowValue: { fontSize: 16, fontVariant: ['tabular-nums'] },
   statRow: { flexDirection: 'row', gap: space.md },
-  statLabel: { ...font.label },
-  statValue: { fontSize: 17, fontWeight: '500', fontVariant: ['tabular-nums'] },
+  statLabel: { fontSize: 12, fontWeight: '500' },
+  statValue: { fontSize: 16, fontWeight: '600', fontVariant: ['tabular-nums'] },
   iconBtn: { width: 44, height: 44, alignItems: 'center', justifyContent: 'center' },
 });

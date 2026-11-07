@@ -49,6 +49,7 @@ function set(item: PrescribedItem, setIndex: number, extra: Partial<SetLog> = {}
     belt: null,
     failed: false,
     asPlanned: false,
+    warmup: false, setType: 'normal',
     note: null,
     doneAt: '2026-01-01T00:00:00Z',
     ...extra,
@@ -63,7 +64,7 @@ function loggedMain(w: number, lift: Lift, lastRpe: number | null, allRpe?: numb
     set(it, i + 1, { rpe: i === n - 1 ? lastRpe : (allRpe ?? null) }),
   );
   return {
-    log: { id: `log-${w}-${lift}`, cycleId: cycle.id, week: w, sessionId: s.id, date: sessionDate(week(w), s), status: 'done', note: null },
+    log: { id: `log-${w}-${lift}`, cycleId: cycle.id, week: w, sessionId: s.id, date: sessionDate(week(w), s), status: 'done', note: null, startedAt: null, endedAt: null },
     sets,
   };
 }
@@ -127,7 +128,7 @@ describe('regra 3 — single de ativação', () => {
     const s = session(w, DAY[lift]);
     const it = s.items.find((i) => i.kind === 'activation_single')!;
     return {
-      log: { id: `a-${w}`, cycleId: cycle.id, week: w, sessionId: s.id, date: sessionDate(week(w), s), status: 'done', note: null },
+      log: { id: `a-${w}`, cycleId: cycle.id, week: w, sessionId: s.id, date: sessionDate(week(w), s), status: 'done', note: null, startedAt: null, endedAt: null },
       sets: [set(it, 1, { rpe })],
     };
   }

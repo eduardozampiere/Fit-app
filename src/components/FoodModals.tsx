@@ -4,7 +4,7 @@ import { formatNumber, parseDecimal } from '../domain/format';
 import { macrosFor, type FavoriteMeal, type Food, type MealEntry, type MealType } from '../domain/nutrition';
 import { slugify } from '../domain/text';
 import { TOUCH, useTheme } from '../ui/theme';
-import { BigButton, Card, Chip, ListRow, SheetHeader, Stepper, TextField } from './ui';
+import { BigButton, BottomSheet, Card, Chip, ListRow, SheetHeader, Stepper, TextField } from './ui';
 
 const GRAM_CHIPS = [30, 50, 100, 150, 200, 300, 400];
 
@@ -41,9 +41,9 @@ export function FoodPicker({
     <Modal visible={visible} animationType="slide" presentationStyle="pageSheet" onRequestClose={onClose}>
       <KeyboardAvoidingView style={{ flex: 1, backgroundColor: t.bg }} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
         {food ? (
-          <SheetHeader title="Quantidade" onCancel={() => setFood(null)} cancelLabel="Voltar" />
+          <SheetHeader title="Quantidade" onBack={() => setFood(null)} />
         ) : (
-          <SheetHeader title="Adicionar alimento" onCancel={onClose} cancelLabel="Fechar" action="Novo" onAction={onNewFood} />
+          <SheetHeader title="Adicionar alimento" action="Novo" onAction={onNewFood} />
         )}
         {food ? (
           <ScrollView contentContainerStyle={styles.body}>
@@ -137,7 +137,6 @@ export function FoodEditor({
       <KeyboardAvoidingView style={{ flex: 1, backgroundColor: t.bg }} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
         <SheetHeader
           title={initial ? 'Editar alimento' : 'Novo alimento'}
-          onCancel={onClose}
           action="Salvar"
           actionDisabled={!valid}
           onAction={() =>
@@ -191,7 +190,7 @@ export function FoodsManager({
   const t = useTheme();
   return (
     <Modal visible animationType="slide" presentationStyle="pageSheet" onRequestClose={onClose}>
-      <SheetHeader title="Alimentos" onCancel={onClose} cancelLabel="Fechar" action="Novo" onAction={onNew} />
+      <SheetHeader title="Alimentos" action="Novo" onAction={onNew} />
       <ScrollView style={{ backgroundColor: t.bg }} contentContainerStyle={styles.body}>
         <View>
           {foods.map((f, i) => (
@@ -221,7 +220,7 @@ export function FavoritePicker({
   const name = (id: string) => foods.find((f) => f.id === id)?.name ?? id;
   return (
     <Modal visible animationType="slide" presentationStyle="pageSheet" onRequestClose={onClose}>
-      <SheetHeader title="Refeições favoritas" onCancel={onClose} cancelLabel="Fechar" />
+      <SheetHeader title="Refeições favoritas" />
       <ScrollView style={{ backgroundColor: t.bg }} contentContainerStyle={styles.body}>
         {favorites.map((f) => (
           <Card key={f.id}>
@@ -253,21 +252,11 @@ export function NamePrompt({ title, onSave, onClose }: { title: string; onSave: 
   const t = useTheme();
   const [name, setName] = useState('');
   return (
-    <Modal visible animationType="fade" transparent onRequestClose={onClose}>
-      <View style={styles.backdrop}>
-        <Card style={{ width: '88%' }}>
-          <Text style={{ color: t.text, fontSize: 18, fontWeight: '700' }}>{title}</Text>
-          <TextField
-            value={name}
-            onChangeText={setName}
-            autoFocus
-            placeholder="ex.: Almoço padrão"
-          />
-          <BigButton label="Salvar" compact disabled={name.trim().length < 2} onPress={() => onSave(name.trim())} />
-          <BigButton label="Cancelar" compact variant="neutral" onPress={onClose} />
-        </Card>
-      </View>
-    </Modal>
+    <BottomSheet onClose={onClose}>
+      <Text style={{ color: t.text, fontSize: 18, fontWeight: '700' }}>{title}</Text>
+      <TextField value={name} onChangeText={setName} autoFocus placeholder="ex.: Almoço padrão" />
+      <BigButton label="Salvar" compact disabled={name.trim().length < 2} onPress={() => onSave(name.trim())} />
+    </BottomSheet>
   );
 }
 
@@ -277,5 +266,4 @@ const styles = StyleSheet.create({
   wrap: { flexDirection: 'row', flexWrap: 'wrap', gap: 8, alignItems: 'center' },
   row: { minHeight: TOUCH, borderRadius: 12, borderWidth: StyleSheet.hairlineWidth, padding: 12, gap: 2 },
   del: { minHeight: 48, borderRadius: 12, paddingHorizontal: 14, justifyContent: 'center' },
-  backdrop: { flex: 1, backgroundColor: 'rgba(0,0,0,0.45)', alignItems: 'center', justifyContent: 'center' },
 });

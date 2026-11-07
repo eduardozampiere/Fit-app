@@ -1,22 +1,36 @@
 import { useEffect, useState } from 'react';
-import { formatElapsed, formatNumber } from '../domain/format';
+import { formatNumber, formatWorkoutTime } from '../domain/format';
 import type { SessionStats } from '../domain/logging';
+import { workoutDurationSec } from '../domain/workout';
 import { StatRow } from './ui';
 
-/** Tempo · Volume · Séries no topo do treino. O tempo corre enquanto o treino está aberto. */
-export function WorkoutStats({ stats, plannedSets, running }: { stats: SessionStats; plannedSets: number; running: boolean }) {
+/** Duração · Volume · Séries. A duração corre (de segundo em segundo) enquanto o treino está aberto. */
+export function WorkoutStats({
+  stats,
+  plannedSets,
+  running,
+  startedAt,
+  endedAt,
+}: {
+  stats: SessionStats;
+  plannedSets: number;
+  running: boolean;
+  /** início e fim do treino (do registro); sem início, a duração fica em "—" */
+  startedAt: string | null;
+  endedAt: string | null;
+}) {
   const [now, setNow] = useState(() => Date.now());
   useEffect(() => {
-    if (!running || !stats.startedAt) return;
-    const id = setInterval(() => setNow(Date.now()), 30_000);
+    if (!running || !startedAt) return;
+    const id = setInterval(() => setNow(Date.now()), 1000);
     return () => clearInterval(id);
-  }, [running, stats.startedAt]);
+  }, [running, startedAt]);
 
-  const elapsed = stats.startedAt ? (now - Date.parse(stats.startedAt)) / 1000 : null;
+  const elapsed = workoutDurationSec({ startedAt, endedAt }, now);
   return (
     <StatRow
       items={[
-        { label: 'Tempo', value: elapsed !== null ? formatElapsed(elapsed) : '—', accent: running && elapsed !== null },
+        { label: 'Duração', value: elapsed !== null ? formatWorkoutTime(elapsed) : '—', accent: running && elapsed !== null },
         { label: 'Volume', value: `${formatNumber(stats.volumeKg, 0)} kg` },
         { label: 'Séries', value: `${stats.sets}/${plannedSets}` },
       ]}

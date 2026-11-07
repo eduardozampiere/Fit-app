@@ -1,6 +1,7 @@
 import { parseDecimalInput } from './format';
-import { plannedLoadKg } from './loads';
+import { plannedLoadKg, roundTo } from './loads';
 import { maxSetCount, plannedSetCount } from './plan';
+import { movedPosition } from './reorder';
 import type { PrescribedItem, Range, SetLog } from './types';
 
 export type SetDraft = Omit<SetLog, 'id' | 'sessionLogId' | 'doneAt'>;
@@ -39,6 +40,8 @@ export function plannedSet(item: PrescribedItem, load: Range | null, setIndex: n
       belt: null,
       failed: false,
       asPlanned: true,
+      warmup: false,
+      setType: 'normal',
       note: null,
   };
 }
@@ -82,6 +85,21 @@ export function renumberAfterRemoval(
 }
 
 /**
+ * Arrastar a série da posição `from` para `to`: as registradas no caminho andam uma posição.
+ * Devolve só as que mudam de número.
+ */
+export function renumberAfterMove(
+  logs: Pick<SetLog, 'id' | 'setIndex'>[],
+  from: number,
+  to: number,
+): { id: string; setIndex: number }[] {
+  return logs
+    .map((l) => ({ id: l.id, setIndex: movedPosition(l.setIndex, from, to), old: l.setIndex }))
+    .filter((l) => l.setIndex !== l.old)
+    .map(({ id, setIndex }) => ({ id, setIndex }));
+}
+
+/**
  * Série registrada a partir dos valores digitados na tabela. Célula vazia usa o valor do plano;
  * se nada foi digitado, a série continua "conforme o plano".
  */
@@ -96,6 +114,44 @@ export function draftFromInput(planned: SetDraft, input: { load: string; work: s
     reps: isDuration ? planned.reps : work !== null ? Math.round(work) : planned.reps,
     durationSec: isDuration ? (work !== null ? Math.round(work) : planned.durationSec) : planned.durationSec,
     asPlanned: false,
+  };
+}
+
+/** Linhas de aquecimento: as adicionadas no dia, nunca menos que o último aquecimento registrado. */
+export function warmupRowCount(override: number | undefined, loggedIndexes: number[]): number {
+  return Math.max(override ?? 0, 0, ...loggedIndexes);
+}
+
+/**
+ * Aquecimento sugerido (placeholder da linha): rampa de 40% a 85% da carga de trabalho, arredondada
+ * a 2,5 kg e nunca abaixo da barra; reps caem conforme a carga sobe (5, 3, 2). Sem carga de trabalho
+ * (acessório sem carga), sugere só as reps do plano.
+ */
+export function warmupSet(
+  item: Pick<PrescribedItem, 'id' | 'exerciseId' | 'reps' | 'durationSec'>,
+  workLoadKg: number | null,
+  index: number,
+  total: number,
+  barKg: number,
+): SetDraft {
+  const pct = total <= 1 ? 0.6 : 0.4 + (0.45 * (index - 1)) / (total - 1);
+  const load = workLoadKg === null ? null : Math.max(barKg, roundTo(workLoadKg * pct, 2.5));
+  const reps = workLoadKg === null ? item.reps?.min ?? null : pct < 0.6 ? 5 : pct < 0.8 ? 3 : 2;
+  return {
+    itemId: item.id,
+    exerciseId: item.exerciseId,
+    setIndex: index,
+    loadKg: load,
+    reps: item.durationSec && !item.reps ? null : reps,
+    durationSec: item.durationSec && !item.reps ? item.durationSec.min : null,
+    rpe: null,
+    grip: null,
+    belt: null,
+    failed: false,
+    asPlanned: false,
+    warmup: true,
+    setType: 'normal',
+    note: null,
   };
 }
 

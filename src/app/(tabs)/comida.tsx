@@ -19,7 +19,7 @@ import {
 } from '../../db/nutritionRepo';
 import { newId } from '../../db/repo';
 import { addDays, isoWeekday, toISODate } from '../../domain/dates';
-import { formatDateShort, formatNumber, WEEKDAY_NAMES } from '../../domain/format';
+import { formatDate, formatNumber, WEEKDAY_NAMES } from '../../domain/format';
 import {
   favoriteEntries,
   kcalTarget,
@@ -109,7 +109,7 @@ export default function FoodScreen() {
           <IconButton name="chevron-back" label="Dia anterior" onPress={() => setDate(addDays(date, -1))} color={t.accent} />
           <View style={{ flex: 1, alignItems: 'center' }}>
             <Text style={[styles.dateTitle, { color: t.text }]}>
-              {date === today ? 'Hoje' : WEEKDAY_NAMES[isoWeekday(date)]} {formatDateShort(date)}
+              {date === today ? 'Hoje' : WEEKDAY_NAMES[isoWeekday(date)]} {formatDate(date)}
             </Text>
             <Text style={{ color: t.muted, fontSize: 13 }}>{isTraining ? 'Dia de treino' : 'Dia de descanso'}</Text>
           </View>

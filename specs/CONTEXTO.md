@@ -14,7 +14,7 @@
 - **O Claude é o treinador.** O atleta mantém um projeto no claude.ai com o histórico. O app é o
   caderno: registra e manda um pacote para o Claude, e o Claude devolve ajustes ou ciclos novos num
   formato que o app aplica, sempre com confirmação.
-- Interface em **português do Brasil**: kg e g, datas `dd/MM`, vírgula decimal e ponto de milhar.
+- Interface em **português do Brasil**: kg e g, datas "05 nov" (ano corrente) ou "05 nov, 2025", vírgula decimal e ponto de milhar.
 - Preferências do usuário nas conversas: respostas diretas, debater ideias, empatia.
 
 ## Restrições que definem a arquitetura
@@ -22,7 +22,7 @@
 | Restrição | Consequência |
 |---|---|
 | Sem conta paga da Apple (não vai pagar) | Instalação com Apple ID gratuito pelo Mac: validade de 7 dias, renovação semanal. Sem HealthKit, widgets com dados compartilhados, iCloud/CloudKit nem push remoto. |
-| Uso na academia, sem depender de internet | Offline-first: tudo no aparelho (SQLite), sem backend e sem conta. |
+| Uso na academia: normalmente com 5G, mas pode ficar sem internet (informado pelo usuário em 05/11/2026) | Offline-first: tudo que é essencial fica no aparelho (SQLite), sem backend e sem conta. Internet só para extras que têm alternativa sem ela, como as demonstrações dos exercícios (com cache e ícone de reserva). |
 | Tem Mac | O build e a instalação no iPhone rodam no Mac (`npm run iphone`). |
 | Sessões do Claude Code na nuvem rodam em Linux | Elas não compilam iOS nem alcançam o iPhone. Testes de domínio, lint, tipos e prévia web rodam lá; instalação só numa sessão local no Mac. |
 
@@ -38,7 +38,7 @@ Caminhos avaliados e descartados (não reabrir sem motivo novo):
 
 - **Expo SDK 58**, React Native 0.88, React 19, TypeScript estrito.
 - **Expo Router** com rotas em `src/app/`. No iOS as abas são nativas (`expo-router/native-tabs`): Liquid Glass no iOS 26+, cronômetro no `BottomAccessory`. Na web as abas são em JS (`_layout.web.tsx`), só para a prévia.
-- **expo-sqlite** com migrações por `PRAGMA user_version` (`src/db/schema.ts`; versão atual **4**).
+- **expo-sqlite** com migrações por `PRAGMA user_version` (`src/db/schema.ts`; versão atual **6**).
 - **expo-notifications** só local (`enableRemoteNotifications: false`, sem entitlement de push, para o Apple ID gratuito conseguir assinar).
 - **react-native-svg** para gráficos feitos à mão (`src/components/charts.tsx`).
 - expo-haptics, expo-file-system (API nova `File`/`Paths`), expo-document-picker, expo-sharing, expo-clipboard.
@@ -56,6 +56,7 @@ src/components/ peças de UI
 src/app/        telas (Expo Router)
 tools/          importador da planilha (Python) e build da .ipa
 assets/plan/    ciclo embutido (JSON gerado da planilha)
+assets/catalog/ catálogo de 413 exercícios em português (JSON gerado do CSV do hevy-ia)
 data/           planilha original
 docs/           formatos e guias para o usuário
 specs/          este acompanhamento
@@ -65,8 +66,21 @@ Princípios:
 - **Toda regra de negócio é função pura com teste**, em `src/domain`. Telas só orquestram.
 - **Regras nunca mudam o plano sozinhas:** geram alertas e sugestões, e o usuário aceita ou ignora.
 - **Os números das regras vêm do ciclo** (`ruleParams`), não do código, para ciclos novos feitos pelo Claude trazerem os seus.
+- **Descanso por exercício é preferência, não plano:** `settings['rest-overrides']` (feature 09).
 - **Registro "conforme o plano" não inventa RPE.** O RPE só existe se o usuário informar; o app pede logo depois do principal.
 - **Macros das refeições ficam gravados** no registro (snapshot): editar um alimento não muda o passado.
+
+## Direção do produto (decidida em 06/11/2026)
+
+- **Todo exercício é igual:** máximo, % do máximo, e1RM, gráfico e RPE valem para qualquer exercício; "principal / variação /
+  acessório" é o papel dele no treino. Agacho, supino e terra deixam de ser casos especiais do código (spec 15).
+- **Máximos (spec 15):** lista de máximos própria (id estável + nome), por periodização, com **histórico do usuário** gravado a cada
+  mudança (`max_history`); o item do treino escolhe "carga baseada em" um máximo. Apagar máximo em uso é bloqueado. Gráfico de
+  carga: uma linha por exercício principal. Regras configuráveis pela interface ficam na spec 18.
+- **Plano = periodização:** o app comporta várias periodizações, **uma ativa**; criar e editar periodizações, semanas e treinos
+  é pela interface, sem importação (spec 16). As regras do treinador são **opcionais por periodização**.
+- **Treino em andamento é um estado de verdade** (início, fim, descartar), não um efeito de ter marcado uma série (spec 13).
+- **Live Activity:** só se couber no Apple ID gratuito (o `expo-widgets` pede App Group); senão fica a notificação local (spec 17).
 
 ## Formatos de dados
 
@@ -90,6 +104,7 @@ npm run typecheck        # tsc
 npx expo lint
 npx expo-doctor
 npm run import-plan      # regera assets/plan a partir da planilha
+npm run import-catalog   # regera assets/catalog a partir de data/catalogo-hevy-ia.csv + tools/catalogo_pt.txt
 npm run iphone           # Mac: instala no iPhone (Release, Apple ID gratuito)
 npm run ipa              # Mac: .ipa sem assinatura para SideStore/AltStore
 ```

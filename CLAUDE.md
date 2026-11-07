@@ -8,8 +8,14 @@ português; nomes de variáveis, funções e tipos em inglês (como já está no
 ## 1. Antes de começar
 
 1. Leia `specs/CONTEXTO.md` (contexto, restrições, decisões) e `specs/PLANO.md` (status e próximo passo).
-2. Feature nova: copie `specs/_modelo/` para `specs/NN-nome/`, preencha o `spec.md` e adicione a linha
-   na tabela do `PLANO.md` **antes** de codar.
+2. Feature nova: copie `specs/_modelo/` para `specs/NN-nome/` e adicione a linha na tabela do `PLANO.md`
+   **antes** de codar. A pasta tem dois documentos, cada um com um dono:
+   - `pbi.md`: produto, o quê e por quê (objetivo, escopo, comportamento, critérios de pronto CP1…,
+     verificação). Escrito pelo agente `product-manager` (`/pm`).
+   - `tech-plan.md`: técnico, o como (passos por camada, arquivos, dados, testes, rastreabilidade com os
+     CPs). Escrito pelo agente `tech-planner` (`/planejar`) a partir do PBI aprovado.
+   Fluxo: `/pm` → `/planejar` → `/dev` → `/revisar`. Mudança de escopo volta ao PBI; o plano não muda o
+   escopo. As features 01–18 são anteriores a essa divisão e mantêm um único `spec.md`.
 3. Decisões já tomadas e caminhos descartados estão no CONTEXTO.md. Não reabra sem um motivo novo; se
    reabrir, registre a mudança lá.
 
@@ -42,7 +48,7 @@ generalize o que existe em vez de copiar. Ao precisar da mesma coisa em um segun
 | Precisa de… | Use (não reescreva) |
 |---|---|
 | Datas `YYYY-MM-DD`, somar dias, dia da semana | `src/domain/dates.ts` |
-| Número, kg, faixa, data `dd/MM`, segundos (pt-BR) | `src/domain/format.ts` |
+| Número, kg, faixa, data (`formatDate`: "05 nov" / "05 nov, 2025"), segundos (pt-BR) | `src/domain/format.ts` |
 | Ler texto do plano ("4x4", "205-210", "≤8", "5 min") e valores soltos de CSV | `src/domain/parsing.ts` |
 | Ler/escrever CSV | `src/domain/csv.ts` |
 | Tirar acento, slug, cabeçalho de CSV | `stripAccents` / `slugify` em `src/domain/text.ts` |
@@ -53,7 +59,16 @@ generalize o que existe em vez de copiar. Ao precisar da mesma coisa em um segun
 | Editar o plano (qualquer origem: tela, Claude, regra) | `applyAdjustments` / `patchItem` em `src/domain/adjustments.ts` |
 | Cores, alvo de toque, tipografia, espaçamento, raios | `src/ui/theme.ts` (`useTheme`, `TOUCH`, `font`, `space`, `radius`) |
 | Botão, pílula, cartão, stepper, campo de texto, seção, linha de lista, resumo em colunas, ícone, menu de ações, cabeçalho de modal | `src/components/ui.tsx` (`BigButton`, `Chip`, `Card`, `Stepper`, `TextField`, `Section`, `ListRow`, `StatRow`, `IconButton`, `ActionMenu`, `SheetHeader`) |
-| Tabela de séries do treino | `src/components/SetTable.tsx` |
+| Tabela de séries do treino (inclui a linha "S" do single, `attachSingles` em `reorder.ts`) | `src/components/SetTable.tsx` |
+| Recordes, série por treino e histórico de um exercício | `src/domain/exerciseStats.ts` |
+| Folha de tipo de série (aquecimento, normal, falha, drop set) | `src/domain/setTypes.ts` + `src/components/SetTypeSheet.tsx` |
+| Botão em Liquid Glass (com reserva sem iOS 26) | `src/components/GlassButton.tsx` |
+| Cabeçalho do treino (duração, volume, séries) | `src/components/WorkoutHeader.tsx` + `WorkoutStats.tsx` |
+| Treino em andamento (início, fim, um por vez), cartão flutuante acima das abas | `src/domain/workout.ts`, `src/components/FloatingBars.tsx`, `getActiveWorkout`/`startSession`/`finishSession`/`discardSession` em `repo.ts` |
+| Folha de baixo para cima que fecha arrastando (menus, descanso, avisos). **Modais não têm botão Cancelar** | `BottomSheet` em `src/components/ui.tsx` (telas quase cheias: `Modal presentationStyle="pageSheet"` + `SheetHeader`) |
+| Catálogo de exercícios, busca e troca de exercício | `src/domain/catalog.ts` + `swapExercise` em `src/domain/adjustments.ts` |
+| Descanso (padrão, ajuste do usuário, limites) | `restSeconds`, `restOverride`, `withRestOverride` em `src/domain/plan.ts` |
+| Lista reordenável (segurar e arrastar) | `src/components/DragList.tsx` + `src/domain/reorder.ts` |
 | Gráficos | `src/components/charts.tsx` |
 | Abrir/compartilhar arquivo | `src/state/files.ts` |
 | Ler/gravar ajuste | `getSetting` / `setSetting` em `src/db/repo.ts` |
@@ -76,7 +91,7 @@ Regras de DRY:
 
 - **TypeScript estrito**, sem `any`. Tipos do domínio em `src/domain/types.ts` (ou no módulo dono do conceito).
 - **Funções pequenas e nomeadas pelo que fazem**; comentário explica o porquê, não o quê.
-- **Interface sempre em pt-BR** e formatada por `format.ts` (vírgula decimal, ponto de milhar, `dd/MM`).
+- **Interface sempre em pt-BR** e formatada por `format.ts` (vírgula decimal, ponto de milhar, datas "05 nov" ou "05 nov, 2025").
   Nunca `toFixed` ou `toLocaleString` direto na tela.
 - **React:**
   - Nada de `setState` síncrono dentro de `useEffect` para "sincronizar" props: remonte com `key`
@@ -113,7 +128,8 @@ npm test && npm run test:import && npm run typecheck && npx expo lint
 ```
 
 - Mudou tela: confira na prévia web (`CONTEXTO.md` explica como) e diga o que falta ver no iPhone.
-- Atualize o `spec.md` da feature (andamento, verificação) e o `specs/PLANO.md` **no mesmo commit**.
+- Atualize os documentos da feature (`pbi.md` e `tech-plan.md`: passos marcados, status, andamento,
+  verificação; ou o `spec.md` nas features 01–18) e o `specs/PLANO.md` **no mesmo commit**.
 - Um commit por feature/incremento, mensagem em português, no branch `claude/chat-conversations-access-x7i6nh`.
   Sem PR, salvo pedido.
 - Seja honesto sobre o que não foi testado (o iPhone só é testado numa sessão local no Mac).

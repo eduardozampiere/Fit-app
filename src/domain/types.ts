@@ -114,6 +114,9 @@ export interface Cycle {
 
 export type Grip = 'hook' | 'strap' | 'double';
 
+/** Tipo de uma série de trabalho. O aquecimento é à parte (`SetLog.warmup`). */
+export type SetType = 'normal' | 'failure' | 'dropset';
+
 export interface SetLog {
   id: string;
   sessionLogId: string;
@@ -128,6 +131,10 @@ export interface SetLog {
   belt: boolean | null;
   failed: boolean;
   asPlanned: boolean;
+  /** Série de aquecimento: numeração própria (A1, A2…) e fora de volume, regras e análises. */
+  warmup: boolean;
+  /** Série até a falha (`failure`) ou drop set; `failed` (não completou) é outra coisa. */
+  setType: SetType;
   note: string | null;
   doneAt: string; // ISO datetime
 }
@@ -140,4 +147,8 @@ export interface SessionLog {
   date: string; // data real em que o treino foi feito
   status: 'in_progress' | 'done';
   note: string | null;
+  /** quando o treino começou (ISO); nulo = ainda não iniciado */
+  startedAt: string | null;
+  /** quando foi concluído (ISO) */
+  endedAt: string | null;
 }

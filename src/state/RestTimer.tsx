@@ -1,7 +1,10 @@
 import * as Haptics from 'expo-haptics';
 import * as Notifications from 'expo-notifications';
 import { createContext, useCallback, useContext, useEffect, useRef, useState, type ReactNode } from 'react';
+import { useSQLiteContext } from 'expo-sqlite';
 import { AppState, Vibration } from 'react-native';
+import { getSetting, setSetting } from '../db/repo';
+import { remainingSeconds, restoreTimer } from '../domain/restTimer';
 
 Notifications.setNotificationHandler({
   handleNotification: async () => ({
@@ -32,7 +35,11 @@ async function ensurePermission() {
   if (!current.granted) await Notifications.requestPermissionsAsync();
 }
 
+const NOTIFICATION_ID = 'rest-timer';
+const SAVED_KEY = 'rest-timer';
+
 export function RestTimerProvider({ children }: { children: ReactNode }) {
+  const db = useSQLiteContext();
   const [endAt, setEndAt] = useState<number | null>(null);
   const [totalSec, setTotalSec] = useState(0);
   const [label, setLabel] = useState<string | null>(null);
@@ -40,11 +47,10 @@ export function RestTimerProvider({ children }: { children: ReactNode }) {
   const notifId = useRef<string | null>(null);
   const firedFor = useRef<number | null>(null);
 
+  // Id fixo: depois que o app reabre e restaura o timer, ainda dá para cancelar o aviso já agendado.
   const cancelNotification = useCallback(async () => {
-    if (notifId.current) {
-      await Notifications.cancelScheduledNotificationAsync(notifId.current).catch(() => {});
-      notifId.current = null;
-    }
+    notifId.current = null;
+    await Notifications.cancelScheduledNotificationAsync(NOTIFICATION_ID).catch(() => {});
   }, []);
 
   const schedule = useCallback(
@@ -54,6 +60,7 @@ export function RestTimerProvider({ children }: { children: ReactNode }) {
       try {
         await ensurePermission();
         notifId.current = await Notifications.scheduleNotificationAsync({
+          identifier: NOTIFICATION_ID,
           content: { title: 'Descanso acabou', body: `Próxima série: ${what}`, sound: true },
           trigger: { type: Notifications.SchedulableTriggerInputTypes.TIME_INTERVAL, seconds },
         });
@@ -95,6 +102,33 @@ export function RestTimerProvider({ children }: { children: ReactNode }) {
     void cancelNotification();
   }, [cancelNotification]);
 
+  // Restaura o descanso que estava rodando quando o app foi fechado (só se ainda não acabou).
+  useEffect(() => {
+    let alive = true;
+    (async () => {
+      const saved = restoreTimer(await getSetting<unknown>(db, SAVED_KEY, null), Date.now());
+      if (!alive || !saved) return;
+      setNow(Date.now());
+      setEndAt(saved.endAt);
+      setTotalSec(saved.totalSec);
+      setLabel(saved.label);
+    })();
+    return () => {
+      alive = false;
+    };
+  }, [db]);
+
+  // Guarda o descanso em andamento para sobreviver ao fechamento do app.
+  const loaded = useRef(false);
+  useEffect(() => {
+    // O primeiro disparo é o estado vazio de antes da restauração: não pode apagar o que foi gravado.
+    if (!loaded.current) {
+      loaded.current = true;
+      return;
+    }
+    void setSetting(db, SAVED_KEY, endAt === null ? null : { endAt, totalSec, label });
+  }, [db, endAt, totalSec, label]);
+
   useEffect(() => {
     if (endAt === null) return;
     const id = setInterval(() => setNow(Date.now()), 250);
@@ -110,7 +144,7 @@ export function RestTimerProvider({ children }: { children: ReactNode }) {
     }
   }, [now, endAt]);
 
-  const remainingSec = endAt === null ? 0 : Math.max(0, Math.ceil((endAt - now) / 1000));
+  const remainingSec = endAt === null ? 0 : remainingSeconds(endAt, now);
 
   return (
     <Ctx.Provider value={{ endAt, totalSec, label, remainingSec, start, add, stop }}>{children}</Ctx.Provider>

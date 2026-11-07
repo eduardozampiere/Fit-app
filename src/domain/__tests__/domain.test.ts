@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import cycleJson from '../../../assets/plan/ciclo_out26_jan27.json';
 import { addDays, diffDays, isoWeekday } from '../dates';
-import { formatKg, formatNumber, formatDateShort, parseDecimal, formatSeconds } from '../format';
+import { formatKg, formatNumber, formatDate, formatDayMonth, parseDecimal, formatSeconds } from '../format';
 import { resolveLoad, roundTo } from '../loads';
 import { asPlannedSets, tonnage } from '../logging';
 import {
@@ -185,7 +185,9 @@ describe('formatação pt-BR', () => {
     expect(formatNumber(1234.5)).toBe('1.234,5');
     expect(formatNumber(140)).toBe('140');
     expect(formatKg(132.5)).toBe('132,5 kg');
-    expect(formatDateShort('2026-11-03')).toBe('03/11');
+    expect(formatDate('2026-11-03', new Date(2026, 10, 5))).toBe('03 nov');
+    expect(formatDate('2025-12-31', new Date(2026, 10, 5))).toBe('31 dez, 2025');
+    expect(formatDayMonth('2026-11-03')).toBe('03/11');
     expect(parseDecimal('132,5')).toBe(132.5);
     expect(parseDecimal('1.234,5')).toBe(1234.5);
     expect(parseDecimal('')).toBeNull();

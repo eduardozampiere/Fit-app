@@ -39,7 +39,6 @@ export function ItemEditor({
       <KeyboardAvoidingView style={{ flex: 1, backgroundColor: t.bg }} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
         <SheetHeader
           title={item ? 'Editar exercício' : 'Novo exercício'}
-          onCancel={onClose}
           action="Salvar"
           actionDisabled={!valid}
           onAction={() => {

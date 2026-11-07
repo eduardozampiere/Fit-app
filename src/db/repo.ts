@@ -1,7 +1,8 @@
 import type { SQLiteDatabase } from 'expo-sqlite';
+import { flattenSets, type SetRow } from '../domain/analytics';
 import type { SetDraft } from '../domain/logging';
 import { NO_RED_FLAGS, type CheckIn, type LoggedSession } from '../domain/rules';
-import type { Cycle, Maxes, SessionLog, SetLog } from '../domain/types';
+import type { Cycle, Maxes, SessionLog, SetLog, SetType } from '../domain/types';
 
 export function newId(): string {
   return `${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 10)}`;
@@ -17,7 +18,19 @@ export async function getActiveCycle(db: SQLiteDatabase): Promise<Cycle | null> 
 }
 
 export async function saveCycleData(db: SQLiteDatabase, cycle: Cycle) {
-  await db.runAsync('UPDATE cycles SET data = ?, name = ? WHERE id = ?', JSON.stringify(cycle), cycle.name, cycle.id);
+  await db.withTransactionAsync(async () => {
+    await db.runAsync('UPDATE cycles SET data = ?, name = ? WHERE id = ?', JSON.stringify(cycle), cycle.name, cycle.id);
+    // Exercício novo (item adicionado ou troca de exercício) entra na tabela usada pelos nomes das análises.
+    for (const e of cycle.exercises) {
+      await db.runAsync('INSERT OR IGNORE INTO exercises (id, name, lift, category) VALUES (?, ?, ?, ?)', e.id, e.name, e.lift, e.category);
+    }
+  });
+}
+
+/** Depois de trocar o exercício de itens: as séries já registradas deles passam para o exercício novo. */
+export async function retagSetLogs(db: SQLiteDatabase, itemIds: string[], exerciseId: string): Promise<void> {
+  if (!itemIds.length) return;
+  await db.runAsync(`UPDATE set_logs SET exercise_id = ? WHERE item_id IN (${itemIds.map(() => '?').join(',')})`, exerciseId, ...itemIds);
 }
 
 // ---- Ajustes ----
@@ -52,10 +65,12 @@ type SessionLogRow = {
   date: string;
   status: SessionLog['status'];
   note: string | null;
+  started_at: string | null;
+  ended_at: string | null;
 };
 
 function toSessionLog(r: SessionLogRow): SessionLog {
-  return { id: r.id, cycleId: r.cycle_id, week: r.week, sessionId: r.session_id, date: r.date, status: r.status, note: r.note };
+  return { id: r.id, cycleId: r.cycle_id, week: r.week, sessionId: r.session_id, date: r.date, status: r.status, note: r.note, startedAt: r.started_at, endedAt: r.ended_at };
 }
 
 type SetLogRow = {
@@ -72,6 +87,8 @@ type SetLogRow = {
   belt: number | null;
   failed: number;
   as_planned: number;
+  warmup: number;
+  set_type: SetType;
   note: string | null;
   done_at: string;
 };
@@ -91,6 +108,8 @@ function toSetLog(r: SetLogRow): SetLog {
     belt: r.belt === null ? null : r.belt === 1,
     failed: r.failed === 1,
     asPlanned: r.as_planned === 1,
+    warmup: r.warmup === 1,
+    setType: r.set_type ?? 'normal',
     note: r.note,
     doneAt: r.done_at,
   };
@@ -102,6 +121,15 @@ export async function listSessionLogs(db: SQLiteDatabase, cycleId: string): Prom
     cycleId,
   );
   return rows.map(toSessionLog);
+}
+
+/** Treinos (`session_id`) do ciclo que têm pelo menos uma série registrada. */
+export async function listSessionsWithSets(db: SQLiteDatabase, cycleId: string): Promise<Set<string>> {
+  const rows = await db.getAllAsync<{ session_id: string }>(
+    'SELECT DISTINCT l.session_id FROM session_logs l JOIN set_logs s ON s.session_log_id = l.id WHERE l.cycle_id = ?',
+    cycleId,
+  );
+  return new Set(rows.map((r) => r.session_id));
 }
 
 export async function getSessionLog(db: SQLiteDatabase, cycleId: string, sessionId: string): Promise<SessionLog | null> {
@@ -122,7 +150,7 @@ export async function ensureSessionLog(
 ): Promise<SessionLog> {
   const existing = await getSessionLog(db, cycleId, sessionId);
   if (existing) return existing;
-  const log: SessionLog = { id: newId(), cycleId, week, sessionId, date, status: 'in_progress', note: null };
+  const log: SessionLog = { id: newId(), cycleId, week, sessionId, date, status: 'in_progress', note: null, startedAt: null, endedAt: null };
   await db.runAsync(
     `INSERT INTO session_logs (id, cycle_id, week, session_id, date, status, note, created_at)
      VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
@@ -138,8 +166,48 @@ export async function ensureSessionLog(
   return log;
 }
 
-export async function setSessionStatus(db: SQLiteDatabase, id: string, status: SessionLog['status']) {
-  await db.runAsync('UPDATE session_logs SET status = ? WHERE id = ?', status, id);
+/** O treino em andamento (só um por vez, de qualquer ciclo): começou e não foi concluído. */
+export async function getActiveWorkout(db: SQLiteDatabase): Promise<SessionLog | null> {
+  const row = await db.getFirstAsync<SessionLogRow>(
+    "SELECT * FROM session_logs WHERE status = 'in_progress' AND started_at IS NOT NULL ORDER BY started_at DESC LIMIT 1",
+  );
+  return row ? toSessionLog(row) : null;
+}
+
+/** Inicia o treino (mantém o início se já havia). */
+export async function startSession(db: SQLiteDatabase, id: string, at: string = new Date().toISOString()) {
+  await db.runAsync("UPDATE session_logs SET status = 'in_progress', started_at = COALESCE(started_at, ?), ended_at = NULL WHERE id = ?", at, id);
+}
+
+/** Conclui o treino; a duração para de crescer. */
+export async function finishSession(db: SQLiteDatabase, id: string, at: string = new Date().toISOString()) {
+  await db.runAsync("UPDATE session_logs SET status = 'done', started_at = COALESCE(started_at, ?), ended_at = ? WHERE id = ?", at, at, id);
+}
+
+/** Reabre um treino concluído, mantendo a hora de início. */
+export async function reopenSession(db: SQLiteDatabase, id: string) {
+  await db.runAsync("UPDATE session_logs SET status = 'in_progress', ended_at = NULL WHERE id = ?", id);
+}
+
+/** Quantas séries (inclui aquecimento) o treino tem registradas. */
+export async function countSets(db: SQLiteDatabase, sessionLogId: string): Promise<number> {
+  const row = await db.getFirstAsync<{ n: number }>('SELECT COUNT(*) AS n FROM set_logs WHERE session_log_id = ?', sessionLogId);
+  return row?.n ?? 0;
+}
+
+/** Hora da última série do treino (ISO), ou null sem séries. */
+export async function lastSetAt(db: SQLiteDatabase, sessionLogId: string): Promise<string | null> {
+  const row = await db.getFirstAsync<{ at: string | null }>('SELECT MAX(done_at) AS at FROM set_logs WHERE session_log_id = ?', sessionLogId);
+  return row?.at ?? null;
+}
+
+/** Descarta o treino: apaga as séries e os ajustes do dia (ordem, séries a mais). Não dá para desfazer. */
+export async function discardSession(db: SQLiteDatabase, id: string) {
+  await db.withTransactionAsync(async () => {
+    await db.runAsync('DELETE FROM set_logs WHERE session_log_id = ?', id);
+    await db.runAsync('DELETE FROM session_logs WHERE id = ?', id);
+    await db.runAsync('DELETE FROM settings WHERE key IN (?, ?, ?)', setCountsKey(id), warmupCountsKey(id), exerciseOrderKey(id));
+  });
 }
 
 export async function setSessionDate(db: SQLiteDatabase, id: string, date: string) {
@@ -161,8 +229,8 @@ export async function insertSets(db: SQLiteDatabase, sessionLogId: string, draft
     for (const d of drafts) {
       await db.runAsync(
         `INSERT INTO set_logs (id, session_log_id, item_id, exercise_id, set_index, load_kg, reps, duration_sec,
-           rpe, grip, belt, failed, as_planned, note, done_at)
-         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+           rpe, grip, belt, failed, as_planned, warmup, set_type, note, done_at)
+         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
         newId(),
         sessionLogId,
         d.itemId,
@@ -176,10 +244,32 @@ export async function insertSets(db: SQLiteDatabase, sessionLogId: string, draft
         d.belt === null ? null : d.belt ? 1 : 0,
         d.failed ? 1 : 0,
         d.asPlanned ? 1 : 0,
+        d.warmup ? 1 : 0,
+        d.setType,
         d.note,
         now,
       );
     }
+  });
+}
+
+export async function updateSetType(db: SQLiteDatabase, id: string, setType: SetType): Promise<void> {
+  await db.runAsync('UPDATE set_logs SET set_type = ? WHERE id = ?', setType, id);
+}
+
+/**
+ * Passa uma série de aquecimento para trabalho (ou o contrário): ela vai para o fim do outro grupo e as
+ * seguintes do grupo de origem sobem uma posição. `id` nulo = linha ainda não registrada (só renumera).
+ */
+export async function moveSetToGroup(
+  db: SQLiteDatabase,
+  id: string | null,
+  to: { warmup: boolean; setIndex: number; setType: SetType },
+  renumber: { id: string; setIndex: number }[],
+): Promise<void> {
+  await db.withTransactionAsync(async () => {
+    for (const r of renumber) await db.runAsync('UPDATE set_logs SET set_index = ? WHERE id = ?', r.setIndex, r.id);
+    if (id) await db.runAsync('UPDATE set_logs SET warmup = ?, set_index = ?, set_type = ? WHERE id = ?', to.warmup ? 1 : 0, to.setIndex, to.setType, id);
   });
 }
 
@@ -218,6 +308,15 @@ export async function deleteSetAndRenumber(
 
 /** Séries adicionadas ou removidas no treino do dia, por item (chave: id do item). */
 export const setCountsKey = (sessionLogId: string) => `set-counts:${sessionLogId}`;
+
+/** Linhas de aquecimento adicionadas no treino do dia, por item. */
+export const warmupCountsKey = (sessionLogId: string) => `warmup-counts:${sessionLogId}`;
+
+/** Ajustes de descanso por exercício: { [exerciseId]: segundos }. */
+export const restOverridesKey = 'rest-overrides';
+
+/** Ordem dos exercícios no treino do dia (ids do primeiro item de cada bloco). */
+export const exerciseOrderKey = (sessionLogId: string) => `exercise-order:${sessionLogId}`;
 
 // ---- Check-in ----
 
@@ -285,11 +384,14 @@ export async function decideAlert(db: SQLiteDatabase, cycleId: string, key: stri
   );
 }
 
-/** Todas as sessões do ciclo com suas séries (entrada do motor de regras). */
+/**
+ * Todas as sessões do ciclo com suas séries de trabalho (entrada do motor de regras, das análises, do
+ * pacote para o Claude e da exportação). O aquecimento fica de fora; o backup guarda tudo.
+ */
 export async function listLoggedSessions(db: SQLiteDatabase, cycleId: string): Promise<LoggedSession[]> {
   const logs = await listSessionLogs(db, cycleId);
   const rows = await db.getAllAsync<SetLogRow>(
-    `SELECT s.* FROM set_logs s JOIN session_logs l ON l.id = s.session_log_id WHERE l.cycle_id = ? ORDER BY s.set_index`,
+    `SELECT s.* FROM set_logs s JOIN session_logs l ON l.id = s.session_log_id WHERE l.cycle_id = ? AND s.warmup = 0 ORDER BY s.set_index`,
     cycleId,
   );
   const bySession = new Map<string, SetLog[]>();
@@ -318,6 +420,14 @@ export async function setActiveCycle(db: SQLiteDatabase, id: string): Promise<vo
     await db.runAsync("UPDATE cycles SET status = 'done' WHERE status = 'active'");
     await db.runAsync("UPDATE cycles SET status = 'active' WHERE id = ?", id);
   });
+}
+
+/** Todas as séries de trabalho de todos os ciclos, com o contexto do plano (análises e tela do exercício). */
+export async function listAllSetRows(db: SQLiteDatabase): Promise<SetRow[]> {
+  const [cycles, names] = await Promise.all([listCycles(db), exerciseNames(db)]);
+  const all: SetRow[] = [];
+  for (const { cycle } of cycles) all.push(...flattenSets(cycle, await listLoggedSessions(db, cycle.id), names));
+  return all;
 }
 
 export async function exerciseNames(db: SQLiteDatabase): Promise<Map<string, string>> {

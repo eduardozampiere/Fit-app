@@ -1,10 +1,15 @@
 import Ionicons from '@expo/vector-icons/Ionicons';
-import { useState } from 'react';
+import { useState, type ReactNode } from 'react';
 import { Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
 import { formatNumber, formatRange } from '../domain/format';
+import type { SetDraft } from '../domain/logging';
 import type { SetLock } from '../domain/rules';
-import type { PrescribedItem, SetLog } from '../domain/types';
+import type { PrescribedItem, SetLog, SetType } from '../domain/types';
 import { radius, space, useTheme } from '../ui/theme';
+import { choiceOf, setRowLabel } from '../domain/setTypes';
+import { DragList, type DragHandleProps } from './DragList';
+import { setChoiceColor } from './SetTypeSheet';
+import { SwipeToDelete } from './SwipeToDelete';
 import { BigButton } from './ui';
 
 export interface SetInput {
@@ -12,12 +17,18 @@ export interface SetInput {
   work: string;
 }
 
-const COL = { set: 34, load: 66, work: 54, rpe: 48, check: 44 } as const;
+export type SetKind = 'warmup' | 'work';
+
+/** KG, REPS e RPE têm a mesma largura; o ✓ tem a mesma altura dos campos. */
+const COL = { set: 34, num: 60, check: 44 } as const;
+const CELL_H = 40;
 
 /**
  * Tabela de séries no estilo do Hevy: SÉRIE · PLANO · KG · REPS · (RPE) · ✓.
- * Célula vazia mostra o valor do plano em cinza; ✓ registra o que foi digitado ou, sem nada digitado,
- * conforme o plano. Tocar no número da série abre o menu (detalhes, remover).
+ * Aquecimento ("A", em laranja) vem antes das séries de trabalho, com cargas sugeridas em cinza.
+ * Célula vazia mostra o valor sugerido; ✓ registra o que foi digitado ou, sem nada digitado, a sugestão.
+ * Arrastar a linha para a direita apaga; tocar no número abre o menu da série; segurar o número e
+ * arrastar muda a ordem (aquecimento e trabalho, cada um entre os seus).
  */
 export function SetTable({
   item,
@@ -25,120 +36,211 @@ export function SetTable({
   logs,
   rows,
   plannedCount,
+  warmups,
+  warmupDrafts,
   lock,
   showRpe,
   pendingRpeIndex,
   onCheck,
   onUncheck,
   onEdit,
+  onRemove,
   onSetMenu,
   onRpe,
   onAdd,
+  onAddWarmup,
+  pendingTypes,
+  onMoveSet,
+  onDragChange,
+  single = false,
+  beforeWork,
 }: {
   item: PrescribedItem;
   plannedLoad: number | null;
   logs: SetLog[];
   rows: number;
   plannedCount: number;
+  warmups: SetLog[];
+  /** Uma sugestão por linha de aquecimento (A1, A2…). */
+  warmupDrafts: SetDraft[];
   lock?: SetLock;
   showRpe: boolean;
   /** Série cujo RPE o app está pedindo (destacada). */
   pendingRpeIndex: number | null;
-  onCheck: (setIndex: number, input: SetInput) => void;
+  onCheck: (kind: SetKind, setIndex: number, input: SetInput) => void;
   onUncheck: (log: SetLog) => void;
   onEdit: (log: SetLog, input: SetInput) => void;
-  onSetMenu: (setIndex: number, log: SetLog | null) => void;
+  onRemove: (kind: SetKind, setIndex: number, log: SetLog | null) => void;
+  onSetMenu: (kind: SetKind, setIndex: number, log: SetLog | null) => void;
   onRpe: (log: SetLog) => void;
   onAdd: () => void;
+  onAddWarmup: () => void;
+  /** Tipo escolhido para linhas ainda não registradas (série até a falha, drop set), por número da série. */
+  pendingTypes: Record<number, SetType>;
+  /** Arrastou a série de `from` para `to` (posições 1…n dentro do mesmo tipo). */
+  onMoveSet: (kind: SetKind, from: number, to: number) => void;
+  onDragChange: (dragging: boolean) => void;
+  /** Linha do single de ativação dentro da tabela do principal: rótulo "S", sem cabeçalho nem botões. */
+  single?: boolean;
+  /** Linhas extras entre o aquecimento e as séries de trabalho (o single do principal). */
+  beforeWork?: ReactNode;
 }) {
   const t = useTheme();
   const isDuration = !!item.durationSec && !item.reps;
   const plannedWork = isDuration ? formatRange(item.durationSec) : item.reps ? formatRange(item.reps) : '—';
   const plannedText = `${plannedLoad !== null ? formatNumber(plannedLoad) : '—'}×${plannedWork}`;
+  // Linhas bloqueadas (regras 4 e 5) ficam paradas no fim; as de antes podem ser arrastadas.
+  const all = Array.from({ length: rows }, (_, i) => i + 1);
+  const firstLocked = lock ? all.find((idx) => idx >= lock.fromSet && !logs.some((l) => l.setIndex === idx)) : undefined;
+  const workRows = firstLocked ? all.filter((idx) => idx < firstLocked) : all;
+  const lockedRows = firstLocked ? all.filter((idx) => idx >= firstLocked) : [];
 
   return (
     <View style={{ gap: 2 }}>
-      <View style={styles.headRow} accessibilityElementsHidden importantForAccessibility="no-hide-descendants">
-        <Text style={[styles.head, { width: COL.set, color: t.muted }]}>SÉRIE</Text>
-        <Text style={[styles.head, styles.flex, { color: t.muted }]}>PLANO</Text>
-        <Text style={[styles.head, styles.center, { width: COL.load, color: t.muted }]}>KG</Text>
-        <Text style={[styles.head, styles.center, { width: COL.work, color: t.muted }]}>{isDuration ? 'SEG' : 'REPS'}</Text>
-        {showRpe ? <Text style={[styles.head, styles.center, { width: COL.rpe, color: t.muted }]}>RPE</Text> : null}
-        <View style={{ width: COL.check, alignItems: 'center' }}>
-          <Ionicons name="checkmark" size={16} color={t.muted} />
+      {single ? null : (
+        <View style={styles.headRow} accessibilityElementsHidden importantForAccessibility="no-hide-descendants">
+          <Text style={[styles.head, { width: COL.set, color: t.muted }]}>SÉRIE</Text>
+          <Text style={[styles.head, styles.flex, { color: t.muted }]}>PLANO</Text>
+          <Text style={[styles.head, styles.center, { width: COL.num, color: t.muted }]}>KG</Text>
+          <Text style={[styles.head, styles.center, { width: COL.num, color: t.muted }]}>{isDuration ? 'SEG' : 'REPS'}</Text>
+          {showRpe ? <Text style={[styles.head, styles.center, { width: COL.num, color: t.muted }]}>RPE</Text> : null}
+          <View style={{ width: COL.check, alignItems: 'center' }}>
+            <Ionicons name="checkmark" size={16} color={t.muted} />
+          </View>
         </View>
-      </View>
+      )}
 
-      {Array.from({ length: rows }, (_, i) => i + 1).map((idx) => {
-        const log = logs.find((l) => l.setIndex === idx) ?? null;
-        const locked = !log && !!lock && idx >= lock.fromSet;
-        if (locked) {
+      <DragList
+        items={warmupDrafts}
+        keyOf={(d) => `w${d.setIndex}-${warmups.find((l) => l.setIndex === d.setIndex)?.id ?? 'new'}`}
+        onMove={(from, to) => onMoveSet('warmup', from + 1, to + 1)}
+        onDragChange={onDragChange}
+        style={styles.rows}
+        renderItem={(draft, i, handle) => {
+          const idx = i + 1;
+          const log = warmups.find((l) => l.setIndex === idx) ?? null;
           return (
-            <View
-              key={idx}
-              style={[styles.row, { backgroundColor: t.surface, opacity: 0.6 }]}
-              accessible
-              accessibilityLabel={`Série ${idx} bloqueada: ${lock!.reason}`}
-            >
-              <Text style={[styles.setIdx, { width: COL.set, color: t.muted }]}>{idx}</Text>
-              <Ionicons name="lock-closed" size={16} color={t.muted} />
-              <Text style={[styles.lockedText, { color: t.muted }]}>bloqueada</Text>
-            </View>
+            <SwipeToDelete label={`aquecimento ${idx}`} onDelete={() => onRemove('warmup', idx, log)}>
+              <SetRow
+                key={`w${idx}-${log?.id ?? 'new'}-${log?.loadKg}-${log?.reps}`}
+                label="A"
+                labelColor={t.warn}
+                a11yName={`Aquecimento ${idx}`}
+                log={log}
+                plannedText="aquec."
+                loadPlaceholder={draft.loadKg !== null ? formatNumber(draft.loadKg, 2) : '—'}
+                workPlaceholder={String((isDuration ? draft.durationSec : draft.reps) ?? '—')}
+                isDuration={isDuration}
+                rpeColumn={showRpe ? 'blank' : 'none'}
+                rpePending={false}
+                handle={handle}
+                onCheck={(input) => onCheck('warmup', idx, input)}
+                onUncheck={onUncheck}
+                onEdit={onEdit}
+                onMenu={() => onSetMenu('warmup', idx, log)}
+                onRpe={onRpe}
+              />
+            </SwipeToDelete>
           );
-        }
-        return (
-          <SetRow
-            key={`${idx}-${log?.id ?? 'new'}-${log?.loadKg}-${log?.reps}-${log?.durationSec}`}
-            idx={idx}
-            log={log}
-            optional={idx > plannedCount}
-            plannedText={plannedText}
-            plannedLoad={plannedLoad}
-            plannedWork={plannedWork}
-            isDuration={isDuration}
-            showRpe={showRpe}
-            rpePending={pendingRpeIndex === idx}
-            onCheck={(input) => onCheck(idx, input)}
-            onUncheck={onUncheck}
-            onEdit={onEdit}
-            onMenu={() => onSetMenu(idx, log)}
-            onRpe={onRpe}
-          />
-        );
-      })}
+        }}
+      />
 
-      <View style={{ marginTop: space.sm }}>
-        <BigButton label="Adicionar série" icon="add" variant="neutral" compact onPress={onAdd} />
-      </View>
+      {beforeWork}
+
+      <DragList
+        items={workRows}
+        keyOf={(idx) => `${idx}-${logs.find((l) => l.setIndex === idx)?.id ?? 'new'}`}
+        onMove={(from, to) => onMoveSet('work', from + 1, to + 1)}
+        onDragChange={onDragChange}
+        style={styles.rows}
+        renderItem={(idx, _i, handle) => {
+          const log = logs.find((l) => l.setIndex === idx) ?? null;
+          const optional = idx > plannedCount;
+          const choice = log ? choiceOf(log) : (pendingTypes[idx] ?? 'normal');
+          return (
+            <SwipeToDelete label={single ? 'single' : `série ${idx}`} onDelete={() => onRemove('work', idx, log)}>
+              <SetRow
+                key={`${idx}-${log?.id ?? 'new'}-${log?.loadKg}-${log?.reps}-${log?.durationSec}`}
+                label={single ? 'S' : setRowLabel(choice, idx)}
+                labelColor={single ? t.accent : choice !== 'normal' ? setChoiceColor(t, choice) : optional && !log ? t.muted : t.text}
+                a11yName={single ? 'Single de ativação' : `Série ${idx}${optional ? ', opcional' : ''}`}
+                log={log}
+                plannedText={log?.failed ? 'falhou' : optional && !log ? `${plannedText} opc.` : plannedText}
+                loadPlaceholder={plannedLoad !== null ? formatNumber(plannedLoad, 2) : '—'}
+                workPlaceholder={plannedWork}
+                isDuration={isDuration}
+                rpeColumn={showRpe ? 'rpe' : 'none'}
+                rpePending={pendingRpeIndex === idx}
+                handle={handle}
+                onCheck={(input) => onCheck('work', idx, input)}
+                onUncheck={onUncheck}
+                onEdit={onEdit}
+                onMenu={() => onSetMenu('work', idx, log)}
+                onRpe={onRpe}
+              />
+            </SwipeToDelete>
+          );
+        }}
+      />
+
+      {lockedRows.map((idx) => (
+        <View
+          key={idx}
+          style={[styles.row, { backgroundColor: t.surface, opacity: 0.6 }]}
+          accessible
+          accessibilityLabel={`Série ${idx} bloqueada: ${lock!.reason}`}
+        >
+          <Text style={[styles.setIdx, { width: COL.set, color: t.muted }]}>{idx}</Text>
+          <Ionicons name="lock-closed" size={16} color={t.muted} />
+          <Text style={[styles.lockedText, { color: t.muted }]}>bloqueada</Text>
+        </View>
+      ))}
+
+      {single ? null : (
+        <View style={styles.addRow}>
+          <View style={{ flex: 1 }}>
+            <BigButton label="Adicionar série" icon="add" variant="neutral" compact onPress={onAdd} />
+          </View>
+          <View style={{ flex: 1 }}>
+            <BigButton label="Aquecimento" icon="flame-outline" variant="neutral" compact onPress={onAddWarmup} />
+          </View>
+        </View>
+      )}
     </View>
   );
 }
 
 function SetRow({
-  idx,
+  label,
+  labelColor,
+  a11yName,
   log,
-  optional,
   plannedText,
-  plannedLoad,
-  plannedWork,
+  loadPlaceholder,
+  workPlaceholder,
   isDuration,
-  showRpe,
+  rpeColumn,
   rpePending,
+  handle,
   onCheck,
   onUncheck,
   onEdit,
   onMenu,
   onRpe,
 }: {
-  idx: number;
+  label: string;
+  labelColor: string;
+  a11yName: string;
   log: SetLog | null;
-  optional: boolean;
   plannedText: string;
-  plannedLoad: number | null;
-  plannedWork: string;
+  loadPlaceholder: string;
+  workPlaceholder: string;
   isDuration: boolean;
-  showRpe: boolean;
+  /** 'blank' mantém a coluna alinhada nas linhas sem RPE (aquecimento). */
+  rpeColumn: 'rpe' | 'blank' | 'none';
   rpePending: boolean;
+  /** Segurar o número para arrastar. */
+  handle: DragHandleProps;
   onCheck: (input: SetInput) => void;
   onUncheck: (log: SetLog) => void;
   onEdit: (log: SetLog, input: SetInput) => void;
@@ -150,7 +252,7 @@ function SetRow({
   // A tabela remonta a linha (key) quando a série gravada muda, então o estado inicial basta.
   const [load, setLoad] = useState(log?.loadKg != null ? formatNumber(log.loadKg, 2) : '');
   const [work, setWork] = useState(loggedWork != null ? String(loggedWork) : '');
-  const rowBg = log ? (log.failed ? t.dangerBg : t.doneBg) : 'transparent';
+  const rowBg = log ? (log.failed ? t.dangerBg : t.doneBg) : t.bg;
   const cellBg = log ? 'transparent' : t.surface;
   const commitEdit = () => {
     if (log) onEdit(log, { load, work });
@@ -160,58 +262,58 @@ function SetRow({
     <View style={[styles.row, { backgroundColor: rowBg }]}>
       <Pressable
         accessibilityRole="button"
-        accessibilityLabel={`Série ${idx}${optional ? ', opcional' : ''}. Abrir menu da série`}
+        accessibilityLabel={`${a11yName}. Abrir menu da série`}
+        accessibilityHint="Segure e arraste para mudar a ordem"
         onPress={onMenu}
+        {...handle}
         hitSlop={8}
         style={[styles.setIdxBtn, { width: COL.set }]}
       >
-        <Text style={[styles.setIdx, { color: optional && !log ? t.muted : t.text }]}>{idx}</Text>
+        <Text style={[styles.setIdx, { color: labelColor }]}>{label}</Text>
       </Pressable>
       <Text style={[styles.planned, styles.flex, { color: t.muted }]} numberOfLines={1}>
-        {log?.failed ? 'falhou' : optional && !log ? `${plannedText} opc.` : plannedText}
+        {plannedText}
       </Text>
       <TextInput
         value={load}
         onChangeText={setLoad}
         onEndEditing={commitEdit}
-        placeholder={plannedLoad !== null ? formatNumber(plannedLoad, 2) : '—'}
+        placeholder={loadPlaceholder}
         placeholderTextColor={t.muted}
         keyboardType="decimal-pad"
         selectTextOnFocus
-        accessibilityLabel={`Carga da série ${idx} em quilos`}
-        style={[styles.cell, { width: COL.load, color: t.text, backgroundColor: cellBg }]}
+        accessibilityLabel={`Carga, ${a11yName}, em quilos`}
+        style={[styles.cell, { width: COL.num, color: t.text, backgroundColor: cellBg }, !load && styles.cellEmpty]}
       />
       <TextInput
         value={work}
         onChangeText={setWork}
         onEndEditing={commitEdit}
-        placeholder={plannedWork}
+        placeholder={workPlaceholder}
         placeholderTextColor={t.muted}
         keyboardType="number-pad"
         selectTextOnFocus
-        accessibilityLabel={`${isDuration ? 'Segundos' : 'Repetições'} da série ${idx}`}
-        style={[styles.cell, { width: COL.work, color: t.text, backgroundColor: cellBg }]}
+        accessibilityLabel={`${isDuration ? 'Segundos' : 'Repetições'}, ${a11yName}`}
+        style={[styles.cell, { width: COL.num, color: t.text, backgroundColor: cellBg }, !work && styles.cellEmpty]}
       />
-      {showRpe ? (
+      {rpeColumn === 'rpe' ? (
         <Pressable
           accessibilityRole="button"
-          accessibilityLabel={log ? `RPE da série ${idx}: ${log.rpe !== null ? formatNumber(log.rpe) : 'não informado'}` : `RPE da série ${idx}`}
+          accessibilityLabel={log ? `RPE, ${a11yName}: ${log.rpe !== null ? formatNumber(log.rpe) : 'não informado'}` : `RPE, ${a11yName}`}
           disabled={!log}
           onPress={() => log && onRpe(log)}
-          style={[
-            styles.rpeCell,
-            { width: COL.rpe },
-            rpePending && { borderColor: t.accent, borderWidth: 2 },
-          ]}
+          style={[styles.rpeCell, { width: COL.num }, rpePending && { borderColor: t.accent, borderWidth: 2 }]}
         >
           <Text style={[styles.rpeText, { color: rpePending ? t.accent : log?.rpe != null ? t.text : t.muted }]}>
             {log?.rpe != null ? formatNumber(log.rpe) : rpePending ? 'RPE?' : '—'}
           </Text>
         </Pressable>
+      ) : rpeColumn === 'blank' ? (
+        <View style={{ width: COL.num }} />
       ) : null}
       <Pressable
         accessibilityRole="button"
-        accessibilityLabel={log ? `Série ${idx} feita. Desmarcar` : `Concluir série ${idx}`}
+        accessibilityLabel={log ? `${a11yName} feita. Desmarcar` : `Concluir ${a11yName}`}
         accessibilityState={{ checked: !!log }}
         onPress={() => (log ? onUncheck(log) : onCheck({ load, work }))}
         hitSlop={10}
@@ -234,10 +336,14 @@ const styles = StyleSheet.create({
   setIdxBtn: { height: 44, justifyContent: 'center' },
   setIdx: { fontSize: 16, fontWeight: '600', textAlign: 'center' },
   planned: { fontSize: 14, fontVariant: ['tabular-nums'] },
-  cell: { height: 40, borderRadius: radius.cell, textAlign: 'center', fontSize: 17, fontWeight: '600', fontVariant: ['tabular-nums'], padding: 0 },
-  rpeCell: { height: 40, borderRadius: radius.cell, alignItems: 'center', justifyContent: 'center' },
+  cell: { height: CELL_H, borderRadius: radius.button, textAlign: 'center', fontSize: 17, fontWeight: '600', fontVariant: ['tabular-nums'], padding: 0 },
+  // Vazio, mostra a sugestão do plano: menor e mais leve que o valor digitado.
+  cellEmpty: { fontSize: 15, fontWeight: '400' },
+  rpeCell: { height: CELL_H, borderRadius: radius.button, alignItems: 'center', justifyContent: 'center' },
   rpeText: { fontSize: 15, fontWeight: '600', fontVariant: ['tabular-nums'] },
   checkWrap: { height: 44, alignItems: 'center', justifyContent: 'center' },
-  check: { width: 36, height: 36, borderRadius: radius.cell, alignItems: 'center', justifyContent: 'center' },
+  check: { width: CELL_H, height: CELL_H, borderRadius: radius.button, alignItems: 'center', justifyContent: 'center' },
   lockedText: { fontSize: 14, marginLeft: space.xs },
+  rows: { gap: 2 },
+  addRow: { flexDirection: 'row', gap: space.sm, marginTop: space.sm },
 });

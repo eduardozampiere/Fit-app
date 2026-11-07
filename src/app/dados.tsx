@@ -32,7 +32,7 @@ import { applyAdjustments, extractJson, validateAdjustments, validateCycle, type
 import { flattenSets, nutritionDays } from '../domain/analytics';
 import { addDays, toISODate } from '../domain/dates';
 import { checkinsCsv, mealsCsv, measurementsCsv, weightsCsv, workoutsCsv } from '../domain/exporters';
-import { formatDateShort } from '../domain/format';
+import { formatDate } from '../domain/format';
 import {
   detectCsvKind,
   parseHevy,
@@ -302,7 +302,7 @@ export default function DataScreen() {
           {parsedReply?.kind === 'cycle' && parsedReply.result.ok && parsedReply.result.cycle ? (
             <View style={{ gap: 6 }}>
               <Text style={{ color: t.text, fontSize: 15 }}>
-                Ciclo “{parsedReply.result.cycle.name}”: {parsedReply.result.cycle.weeks.length} semanas, início {formatDateShort(parsedReply.result.cycle.startDate)}.
+                Ciclo “{parsedReply.result.cycle.name}”: {parsedReply.result.cycle.weeks.length} semanas, início {formatDate(parsedReply.result.cycle.startDate)}.
               </Text>
               <BigButton label="Salvar como próximo ciclo" variant="success" onPress={() => importNewCycle(false)} />
               <BigButton label="Importar e já ativar" variant="neutral" onPress={() => importNewCycle(true)} />
@@ -334,7 +334,7 @@ export default function DataScreen() {
           <Card key={c.id} style={{ gap: 6 }}>
             <Text style={{ color: t.text, fontSize: 16, fontWeight: '700' }}>{c.name}</Text>
             <Text style={{ color: t.muted, fontSize: 14 }}>
-              {formatDateShort(c.startDate)} a {formatDateShort(c.endDate)} · {c.weeks.length} semanas ·{' '}
+              {formatDate(c.startDate)} a {formatDate(c.endDate)} · {c.weeks.length} semanas ·{' '}
               {status === 'active' ? 'ativo' : status === 'planned' ? 'planejado' : 'concluído'}
             </Text>
             {status !== 'active' ? (
@@ -479,7 +479,6 @@ function MappingModal({
                 onDone(choices);
               }}
             />
-            <BigButton label="Cancelar" variant="neutral" onPress={onClose} />
           </ScrollView>
         )}
       </View>

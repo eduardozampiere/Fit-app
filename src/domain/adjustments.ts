@@ -5,10 +5,12 @@ import { LIFTS, liftOf } from './plan';
 import { parseLoadText, parseRestText, parseRpeText, parseSetsText } from './parsing';
 import { applySuggestion } from './rules';
 import { slugify } from './text';
-import type { Cycle, ItemKind, Lift, Maxes, PlanWeek, PrescribedItem } from './types';
+import type { Cycle, Exercise, ItemKind, Lift, Maxes, PlanWeek, PrescribedItem } from './types';
 
 export interface ItemPatch {
   name?: string;
+  /** Troca o exercício do item (precisa existir em `exercises` do ciclo). */
+  exerciseId?: string;
   setsText?: string; // "4x4", "3x8-12"
   load?: string | number; // 140, "205-210", "100+", "—"
   rpe?: string; // "7-7.5", "≤8"
@@ -38,11 +40,10 @@ const LIFT_PT: Record<Lift, string> = { squat: 'agacho', bench: 'supino', deadli
 const KINDS: ItemKind[] = ['main', 'variation', 'activation_single', 'walkout', 'backoff', 'volume_doubles', 'accessory', 'core'];
 
 function findItem(cycle: Cycle, itemId: string): { week: PlanWeek; item: PrescribedItem } | null {
-  for (const week of cycle.weeks)
-    for (const s of week.sessions) {
-      const item = s.items.find((i) => i.id === itemId);
-      if (item) return { week, item };
-    }
+  for (const week of cycle.weeks) {
+    const item = [...week.sessions.flatMap((s) => s.items), ...(week.core?.items ?? [])].find((i) => i.id === itemId);
+    if (item) return { week, item };
+  }
   return null;
 }
 
@@ -79,6 +80,9 @@ export function validateAdjustments(input: unknown, cycle: Cycle): ValidationRes
         if (!f) errors.push(`${where}: item "${o.itemId}" não existe.`);
         if (!o.patch || typeof o.patch !== 'object') errors.push(`${where}: falta "patch".`);
         else if (o.patch.kind && !KINDS.includes(o.patch.kind)) errors.push(`${where}: "kind" inválido.`);
+        if (o.patch?.exerciseId && !cycle.exercises.some((e) => e.id === o.patch.exerciseId)) {
+          errors.push(`${where}: exercício "${o.patch.exerciseId}" não está em "exercises".`);
+        }
         const parts = Object.entries(o.patch ?? {}).map(([k, v]) => `${k}: ${v}`);
         preview.push(`S${f?.week.number ?? '?'} ${f?.item.name ?? o.itemId} → ${parts.join(', ')}`);
         break;
@@ -127,6 +131,7 @@ export function validateAdjustments(input: unknown, cycle: Cycle): ValidationRes
 export function patchItem(item: PrescribedItem, patch: ItemPatch): PrescribedItem {
   const next = { ...item };
   if (patch.name !== undefined) next.name = patch.name;
+  if (patch.exerciseId !== undefined) next.exerciseId = patch.exerciseId;
   if (patch.kind !== undefined) next.kind = patch.kind;
   if (patch.notes !== undefined) next.notes = patch.notes;
   if (patch.setsText !== undefined) {
@@ -142,10 +147,15 @@ export function patchItem(item: PrescribedItem, patch: ItemPatch): PrescribedIte
   return next;
 }
 
+/** Aplica `fn` aos itens de cada sessão e ao core/mobilidade da semana (id de sessão `core:<semana>`). */
 function mapSessions(cycle: Cycle, fn: (week: PlanWeek, items: PrescribedItem[], sessionId: string) => PrescribedItem[]): Cycle {
   return {
     ...cycle,
-    weeks: cycle.weeks.map((w) => ({ ...w, sessions: w.sessions.map((s) => ({ ...s, items: fn(w, s.items, s.id) })) })),
+    weeks: cycle.weeks.map((w) => ({
+      ...w,
+      sessions: w.sessions.map((s) => ({ ...s, items: fn(w, s.items, s.id) })),
+      core: w.core ? { ...w.core, items: fn(w, w.core.items, `core:${w.number}`) } : null,
+    })),
   };
 }
 
@@ -177,7 +187,7 @@ export function applyAdjustments(cycle: Cycle, maxes: Maxes, ops: AdjustmentOp[]
         c = mapSessions(c, (_w, items) => items.filter((it) => it.id !== o.itemId).map((it) => (it.parentId === o.itemId ? { ...it, parentId: null } : it)));
         break;
       case 'add_item': {
-        const exerciseId = slugify(o.item.name);
+        const exerciseId = o.item.exerciseId ?? slugify(o.item.name);
         const base: PrescribedItem = {
           id: `${o.sessionId}-c${Date.now().toString(36)}${Math.random().toString(36).slice(2, 5)}`,
           exerciseId,
@@ -207,7 +217,7 @@ export function applyAdjustments(cycle: Cycle, maxes: Maxes, ops: AdjustmentOp[]
           return at >= 0 ? [...items.slice(0, at + 1), item, ...items.slice(at + 1)] : [...items, item];
         });
         if (!c.exercises.some((e) => e.id === exerciseId)) {
-          c = { ...c, exercises: [...c.exercises, { id: exerciseId, name: o.item.name, lift: null, category: 'accessory' }] };
+          c = { ...c, exercises: [...c.exercises, { id: exerciseId, name: o.item.name, lift: null, category: o.item.kind === 'core' ? 'core' : 'accessory' }] };
         }
         break;
       }
@@ -245,6 +255,84 @@ export function validateCycle(input: unknown): { ok: boolean; errors: string[]; 
   if (errors.length) return { ok: false, errors: errors.slice(0, 20), cycle: null };
   const cyc = c as Cycle;
   return { ok: true, errors: [], cycle: { ...cyc, endDate: cyc.endDate ?? cyc.weeks[cyc.weeks.length - 1].start, notes: cyc.notes ?? [], rules: cyc.rules ?? [] } };
+}
+
+/** Série padrão de um exercício adicionado no treino do dia; dá para mudar o número de séries na tela. */
+export const NEW_ITEM_SETS = '3x8-12';
+
+/** Tipos que dá para escolher ao adicionar um exercício no treino (o resto vem do plano ou do editor). */
+export const ADD_KINDS: readonly ItemKind[] = ['accessory', 'variation', 'main'];
+
+/** Principal e variação são levantamentos: precisam do movimento (agacho, supino ou terra). */
+export function isLiftKind(kind: ItemKind): boolean {
+  return kind === 'main' || kind === 'variation';
+}
+
+/** Movimento do exercício no ciclo (o que já está cadastrado vale sobre o do catálogo). */
+function knownLift(cycle: Cycle, exercise: Exercise): Lift | null {
+  return cycle.exercises.find((e) => e.id === exercise.id)?.lift ?? exercise.lift;
+}
+
+/** Falta perguntar o movimento? Só quando o tipo é principal/variação e o exercício ainda não tem um. */
+export function needsLift(cycle: Cycle, exercise: Exercise, kind: ItemKind): boolean {
+  return isLiftKind(kind) && knownLift(cycle, exercise) === null;
+}
+
+/**
+ * Adiciona um exercício ao fim da sessão (só aquele dia). Cadastra o exercício no ciclo se for novo e
+ * devolve o id do item criado. `as` escolhe o tipo (padrão: acessório, ou core para abdominal); para
+ * principal/variação, `lift` dá o movimento de um exercício que ainda não tem (entra nas Análises).
+ */
+export function addExerciseToSession(
+  cycle: Cycle,
+  sessionId: string,
+  exercise: Exercise,
+  as?: { kind: ItemKind; lift?: Lift | null },
+): { cycle: Cycle; itemId: string | null } {
+  const session = cycle.weeks.flatMap((w) => w.sessions).find((s) => s.id === sessionId);
+  if (!session) return { cycle, itemId: null };
+  const known = new Set(session.items.map((i) => i.id));
+  const kind: ItemKind = as?.kind ?? (exercise.category === 'core' ? 'core' : 'accessory');
+  const lift = isLiftKind(kind) ? (knownLift(cycle, exercise) ?? as?.lift ?? null) : null;
+  const withLift: Exercise = lift && !exercise.lift ? { ...exercise, lift, category: 'powerlifting' } : exercise;
+  const base = cycle.exercises.some((e) => e.id === exercise.id)
+    ? lift
+      ? { ...cycle, exercises: cycle.exercises.map((e) => (e.id === exercise.id && !e.lift ? { ...e, lift, category: 'powerlifting' as const } : e)) }
+      : cycle
+    : { ...cycle, exercises: [...cycle.exercises, withLift] };
+  const op: AdjustmentOp = {
+    op: 'add_item',
+    sessionId,
+    item: { name: exercise.name, exerciseId: exercise.id, setsText: NEW_ITEM_SETS, kind },
+  };
+  const next = applyAdjustments(base, base.maxes, [op]).cycle;
+  const created = next.weeks.flatMap((w) => w.sessions).find((s) => s.id === sessionId)?.items.find((i) => !known.has(i.id));
+  return { cycle: next, itemId: created?.id ?? null };
+}
+
+export type SwapScope = 'item' | 'forward';
+
+/**
+ * Troca o exercício de um item. `forward` troca também os itens do mesmo exercício nas semanas
+ * seguintes (inclui a semana do item). Cadastra o exercício novo no ciclo e devolve os ids afetados
+ * (o chamador acerta o histórico das séries já registradas desses itens).
+ */
+export function swapExercise(cycle: Cycle, itemId: string, exercise: Exercise, scope: SwapScope): { cycle: Cycle; itemIds: string[] } {
+  const found = findItem(cycle, itemId);
+  if (!found) return { cycle, itemIds: [] };
+  const from = found.item.exerciseId;
+  const itemIds =
+    scope === 'item'
+      ? [itemId]
+      : cycle.weeks
+          .filter((w) => w.number >= found.week.number)
+          .flatMap((w) => [...w.sessions.flatMap((s) => s.items), ...(w.core?.items ?? [])])
+          .filter((i) => i.exerciseId === from)
+          .map((i) => i.id);
+  const known = cycle.exercises.some((e) => e.id === exercise.id);
+  const base = known ? cycle : { ...cycle, exercises: [...cycle.exercises, exercise] };
+  const ops: AdjustmentOp[] = itemIds.map((id) => ({ op: 'edit_item', itemId: id, patch: { name: exercise.name, exerciseId: exercise.id } }));
+  return { cycle: applyAdjustments(base, base.maxes, ops).cycle, itemIds };
 }
 
 /** Lift de um item (exposto para telas). */

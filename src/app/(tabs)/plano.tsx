@@ -9,7 +9,7 @@ import { ItemEditor } from '../../components/ItemEditor';
 import { ActionMenu, Badge, BigButton, Card, Chip, Divider, IconButton, ListRow, Section, type MenuOption } from '../../components/ui';
 import { listSessionLogs } from '../../db/repo';
 import { toISODate } from '../../domain/dates';
-import { formatDateShort, WEEKDAY_NAMES } from '../../domain/format';
+import { formatDate, WEEKDAY_NAMES } from '../../domain/format';
 import { applyAdjustments, type AdjustmentOp } from '../../domain/adjustments';
 import { currentLoad, sessionDate, weekForDate } from '../../domain/plan';
 import type { PrescribedItem, SessionLog } from '../../domain/types';
@@ -55,7 +55,7 @@ export default function PlanScreen() {
           <IconButton name="sparkles-outline" label="Dados e Claude" onPress={() => router.push('/dados')} color={t.accent} />
           <IconButton name="settings-outline" label="Ajustes" onPress={() => router.push('/ajustes')} color={t.accent} />
         </View>
-        {cycle.goal ? <Text style={{ color: t.muted, fontSize: 15 }}>{cycle.goal}</Text> : null}
+        {cycle.goal ? <Text style={{ color: t.muted, fontSize: 13, lineHeight: 18 }}>{cycle.goal}</Text> : null}
 
         {coach.pending.length ? (
           <Section title={`Sugestões pendentes (${coach.pending.length})`}>
@@ -97,8 +97,8 @@ export default function PlanScreen() {
           <Text style={[styles.weekTitle, { color: t.text }]}>
             Semana {week.number} · {week.block}
           </Text>
-          <Text style={{ color: t.muted, fontSize: 14 }}>
-            {formatDateShort(week.start)} · RPE {week.targetRpeText.replace(/\./g, ',')}
+          <Text style={{ color: t.muted, fontSize: 13 }}>
+            {formatDate(week.start)} · RPE {week.targetRpeText.replace(/\./g, ',')}
             {week.note ? ` · ${week.note}` : ''}
           </Text>
         </View>
@@ -112,7 +112,7 @@ export default function PlanScreen() {
                 <View style={{ flex: 1, gap: 2 }}>
                   <Text style={[styles.routineTitle, { color: t.text }]}>{s.title}</Text>
                   <Text style={{ color: t.muted, fontSize: 13 }}>
-                    {WEEKDAY_NAMES[s.weekday]} {formatDateShort(sessionDate(week, s))}
+                    {WEEKDAY_NAMES[s.weekday]} {formatDate(sessionDate(week, s))}
                   </Text>
                 </View>
                 {isDone ? <Badge label="Feito" tone="success" /> : null}
@@ -156,7 +156,7 @@ export default function PlanScreen() {
                   accessibilityLabel={`Exercícios de ${s.title}. Toque para editar`}
                   onPress={() => setOpenSession(s.id)}
                 >
-                  <Text style={{ color: t.muted, fontSize: 15, lineHeight: 21 }} numberOfLines={2}>
+                  <Text style={{ color: t.muted, fontSize: 13, lineHeight: 18 }} numberOfLines={2}>
                     {s.items.filter((it) => !it.parentId).map((it) => it.name).join(', ')}
                   </Text>
                 </Pressable>
@@ -202,10 +202,10 @@ export default function PlanScreen() {
 const styles = StyleSheet.create({
   body: { padding: space.lg, gap: space.md, paddingBottom: 40 },
   header: { flexDirection: 'row', alignItems: 'center', gap: space.xs },
-  title: { ...font.largeTitle },
-  cycleName: { fontSize: 15 },
+  title: { ...font.largeTitle, fontSize: 24 },
+  cycleName: { fontSize: 13 },
   weeks: { gap: space.sm, paddingVertical: space.xs },
-  weekTitle: { ...font.title },
+  weekTitle: { ...font.headline, fontSize: 16 },
   routineHeader: { flexDirection: 'row', alignItems: 'center', gap: space.sm },
-  routineTitle: { ...font.headline, fontSize: 18 },
+  routineTitle: { ...font.headline, fontSize: 16 },
 });

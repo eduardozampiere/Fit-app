@@ -4,7 +4,7 @@ import { Pressable, Text, View } from 'react-native';
 import { listMeasurements, listWeights, saveMeasurement, saveWeight, deleteWeight } from '../db/nutritionRepo';
 import { movingAverage7, movingAverageSeries, nextMeasurementDate, weeklyTrend, type Measurement, type WeightEntry } from '../domain/body';
 import { toISODate } from '../domain/dates';
-import { formatDateShort, formatKg, formatNumber } from '../domain/format';
+import { formatDate, formatKg, formatNumber } from '../domain/format';
 import { useAppData } from '../state/AppData';
 import { useTheme } from '../ui/theme';
 import { ChartCard, LineChart } from './charts';
@@ -60,7 +60,7 @@ export function WeightSection() {
           {weights.slice(0, 30).map((w, i, arr) => (
             <ListRow
               key={w.date}
-              title={formatDateShort(w.date)}
+              title={formatDate(w.date)}
               subtitle={`média ${formatNumber(movingAverage7(weights, w.date) ?? w.kg, 1)} kg`}
               value={formatKg(w.kg)}
               last={i === arr.length - 1}
@@ -119,7 +119,7 @@ export function MeasurementsSection() {
       <Card>
         <Text style={{ color: t.muted, fontSize: 14 }}>
           A cada 2 semanas, sempre no mesmo horário.{' '}
-          {next ? (next <= today ? 'Está na hora de medir.' : `Próxima: ${formatDateShort(next)}.`) : 'Primeira medição.'}
+          {next ? (next <= today ? 'Está na hora de medir.' : `Próxima: ${formatDate(next)}.`) : 'Primeira medição.'}
         </Text>
       </Card>
       <MeasurementForm key={last?.date ?? 'novo'} last={last ?? null} today={today} />
@@ -128,7 +128,7 @@ export function MeasurementsSection() {
           {measurements.map((m, i) => (
             <ListRow
               key={m.date}
-              title={formatDateShort(m.date)}
+              title={formatDate(m.date)}
               subtitle={`Braço ${cm(m.armCm)} · Coxa ${cm(m.thighCm)} · Abdômen ${cm(m.waistCm)}`}
               last={i === measurements.length - 1}
             />

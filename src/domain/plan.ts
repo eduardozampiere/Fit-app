@@ -74,9 +74,40 @@ const DEFAULT_REST_BY_KIND: Record<ItemKind, number> = {
   core: 45,
 };
 
-/** Tempo do cronômetro de descanso: topo da faixa do plano, ou padrão pelo tipo. */
-export function restSeconds(item: Pick<PrescribedItem, 'restSec' | 'kind'>): number {
-  return item.restSec?.max ?? DEFAULT_REST_BY_KIND[item.kind];
+/**
+ * Tempo do cronômetro de descanso: o ajuste do usuário para o exercício, senão o topo da faixa do
+ * plano, senão o padrão pelo tipo.
+ */
+export function restSeconds(item: Pick<PrescribedItem, 'restSec' | 'kind'>, override?: number | null): number {
+  return override ?? item.restSec?.max ?? DEFAULT_REST_BY_KIND[item.kind];
+}
+
+/** Limites do editor de descanso (segundos). */
+export const REST_STEP_SEC = 15;
+export const REST_MIN_SEC = 15;
+export const REST_MAX_SEC = 15 * 60;
+
+/** Tempos da roda do editor de descanso: do mínimo ao máximo, de 15 em 15 s. */
+export function restChoices(): number[] {
+  return Array.from({ length: (REST_MAX_SEC - REST_MIN_SEC) / REST_STEP_SEC + 1 }, (_, i) => REST_MIN_SEC + i * REST_STEP_SEC);
+}
+
+/** Posição na roda do tempo mais próximo (o plano pode ter valores fora do passo). */
+export function nearestRestIndex(sec: number): number {
+  const i = Math.round((sec - REST_MIN_SEC) / REST_STEP_SEC);
+  return Math.min(restChoices().length - 1, Math.max(0, i));
+}
+
+/** Ajustes de descanso por exercício (`settings['rest-overrides']`): valor válido ou nada. */
+export function restOverride(overrides: Record<string, number>, exerciseId: string): number | null {
+  const v = overrides[exerciseId];
+  return typeof v === 'number' && v >= REST_MIN_SEC && v <= REST_MAX_SEC ? v : null;
+}
+
+/** Novo mapa com o ajuste de um exercício; `null` volta ao plano. */
+export function withRestOverride(overrides: Record<string, number>, exerciseId: string, sec: number | null): Record<string, number> {
+  const { [exerciseId]: _old, ...rest } = overrides;
+  return sec === null ? rest : { ...rest, [exerciseId]: Math.min(REST_MAX_SEC, Math.max(REST_MIN_SEC, Math.round(sec))) };
 }
 
 /** Séries a registrar como "conforme o plano" (início da faixa: 2-3x → 2). */

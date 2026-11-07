@@ -6,11 +6,16 @@ import {
   draftFromInput,
   plannedCountFor,
   plannedSet,
+  renumberAfterMove,
   renumberAfterRemoval,
   sessionStats,
   setRowCount,
+  warmupRowCount,
+  warmupSet,
 } from '../logging';
 import { barChoices, platesFor } from '../plates';
+import { SET_CHOICES, choiceOf, setRowLabel, startsRest } from '../setTypes';
+import { attachSingles, dragShift, dropIndex, itemBlocks, moveItem, orderBlocks, settleOffset, slotSize } from '../reorder';
 import type { Cycle } from '../types';
 
 const cycle = cycleJson as unknown as Cycle;
@@ -96,5 +101,113 @@ describe('barras da calculadora', () => {
     expect(platesFor(100, 20).perSide).toEqual([25, 15]);
     expect(platesFor(100, 15).perSide).toEqual([25, 15, 2.5]);
     expect(platesFor(100, 10).perSide).toEqual([25, 20]);
+  });
+});
+
+describe('aquecimento', () => {
+  it('rampa de 40% a 85% da carga de trabalho, com reps caindo', () => {
+    const sets = [1, 2, 3].map((i) => warmupSet(squat, 145, i, 3, 20));
+    expect(sets.map((s) => s.loadKg)).toEqual([57.5, 90, 122.5]);
+    expect(sets.map((s) => s.reps)).toEqual([5, 3, 2]);
+    expect(sets.every((s) => s.warmup && !s.asPlanned)).toBe(true);
+  });
+
+  it('um aquecimento só fica em 60%; nunca abaixo da barra', () => {
+    expect(warmupSet(squat, 145, 1, 1, 20).loadKg).toBe(87.5);
+    expect(warmupSet(squat, 30, 1, 3, 20).loadKg).toBe(20);
+  });
+
+  it('sem carga de trabalho, sugere só as reps do plano', () => {
+    expect(warmupSet({ ...squat, reps: { min: 10, max: 12 } }, null, 1, 2, 20)).toMatchObject({ loadKg: null, reps: 10 });
+  });
+
+  it('linhas de aquecimento: adicionadas no dia ou as já registradas', () => {
+    expect(warmupRowCount(undefined, [])).toBe(0);
+    expect(warmupRowCount(2, [])).toBe(2);
+    expect(warmupRowCount(1, [1, 3])).toBe(3);
+  });
+});
+
+describe('reordenar', () => {
+  it('arrastar uma série renumera só as do caminho', () => {
+    const logs = [
+      { id: 'a', setIndex: 1 },
+      { id: 'b', setIndex: 2 },
+      { id: 'c', setIndex: 4 },
+    ];
+    expect(renumberAfterMove(logs, 4, 1)).toEqual([
+      { id: 'a', setIndex: 2 },
+      { id: 'b', setIndex: 3 },
+      { id: 'c', setIndex: 1 },
+    ]);
+    expect(renumberAfterMove(logs, 1, 3)).toEqual([
+      { id: 'a', setIndex: 3 },
+      { id: 'b', setIndex: 1 },
+    ]);
+    expect(renumberAfterMove(logs, 3, 3)).toEqual([]);
+  });
+
+  it('exercício anda junto com os filhos e respeita a ordem salva do dia', () => {
+    const items = [
+      { id: 'p', parentId: null },
+      { id: 'p1', parentId: 'p' },
+      { id: 'q', parentId: null },
+      { id: 'r', parentId: 'sumiu' },
+    ];
+    const blocks = itemBlocks(items);
+    expect(blocks.map((b) => b.map((i) => i.id))).toEqual([['p', 'p1'], ['q'], ['r']]);
+    expect(orderBlocks(blocks, ['q', 'p']).map((b) => b[0].id)).toEqual(['q', 'p', 'r']);
+    expect(orderBlocks(blocks, undefined)).toBe(blocks);
+    expect(moveItem(['a', 'b', 'c'], 2, 0)).toEqual(['c', 'a', 'b']);
+  });
+
+  it('o single de ativação vira série do principal do mesmo movimento', () => {
+    const lifts: Record<string, string> = { ss: 'squat', sm: 'squat', bs: 'bench', bm: 'bench', x: 'squat' };
+    const liftOf = (i: { id: string }) => lifts[i.id] ?? null;
+    const it = (id: string, kind: string) => ({ id, kind, parentId: null });
+    const items = [it('ss', 'activation_single'), it('sm', 'main'), it('bs', 'activation_single'), it('v', 'variation'), it('bm', 'main')];
+    const ids = (bs: { id: string }[][]) => bs.map((b) => b.map((i) => i.id));
+    // cada single entra na frente do principal do seu movimento; a variação no meio não atrapalha
+    expect(ids(attachSingles(itemBlocks(items), liftOf))).toEqual([['ss', 'sm'], ['v'], ['bs', 'bm']]);
+    // sem principal depois dele, ou de outro movimento, o single fica sozinho
+    expect(ids(attachSingles([[it('ss', 'activation_single')], [it('bm', 'main')]], liftOf))).toEqual([['ss'], ['bm']]);
+    expect(ids(attachSingles([[it('sm', 'main')], [it('ss', 'activation_single')]], liftOf))).toEqual([['sm'], ['ss']]);
+  });
+
+  it('geometria: onde o item cai e quanto os outros abrem espaço', () => {
+    const slots = [0, 1, 2, 3].map((i) => ({ y: i * 60, h: 52 }));
+    expect(slotSize(slots, 0)).toBe(60);
+    expect(dropIndex(slots, 0, 10)).toBe(0);
+    expect(dropIndex(slots, 0, 150)).toBe(2);
+    expect(dropIndex(slots, 3, 0)).toBe(0);
+    expect([0, 1, 2, 3].map((i) => dragShift(i, 0, 2, 60))).toEqual([0, -60, -60, 0]);
+    expect([0, 1, 2, 3].map((i) => dragShift(i, 3, 1, 60))).toEqual([0, 60, 60, 0]);
+    expect(settleOffset(slots, 0, 2)).toBe(120);
+    expect(settleOffset(slots, 3, 1)).toBe(-120);
+    expect(settleOffset(slots, 1, 1)).toBe(0);
+  });
+});
+
+describe('tipo de série', () => {
+  it('letra no lugar do número, e o descanso só depois de série normal ou até a falha', () => {
+    expect(setRowLabel('normal', 3)).toBe('3');
+    expect(setRowLabel('failure', 3)).toBe('F');
+    expect(setRowLabel('dropset', 3)).toBe('D');
+    expect(setRowLabel('warmup', 1)).toBe('A');
+    expect(startsRest('normal')).toBe(true);
+    expect(startsRest('failure')).toBe(true);
+    expect(startsRest('dropset')).toBe(false);
+    expect(startsRest('warmup')).toBe(false);
+  });
+
+  it('o tipo vem do aquecimento ou do setType', () => {
+    expect(choiceOf({ warmup: true, setType: 'normal' })).toBe('warmup');
+    expect(choiceOf({ warmup: false, setType: 'dropset' })).toBe('dropset');
+    expect(SET_CHOICES.map((c) => c.key)).toEqual(['warmup', 'normal', 'failure', 'dropset']);
+  });
+
+  it('séries novas nascem normais', () => {
+    expect(plannedSet(squat, squat.load, 1).setType).toBe('normal');
+    expect(warmupSet(squat, 145, 1, 2, 20).setType).toBe('normal');
   });
 });

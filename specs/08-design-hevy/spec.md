@@ -47,6 +47,25 @@ Tirado das capturas da App Store (03/11/2026):
   prévia web. "Completar conforme o plano" saiu do cartão e foi para o ⋮.
 - **Teclado:** a tela Hoje rola sozinha para a célula em edição (`automaticallyAdjustKeyboardInsets`);
   o teclado decimal aceita vírgula ou ponto (`parseDecimalInput`).
+- **Arrastar para apagar** (pedido do usuário, 03/11/2026): arrastar a linha para a direita mostra a
+  lixeira; soltar depois de 120 pt apaga (mesmo efeito de "Remover série"). Feito com `PanResponder`,
+  sem pacote nativo; só reage a gesto claramente horizontal. Leitor de tela tem a ação "Remover".
+- **Séries de aquecimento** (pedido do usuário): botão "Aquecimento" ao lado de "Adicionar série" e no ⋮.
+  Linhas "A" em laranja antes das séries de trabalho, com carga sugerida em rampa de 40% a 85% da carga
+  de trabalho (2,5 kg, nunca abaixo da barra; reps 5/3/2, `warmupSet`). Gravadas em `set_logs` com
+  `warmup = 1` (migração v5) e numeração própria; o número do dia fica em `settings['warmup-counts:<sessão>']`.
+  Ficam fora do resumo, do "conforme o plano", das regras, das análises, do pacote do Claude e da
+  exportação (`listLoggedSessions` filtra); o backup guarda tudo. O ✓ do aquecimento não dispara o descanso.
+- **Reordenar arrastando** (pedido do usuário, 03/11/2026): segurar o cabeçalho de um exercício (ou o
+  número de uma série) e arrastar. Arrastando exercício, todos os cartões ficam só com o cabeçalho e
+  voltam inteiros ao soltar; o exercício anda junto com os filhos (`itemBlocks`). A ordem vale só para o
+  treino do dia (`settings['exercise-order:<sessão>']`); o plano não muda. Séries se movem entre as do
+  mesmo tipo (aquecimento ou trabalho) e as gravadas no caminho são renumeradas (`renumberAfterMove`);
+  linhas bloqueadas ficam paradas no fim. Componente genérico `DragList` (PanResponder + Animated, sem
+  pacote nativo): trava a rolagem durante o arraste, vibra ao pegar e a cada troca de lugar, e o leitor
+  de tela tem "Mover para cima/baixo". Limitação: se a página estiver rolada para baixo, recolher os
+  cartões encurta a página e ela "pula"; o item fica sob o dedo e é preciso levá-lo até a lista. Não
+  há rolagem automática perto da borda.
 - **Coluna PLANO no lugar de ANTERIOR:** aqui a referência é a prescrição do ciclo (`150×1`), não o treino
   passado. O "anterior" pode entrar depois, no menu ⋮ do exercício.
 - **Coluna RPE** só nos tipos que pedem RPE (`RPE_KINDS` de hoje). A célula do RPE pendente fica destacada
@@ -156,6 +175,8 @@ claro e escuro, prévia web e atualização deste spec e do `PLANO.md`.
 | Data | Nota |
 |---|---|
 | 03/11/2026 | Spec criada a partir das capturas do Hevy na App Store. Decisões do usuário: edição inline, tema do sistema, por fases. |
+| 03/11/2026 | Arrastar para apagar e séries de aquecimento (banco v5), conferidos no simulador. |
+| 03/11/2026 | Reordenar exercícios e séries arrastando, conferido no simulador (exercício recolhe e volta; série gravada 1→3 renumerada no banco). Falta: iPhone de verdade. |
 | 03/11/2026 | Fase 5 feita: modais com cabeçalho, apelidos removidos, cabeçalho das telas com o tema. Falta: iPhone de verdade, bloqueio da 4ª série do terra e série falhada na tabela. |
 | 03/11/2026 | Fase 4 feita: Análises, Corpo e Comida no visual novo. |
 | 03/11/2026 | Fase 3 feita: aba Plano com semanas em pílulas e cartões de rotina. |

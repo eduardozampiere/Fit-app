@@ -1,9 +1,9 @@
 import { useSQLiteContext } from 'expo-sqlite';
 import { createContext, useCallback, useContext, useEffect, useState, type ReactNode } from 'react';
-import { getActiveCycle, getMaxes, getSetting, maxesKey, saveCycleData, setSetting } from '../db/repo';
+import { getActiveCycle, getActiveWorkout, getMaxes, getSetting, maxesKey, saveCycleData, setSetting } from '../db/repo';
 import { DEFAULT_BAR_KG, DEFAULT_BARS_KG, DEFAULT_PLATES_KG } from '../domain/plates';
 import { DEFAULT_TARGETS, type NutritionTargets } from '../domain/nutrition';
-import type { Cycle, Maxes } from '../domain/types';
+import type { Cycle, Maxes, SessionLog } from '../domain/types';
 
 export interface GymSettings {
   /** Barra padrão da calculadora. */
@@ -21,6 +21,8 @@ interface AppDataValue {
   gym: GymSettings;
   targets: NutritionTargets;
   setTargets: (t: NutritionTargets) => Promise<void>;
+  /** O treino em andamento (só um por vez); null quando não há. */
+  activeWorkout: SessionLog | null;
   /** Incrementa a cada gravação: telas usam como dependência para recarregar. */
   version: number;
   bump: () => void;
@@ -42,6 +44,7 @@ export function AppDataProvider({ children }: { children: ReactNode }) {
   const [version, setVersion] = useState(0);
   const [targets, setTargetsState] = useState<NutritionTargets>(DEFAULT_TARGETS);
   const [reloadKey, setReloadKey] = useState(0);
+  const [activeWorkout, setActiveWorkout] = useState<SessionLog | null>(null);
 
   useEffect(() => {
     (async () => {
@@ -53,6 +56,10 @@ export function AppDataProvider({ children }: { children: ReactNode }) {
       setTargetsState({ ...DEFAULT_TARGETS, ...(await getSetting(db, 'nutritionTargets', DEFAULT_TARGETS)) });
     })();
   }, [db, reloadKey]);
+
+  useEffect(() => {
+    getActiveWorkout(db).then(setActiveWorkout);
+  }, [db, version, reloadKey]);
 
   const bump = useCallback(() => setVersion((v) => v + 1), []);
 
@@ -96,7 +103,7 @@ export function AppDataProvider({ children }: { children: ReactNode }) {
   );
 
   return (
-    <Ctx.Provider value={{ cycle, maxes, gym, targets, setTargets, version, bump, setMaxes, setGym, updateCycle, reload }}>{children}</Ctx.Provider>
+    <Ctx.Provider value={{ cycle, maxes, gym, targets, setTargets, activeWorkout, version, bump, setMaxes, setGym, updateCycle, reload }}>{children}</Ctx.Provider>
   );
 }
 

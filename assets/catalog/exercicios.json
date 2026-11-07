@@ -1,0 +1,4041 @@
+{
+ "format": "fitapp.catalog/v1",
+ "source": "hevy-ia/exercices.csv",
+ "exercises": [
+  {
+   "id": "abdominal-bicicleta",
+   "name": "Abdominal bicicleta",
+   "nameEn": "Bicycle Crunch",
+   "equipment": "none",
+   "muscle": "abdominals",
+   "secondary": [],
+   "image": null
+  },
+  {
+   "id": "abdominal-bicicleta-com-pernas-elevadas",
+   "name": "Abdominal bicicleta com pernas elevadas",
+   "nameEn": "Bicycle Crunch Raised Legs",
+   "equipment": "none",
+   "muscle": "abdominals",
+   "secondary": [],
+   "image": null
+  },
+  {
+   "id": "abdominal-canivete",
+   "name": "Abdominal canivete",
+   "nameEn": "Jackknife Sit Up",
+   "equipment": "none",
+   "muscle": "abdominals",
+   "secondary": [],
+   "image": "https://pump-app.s3.eu-west-2.amazonaws.com/exercise-assets/05071301-jackknife-sit-up_small.jpg"
+  },
+  {
+   "id": "abdominal-crunch",
+   "name": "Abdominal crunch",
+   "nameEn": "Crunch",
+   "equipment": "none",
+   "muscle": "abdominals",
+   "secondary": [],
+   "image": null
+  },
+  {
+   "id": "abdominal-crunch-com-peso",
+   "name": "Abdominal crunch (Com peso)",
+   "nameEn": "Crunch (Weighted)",
+   "equipment": "none",
+   "muscle": "abdominals",
+   "secondary": [],
+   "image": "https://pump-app.s3.eu-west-2.amazonaws.com/exercise-assets/08321101-Weighted-Crunch_waist_small.jpg"
+  },
+  {
+   "id": "abdominal-crunch-maquina",
+   "name": "Abdominal crunch (Máquina)",
+   "nameEn": "Crunch (Machine)",
+   "equipment": "machine",
+   "muscle": "abdominals",
+   "secondary": [],
+   "image": null
+  },
+  {
+   "id": "abdominal-declinado",
+   "name": "Abdominal declinado",
+   "nameEn": "Decline Crunch",
+   "equipment": "none",
+   "muscle": "abdominals",
+   "secondary": [],
+   "image": null
+  },
+  {
+   "id": "abdominal-declinado-com-peso",
+   "name": "Abdominal declinado (Com peso)",
+   "nameEn": "Decline Crunch (Weighted)",
+   "equipment": "none",
+   "muscle": "abdominals",
+   "secondary": [],
+   "image": null
+  },
+  {
+   "id": "abdominal-em-v",
+   "name": "Abdominal em V",
+   "nameEn": "V Up",
+   "equipment": "none",
+   "muscle": "abdominals",
+   "secondary": [],
+   "image": null
+  },
+  {
+   "id": "abdominal-inverso",
+   "name": "Abdominal inverso",
+   "nameEn": "Reverse Crunch",
+   "equipment": "none",
+   "muscle": "abdominals",
+   "secondary": [],
+   "image": null
+  },
+  {
+   "id": "abdominal-na-polia",
+   "name": "Abdominal na polia",
+   "nameEn": "Cable Crunch",
+   "equipment": "machine",
+   "muscle": "abdominals",
+   "secondary": [],
+   "image": null
+  },
+  {
+   "id": "abdominal-obliquo",
+   "name": "Abdominal oblíquo",
+   "nameEn": "Oblique Crunch",
+   "equipment": "none",
+   "muscle": "abdominals",
+   "secondary": [],
+   "image": null
+  },
+  {
+   "id": "abdominal-remador",
+   "name": "Abdominal remador",
+   "nameEn": "Sit Up",
+   "equipment": "none",
+   "muscle": "abdominals",
+   "secondary": [],
+   "image": null
+  },
+  {
+   "id": "abdominal-remador-com-peso",
+   "name": "Abdominal remador (Com peso)",
+   "nameEn": "Sit Up (Weighted)",
+   "equipment": "none",
+   "muscle": "abdominals",
+   "secondary": [],
+   "image": null
+  },
+  {
+   "id": "abdominal-tesoura",
+   "name": "Abdominal tesoura",
+   "nameEn": "Ab Scissors",
+   "equipment": "none",
+   "muscle": "abdominals",
+   "secondary": [],
+   "image": "https://pump-app.s3.eu-west-2.amazonaws.com/exercise-assets/28931101-Scissors-(advanced)-(female)_small.jpg"
+  },
+  {
+   "id": "abducao-deitada-clamshell",
+   "name": "Abdução deitada (Clamshell)",
+   "nameEn": "Clamshell",
+   "equipment": "resistance-band",
+   "muscle": "glutes",
+   "secondary": [],
+   "image": "https://pump-app.s3.eu-west-2.amazonaws.com/exercise-assets/21501101-Resistance-Band-Clam_Hips_small.jpg"
+  },
+  {
+   "id": "abertura-de-ombro-elastico",
+   "name": "Abertura de ombro (Elástico)",
+   "nameEn": "Band Pullaparts",
+   "equipment": "resistance-band",
+   "muscle": "shoulders",
+   "secondary": [],
+   "image": "https://pump-app.s3.eu-west-2.amazonaws.com/exercise-assets/15031101-Band-Pull-Apart_Shoulders_small.jpg"
+  },
+  {
+   "id": "aerobica",
+   "name": "Aeróbica",
+   "nameEn": "Aerobics",
+   "equipment": "none",
+   "muscle": "cardio",
+   "secondary": [],
+   "image": null
+  },
+  {
+   "id": "afundo",
+   "name": "Afundo",
+   "nameEn": "Lunge",
+   "equipment": "none",
+   "muscle": "quadriceps",
+   "secondary": [
+    "hamstrings",
+    "glutes"
+   ],
+   "image": null
+  },
+  {
+   "id": "afundo-barra",
+   "name": "Afundo (Barra)",
+   "nameEn": "Lunge (Barbell)",
+   "equipment": "barbell",
+   "muscle": "quadriceps",
+   "secondary": [
+    "hamstrings",
+    "glutes"
+   ],
+   "image": null
+  },
+  {
+   "id": "afundo-halter",
+   "name": "Afundo (Halter)",
+   "nameEn": "Lunge (Dumbbell)",
+   "equipment": "dumbbell",
+   "muscle": "quadriceps",
+   "secondary": [
+    "hamstrings",
+    "glutes"
+   ],
+   "image": null
+  },
+  {
+   "id": "afundo-andando",
+   "name": "Afundo andando",
+   "nameEn": "Walking Lunge",
+   "equipment": "none",
+   "muscle": "quadriceps",
+   "secondary": [
+    "glutes",
+    "hamstrings"
+   ],
+   "image": null
+  },
+  {
+   "id": "afundo-andando-halter",
+   "name": "Afundo andando (Halter)",
+   "nameEn": "Walking Lunge (Dumbbell)",
+   "equipment": "dumbbell",
+   "muscle": "quadriceps",
+   "secondary": [
+    "glutes",
+    "hamstrings"
+   ],
+   "image": null
+  },
+  {
+   "id": "afundo-com-halter-acima-da-cabeca",
+   "name": "Afundo com halter acima da cabeça",
+   "nameEn": "Overhead Dumbbell Lunge",
+   "equipment": "dumbbell",
+   "muscle": "quadriceps",
+   "secondary": [
+    "hamstrings",
+    "glutes"
+   ],
+   "image": null
+  },
+  {
+   "id": "afundo-com-salto",
+   "name": "Afundo com salto",
+   "nameEn": "Jumping Lunge",
+   "equipment": "none",
+   "muscle": "quadriceps",
+   "secondary": [
+    "hamstrings",
+    "glutes"
+   ],
+   "image": null
+  },
+  {
+   "id": "afundo-cruzado-halter",
+   "name": "Afundo cruzado (Halter)",
+   "nameEn": "Curtsy Lunge (Dumbbell)",
+   "equipment": "dumbbell",
+   "muscle": "quadriceps",
+   "secondary": [
+    "glutes"
+   ],
+   "image": "https://pump-app.s3.eu-west-2.amazonaws.com/exercise-assets/08811101-Dumbbell-Curtsey-lunge_Thighs_small.jpg"
+  },
+  {
+   "id": "afundo-lateral",
+   "name": "Afundo lateral",
+   "nameEn": "Lateral Lunge",
+   "equipment": "none",
+   "muscle": "quadriceps",
+   "secondary": [
+    "hamstrings",
+    "glutes"
+   ],
+   "image": "https://pump-app.s3.eu-west-2.amazonaws.com/exercise-assets/29721101-Side-Lunge_Thighs_small.jpg"
+  },
+  {
+   "id": "afundo-reverso",
+   "name": "Afundo reverso",
+   "nameEn": "Reverse Lunge",
+   "equipment": "none",
+   "muscle": "quadriceps",
+   "secondary": [
+    "hamstrings",
+    "glutes"
+   ],
+   "image": "https://pump-app.s3.eu-west-2.amazonaws.com/exercise-assets/15811101-Bodyweight-Rear-Lunge_Thighs_small.jpg"
+  },
+  {
+   "id": "afundo-reverso-barra",
+   "name": "Afundo reverso (Barra)",
+   "nameEn": "Reverse Lunge (Barbell)",
+   "equipment": "barbell",
+   "muscle": "quadriceps",
+   "secondary": [
+    "hamstrings",
+    "glutes"
+   ],
+   "image": "https://pump-app.s3.eu-west-2.amazonaws.com/exercise-assets/00781101-Barbell-Rear-Lunge_Thighs_small.jpg"
+  },
+  {
+   "id": "afundo-reverso-halter",
+   "name": "Afundo reverso (Halter)",
+   "nameEn": "Reverse Lunge (Dumbbell)",
+   "equipment": "dumbbell",
+   "muscle": "hamstrings",
+   "secondary": [
+    "hamstrings",
+    "glutes"
+   ],
+   "image": null
+  },
+  {
+   "id": "agachamento-elastico",
+   "name": "Agachamento (Elástico)",
+   "nameEn": "Squat (Band)",
+   "equipment": "resistance-band",
+   "muscle": "quadriceps",
+   "secondary": [
+    "hamstrings",
+    "glutes"
+   ],
+   "image": "https://pump-app.s3.eu-west-2.amazonaws.com/exercise-assets/10041101-Band-squat_Hips_small.jpg"
+  },
+  {
+   "id": "agachamento-halter",
+   "name": "Agachamento (Halter)",
+   "nameEn": "Squat (Dumbbell)",
+   "equipment": "dumbbell",
+   "muscle": "quadriceps",
+   "secondary": [
+    "hamstrings",
+    "glutes"
+   ],
+   "image": "https://pump-app.s3.eu-west-2.amazonaws.com/exercise-assets/15551101-Dumbbell-Squat_Thighs_small.jpg"
+  },
+  {
+   "id": "agachamento-maquina",
+   "name": "Agachamento (Máquina)",
+   "nameEn": "Squat (Machine)",
+   "equipment": "machine",
+   "muscle": "quadriceps",
+   "secondary": [
+    "hamstrings",
+    "glutes"
+   ],
+   "image": "https://pump-app.s3.eu-west-2.amazonaws.com/exercise-assets/10391101-Lever-Full-Squat_Thighs_small.jpg"
+  },
+  {
+   "id": "agachamento-peso-corporal",
+   "name": "Agachamento (Peso corporal)",
+   "nameEn": "Squat (Bodyweight)",
+   "equipment": "none",
+   "muscle": "quadriceps",
+   "secondary": [
+    "hamstrings",
+    "glutes"
+   ],
+   "image": null
+  },
+  {
+   "id": "agachamento-smith",
+   "name": "Agachamento (Smith)",
+   "nameEn": "Squat (Smith Machine)",
+   "equipment": "machine",
+   "muscle": "quadriceps",
+   "secondary": [
+    "hamstrings",
+    "glutes"
+   ],
+   "image": null
+  },
+  {
+   "id": "agachamento-suspensao",
+   "name": "Agachamento (Suspensão)",
+   "nameEn": "Squat (Suspension)",
+   "equipment": "suspension",
+   "muscle": "quadriceps",
+   "secondary": [],
+   "image": "https://pump-app.s3.eu-west-2.amazonaws.com/exercise-assets/11431101-Suspender-Squat_Thighs_small.jpg"
+  },
+  {
+   "id": "agachamento-bulgaro",
+   "name": "Agachamento búlgaro",
+   "nameEn": "Bulgarian Split Squat",
+   "equipment": "dumbbell",
+   "muscle": "quadriceps",
+   "secondary": [
+    "glutes",
+    "hamstrings"
+   ],
+   "image": "https://pump-app.s3.eu-west-2.amazonaws.com/exercise-assets/22901101-Dumbbell-Bulgarian-Split-Squat-(female)_Thighs_small.jpg"
+  },
+  {
+   "id": "agachamento-com-pausa-barra",
+   "name": "Agachamento com pausa (Barra)",
+   "nameEn": "Pause Squat (Barbell)",
+   "equipment": "barbell",
+   "muscle": "quadriceps",
+   "secondary": [],
+   "image": null
+  },
+  {
+   "id": "agachamento-com-remada",
+   "name": "Agachamento com remada",
+   "nameEn": "Squat Row",
+   "equipment": "machine",
+   "muscle": "full-body",
+   "secondary": [],
+   "image": "https://pump-app.s3.eu-west-2.amazonaws.com/exercise-assets/25501101-Cable-Squat-Row-(with-rope-attachment)-(female)_Back_Thighs_small.jpg"
+  },
+  {
+   "id": "agachamento-com-salto",
+   "name": "Agachamento com salto",
+   "nameEn": "Jump Squat",
+   "equipment": "none",
+   "muscle": "quadriceps",
+   "secondary": [
+    "hamstrings",
+    "glutes"
+   ],
+   "image": null
+  },
+  {
+   "id": "agachamento-completo",
+   "name": "Agachamento completo",
+   "nameEn": "Full Squat",
+   "equipment": "barbell",
+   "muscle": "quadriceps",
+   "secondary": [
+    "hamstrings",
+    "glutes"
+   ],
+   "image": null
+  },
+  {
+   "id": "agachamento-e-desenvolvimento-landmine",
+   "name": "Agachamento e desenvolvimento landmine",
+   "nameEn": "Landmine Squat and Press",
+   "equipment": "barbell",
+   "muscle": "full-body",
+   "secondary": [],
+   "image": "https://pump-app.s3.eu-west-2.amazonaws.com/exercise-assets/29761301-Landmine-Squat-and-Press_360.jpg"
+  },
+  {
+   "id": "agachamento-frontal",
+   "name": "Agachamento frontal",
+   "nameEn": "Front Squat",
+   "equipment": "barbell",
+   "muscle": "quadriceps",
+   "secondary": [
+    "hamstrings",
+    "glutes"
+   ],
+   "image": null
+  },
+  {
+   "id": "agachamento-goblet",
+   "name": "Agachamento goblet",
+   "nameEn": "Goblet Squat",
+   "equipment": "dumbbell",
+   "muscle": "quadriceps",
+   "secondary": [
+    "hamstrings",
+    "glutes"
+   ],
+   "image": null
+  },
+  {
+   "id": "agachamento-goblet-kettlebell",
+   "name": "Agachamento goblet (Kettlebell)",
+   "nameEn": "Kettlebell Goblet Squat",
+   "equipment": "kettlebell",
+   "muscle": "quadriceps",
+   "secondary": [],
+   "image": "https://pump-app.s3.eu-west-2.amazonaws.com/exercise-assets/05341101-Kettlebell-Goblet-Squat_thighs_small.jpg"
+  },
+  {
+   "id": "agachamento-hack",
+   "name": "Agachamento hack",
+   "nameEn": "Hack Squat",
+   "equipment": "barbell",
+   "muscle": "quadriceps",
+   "secondary": [
+    "hamstrings",
+    "glutes"
+   ],
+   "image": null
+  },
+  {
+   "id": "agachamento-hack-maquina",
+   "name": "Agachamento hack (Máquina)",
+   "nameEn": "Hack Squat (Machine)",
+   "equipment": "machine",
+   "muscle": "quadriceps",
+   "secondary": [],
+   "image": null
+  },
+  {
+   "id": "agachamento-lateral",
+   "name": "Agachamento lateral",
+   "nameEn": "Lateral Squat",
+   "equipment": "none",
+   "muscle": "quadriceps",
+   "secondary": [
+    "hamstrings",
+    "glutes"
+   ],
+   "image": null
+  },
+  {
+   "id": "agachamento-livre-barra",
+   "name": "Agachamento livre (Barra)",
+   "nameEn": "Squat (Barbell)",
+   "equipment": "barbell",
+   "muscle": "quadriceps",
+   "secondary": [
+    "hamstrings",
+    "glutes"
+   ],
+   "image": null
+  },
+  {
+   "id": "agachamento-no-caixote-barra",
+   "name": "Agachamento no caixote (Barra)",
+   "nameEn": "Box Squat (Barbell)",
+   "equipment": "barbell",
+   "muscle": "quadriceps",
+   "secondary": [
+    "hamstrings",
+    "glutes"
+   ],
+   "image": "https://pump-app.s3.eu-west-2.amazonaws.com/exercise-assets/00261101-Barbell-Bench-Squat_Hips_small.jpg"
+  },
+  {
+   "id": "agachamento-overhead",
+   "name": "Agachamento overhead",
+   "nameEn": "Overhead Squat",
+   "equipment": "barbell",
+   "muscle": "full-body",
+   "secondary": [],
+   "image": "https://pump-app.s3.eu-west-2.amazonaws.com/exercise-assets/00691101-Barbell-Overhead-Squat_Thighs_small.jpg"
+  },
+  {
+   "id": "agachamento-pistola",
+   "name": "Agachamento pistola",
+   "nameEn": "Pistol Squat",
+   "equipment": "none",
+   "muscle": "quadriceps",
+   "secondary": [
+    "hamstrings",
+    "glutes",
+    "calves"
+   ],
+   "image": "https://pump-app.s3.eu-west-2.amazonaws.com/exercise-assets/17591101-Single-Leg-Squat-(pistol)-male_Thighs_small.jpg"
+  },
+  {
+   "id": "agachamento-pistola-assistido",
+   "name": "Agachamento pistola assistido",
+   "nameEn": "Assisted Pistol Squats",
+   "equipment": "none",
+   "muscle": "quadriceps",
+   "secondary": [
+    "hamstrings",
+    "glutes"
+   ],
+   "image": "https://pump-app.s3.eu-west-2.amazonaws.com/exercise-assets/17621101-Single-Leg-Squat-with-Support-(pistol)_Thighs_small.jpg"
+  },
+  {
+   "id": "agachamento-pendulo-maquina",
+   "name": "Agachamento pêndulo (Máquina)",
+   "nameEn": "Pendulum Squat (Machine)",
+   "equipment": "machine",
+   "muscle": "quadriceps",
+   "secondary": [
+    "glutes",
+    "calves"
+   ],
+   "image": null
+  },
+  {
+   "id": "agachamento-sissy-com-peso",
+   "name": "Agachamento sissy (Com peso)",
+   "nameEn": "Sissy Squat (Weighted)",
+   "equipment": "none",
+   "muscle": "quadriceps",
+   "secondary": [],
+   "image": null
+  },
+  {
+   "id": "agachamento-split-halter",
+   "name": "Agachamento split (Halter)",
+   "nameEn": "Split Squat (Dumbbell)",
+   "equipment": "dumbbell",
+   "muscle": "quadriceps",
+   "secondary": [],
+   "image": null
+  },
+  {
+   "id": "agachamento-sumo",
+   "name": "Agachamento sumô",
+   "nameEn": "Sumo Squat",
+   "equipment": "none",
+   "muscle": "quadriceps",
+   "secondary": [],
+   "image": null
+  },
+  {
+   "id": "agachamento-sumo-barra",
+   "name": "Agachamento sumô (Barra)",
+   "nameEn": "Sumo Squat (Barbell)",
+   "equipment": "barbell",
+   "muscle": "quadriceps",
+   "secondary": [
+    "hamstrings",
+    "glutes"
+   ],
+   "image": null
+  },
+  {
+   "id": "agachamento-sumo-halter",
+   "name": "Agachamento sumô (Halter)",
+   "nameEn": "Sumo Squat (Dumbbell)",
+   "equipment": "dumbbell",
+   "muscle": "quadriceps",
+   "secondary": [],
+   "image": null
+  },
+  {
+   "id": "agachamento-sumo-kettlebell",
+   "name": "Agachamento sumô (Kettlebell)",
+   "nameEn": "Sumo Squat (Kettlebell)",
+   "equipment": "kettlebell",
+   "muscle": "quadriceps",
+   "secondary": [],
+   "image": null
+  },
+  {
+   "id": "agachamento-zercher",
+   "name": "Agachamento Zercher",
+   "nameEn": "Zercher Squat",
+   "equipment": "barbell",
+   "muscle": "quadriceps",
+   "secondary": [
+    "hamstrings",
+    "glutes"
+   ],
+   "image": "https://pump-app.s3.eu-west-2.amazonaws.com/exercise-assets/15451101-Barbell-full-Zercher-Squat_Thighs_small.jpg"
+  },
+  {
+   "id": "alongamento",
+   "name": "Alongamento",
+   "nameEn": "Stretching",
+   "equipment": "none",
+   "muscle": "other",
+   "secondary": [],
+   "image": null
+  },
+  {
+   "id": "aquecimento-geral",
+   "name": "Aquecimento geral",
+   "nameEn": "Warm Up",
+   "equipment": "none",
+   "muscle": "full-body",
+   "secondary": [],
+   "image": null
+  },
+  {
+   "id": "arranco-halter",
+   "name": "Arranco (Halter)",
+   "nameEn": "Dumbbell Snatch",
+   "equipment": "dumbbell",
+   "muscle": "full-body",
+   "secondary": [],
+   "image": "https://pump-app.s3.eu-west-2.amazonaws.com/exercise-assets/38881101-Dumbbell-One-Arm-Snatch_small.jpg"
+  },
+  {
+   "id": "arranco-kettlebell",
+   "name": "Arranco (Kettlebell)",
+   "nameEn": "Kettlebell Snatch",
+   "equipment": "kettlebell",
+   "muscle": "full-body",
+   "secondary": [],
+   "image": "https://pump-app.s3.eu-west-2.amazonaws.com/exercise-assets/05421101-Kettlebell-One-Arm-Snatch_Shoulders_small.jpg"
+  },
+  {
+   "id": "arranco-snatch",
+   "name": "Arranco (Snatch)",
+   "nameEn": "Snatch",
+   "equipment": "barbell",
+   "muscle": "full-body",
+   "secondary": [],
+   "image": "https://pump-app.s3.eu-west-2.amazonaws.com/exercise-assets/15331101-Barbell-Snatch_Weightlifts_small.jpg"
+  },
+  {
+   "id": "arremesso-clean-and-jerk",
+   "name": "Arremesso (Clean and jerk)",
+   "nameEn": "Clean and Jerk",
+   "equipment": "barbell",
+   "muscle": "full-body",
+   "secondary": [],
+   "image": null
+  },
+  {
+   "id": "arremesso-de-bola-ao-chao",
+   "name": "Arremesso de bola ao chão",
+   "nameEn": "Ball Slams",
+   "equipment": "other",
+   "muscle": "full-body",
+   "secondary": [],
+   "image": "https://pump-app.s3.eu-west-2.amazonaws.com/exercise-assets/13541101-Medicine-Ball-Overhead-Slam_Back_small.jpg"
+  },
+  {
+   "id": "barra-fixa",
+   "name": "Barra fixa",
+   "nameEn": "Pull Up",
+   "equipment": "machine",
+   "muscle": "lats",
+   "secondary": [
+    "upper-back"
+   ],
+   "image": null
+  },
+  {
+   "id": "barra-fixa-assistida",
+   "name": "Barra fixa (Assistida)",
+   "nameEn": "Pull Up (Assisted)",
+   "equipment": "machine",
+   "muscle": "lats",
+   "secondary": [
+    "upper-back"
+   ],
+   "image": null
+  },
+  {
+   "id": "barra-fixa-com-peso",
+   "name": "Barra fixa (Com peso)",
+   "nameEn": "Pull Up (Weighted)",
+   "equipment": "machine",
+   "muscle": "lats",
+   "secondary": [
+    "upper-back"
+   ],
+   "image": "https://pump-app.s3.eu-west-2.amazonaws.com/exercise-assets/08411101-Weighted-Pull-Up_back_small.jpg"
+  },
+  {
+   "id": "barra-fixa-elastico",
+   "name": "Barra fixa (Elástico)",
+   "nameEn": "Pull Up (Band)",
+   "equipment": "resistance-band",
+   "muscle": "lats",
+   "secondary": [
+    "upper-back"
+   ],
+   "image": "https://pump-app.s3.eu-west-2.amazonaws.com/exercise-assets/09701301-Band-assisted-pullup_Back_small.jpg"
+  },
+  {
+   "id": "barra-fixa-ate-o-esterno-gironda",
+   "name": "Barra fixa até o esterno (Gironda)",
+   "nameEn": "Sternum Pull up (Gironda)",
+   "equipment": "machine",
+   "muscle": "lats",
+   "secondary": [],
+   "image": "https://pump-app.s3.eu-west-2.amazonaws.com/exercise-assets/04661101-Gironda-Sternum-Chin_Back_small.jpg"
+  },
+  {
+   "id": "barra-fixa-escapular",
+   "name": "Barra fixa escapular",
+   "nameEn": "Scapular Pull Ups",
+   "equipment": "none",
+   "muscle": "upper-back",
+   "secondary": [],
+   "image": "https://pump-app.s3.eu-west-2.amazonaws.com/exercise-assets/06881101-Scapular-Pull-Up_back_small.jpg"
+  },
+  {
+   "id": "barra-fixa-kipping",
+   "name": "Barra fixa kipping",
+   "nameEn": "Kipping Pull Up",
+   "equipment": "machine",
+   "muscle": "lats",
+   "secondary": [
+    "upper-back"
+   ],
+   "image": null
+  },
+  {
+   "id": "barra-fixa-negativa",
+   "name": "Barra fixa negativa",
+   "nameEn": "Negative Pull Up",
+   "equipment": "none",
+   "muscle": "lats",
+   "secondary": [],
+   "image": null
+  },
+  {
+   "id": "barra-fixa-pegada-aberta",
+   "name": "Barra fixa pegada aberta",
+   "nameEn": "Wide Pull Up",
+   "equipment": "machine",
+   "muscle": "lats",
+   "secondary": [],
+   "image": null
+  },
+  {
+   "id": "barra-fixa-supinada",
+   "name": "Barra fixa supinada",
+   "nameEn": "Chin Up",
+   "equipment": "machine",
+   "muscle": "lats",
+   "secondary": [
+    "upper-back",
+    "biceps"
+   ],
+   "image": null
+  },
+  {
+   "id": "barra-fixa-supinada-assistida",
+   "name": "Barra fixa supinada (Assistida)",
+   "nameEn": "Chin Up (Assisted)",
+   "equipment": "machine",
+   "muscle": "lats",
+   "secondary": [
+    "upper-back",
+    "biceps"
+   ],
+   "image": "https://pump-app.s3.eu-west-2.amazonaws.com/exercise-assets/05721301-assisted-chin-up_small.jpg"
+  },
+  {
+   "id": "barra-fixa-supinada-com-peso",
+   "name": "Barra fixa supinada (Com peso)",
+   "nameEn": "Chin Up (Weighted)",
+   "equipment": "machine",
+   "muscle": "lats",
+   "secondary": [
+    "upper-back",
+    "biceps"
+   ],
+   "image": "https://pump-app.s3.eu-west-2.amazonaws.com/exercise-assets/29871101-Weighted-Close-Grip-Chin-up-on-Dip-Cage_Back_small.jpg"
+  },
+  {
+   "id": "batida-de-pernas",
+   "name": "Batida de pernas",
+   "nameEn": "Flutter Kicks",
+   "equipment": "none",
+   "muscle": "abdominals",
+   "secondary": [],
+   "image": null
+  },
+  {
+   "id": "bicicleta-de-ar-air-bike",
+   "name": "Bicicleta de ar (Air bike)",
+   "nameEn": "Air Bike",
+   "equipment": "machine",
+   "muscle": "cardio",
+   "secondary": [],
+   "image": "https://pump-app.s3.eu-west-2.amazonaws.com/exercise-assets/38931101-Assault-Bike-Run_Cardio_small.jpg"
+  },
+  {
+   "id": "bird-dog",
+   "name": "Bird dog",
+   "nameEn": "Bird Dog",
+   "equipment": "none",
+   "muscle": "glutes",
+   "secondary": [],
+   "image": "https://pump-app.s3.eu-west-2.amazonaws.com/exercise-assets/12411101-Bird-Dog-male_Back_small.jpg"
+  },
+  {
+   "id": "bom-dia-barra",
+   "name": "Bom dia (Barra)",
+   "nameEn": "Good Morning (Barbell)",
+   "equipment": "barbell",
+   "muscle": "hamstrings",
+   "secondary": [
+    "lower-back",
+    "glutes"
+   ],
+   "image": null
+  },
+  {
+   "id": "bombeamento-de-sapo-halter",
+   "name": "Bombeamento de sapo (Halter)",
+   "nameEn": "Frog Pumps (Dumbbell)",
+   "equipment": "dumbbell",
+   "muscle": "glutes",
+   "secondary": [],
+   "image": "https://pump-app.s3.eu-west-2.amazonaws.com/exercise-assets/31821101-Weighted-Frog-Pump_Hips_small.jpg"
+  },
+  {
+   "id": "boxe",
+   "name": "Boxe",
+   "nameEn": "Boxing",
+   "equipment": "none",
+   "muscle": "cardio",
+   "secondary": [],
+   "image": "https://pump-app.s3.eu-west-2.amazonaws.com/exercise-assets/22731101-Boxing-Right-Cross_small.jpg"
+  },
+  {
+   "id": "burpee",
+   "name": "Burpee",
+   "nameEn": "Burpee",
+   "equipment": "none",
+   "muscle": "full-body",
+   "secondary": [],
+   "image": null
+  },
+  {
+   "id": "burpee-sobre-a-barra",
+   "name": "Burpee sobre a barra",
+   "nameEn": "Burpee Over the Bar",
+   "equipment": "none",
+   "muscle": "full-body",
+   "secondary": [],
+   "image": null
+  },
+  {
+   "id": "cachorro-olhando-para-baixo",
+   "name": "Cachorro olhando para baixo",
+   "nameEn": "Downward Dog",
+   "equipment": "none",
+   "muscle": "full-body",
+   "secondary": [],
+   "image": "https://pump-app.s3.eu-west-2.amazonaws.com/exercise-assets/09491101-Downward-Facing-Dog-Adho-Mukha-Svanasana_small.jpg"
+  },
+  {
+   "id": "cadeira-abdutora-maquina",
+   "name": "Cadeira abdutora (Máquina)",
+   "nameEn": "Hip Abduction (Machine)",
+   "equipment": "machine",
+   "muscle": "abductors",
+   "secondary": [],
+   "image": null
+  },
+  {
+   "id": "cadeira-adutora-maquina",
+   "name": "Cadeira adutora (Máquina)",
+   "nameEn": "Hip Adduction (Machine)",
+   "equipment": "machine",
+   "muscle": "adductors",
+   "secondary": [],
+   "image": null
+  },
+  {
+   "id": "cadeira-extensora-maquina",
+   "name": "Cadeira extensora (Máquina)",
+   "nameEn": "Leg Extension (Machine)",
+   "equipment": "machine",
+   "muscle": "quadriceps",
+   "secondary": [],
+   "image": null
+  },
+  {
+   "id": "cadeira-flexora-maquina",
+   "name": "Cadeira flexora (Máquina)",
+   "nameEn": "Seated Leg Curl (Machine)",
+   "equipment": "machine",
+   "muscle": "hamstrings",
+   "secondary": [],
+   "image": null
+  },
+  {
+   "id": "cadeirinha-na-parede",
+   "name": "Cadeirinha na parede",
+   "nameEn": "Wall Sit",
+   "equipment": "other",
+   "muscle": "quadriceps",
+   "secondary": [],
+   "image": "https://pump-app.s3.eu-west-2.amazonaws.com/exercise-assets/07341101-Sit-(wall)_Thighs_small.jpg"
+  },
+  {
+   "id": "caminhada",
+   "name": "Caminhada",
+   "nameEn": "Walking",
+   "equipment": "none",
+   "muscle": "cardio",
+   "secondary": [],
+   "image": null
+  },
+  {
+   "id": "caminhada-do-fazendeiro",
+   "name": "Caminhada do fazendeiro",
+   "nameEn": "Farmers Walk",
+   "equipment": "other",
+   "muscle": "full-body",
+   "secondary": [],
+   "image": null
+  },
+  {
+   "id": "caminhada-lateral-elastico",
+   "name": "Caminhada lateral (Elástico)",
+   "nameEn": "Lateral Band Walks",
+   "equipment": "resistance-band",
+   "muscle": "glutes",
+   "secondary": [],
+   "image": "https://pump-app.s3.eu-west-2.amazonaws.com/exercise-assets/24601101-Resistance-Band-Lateral-Walk_Hips_small.jpg"
+  },
+  {
+   "id": "canivete-suspensao",
+   "name": "Canivete (Suspensão)",
+   "nameEn": "Jack Knife (Suspension)",
+   "equipment": "suspension",
+   "muscle": "abdominals",
+   "secondary": [],
+   "image": "https://pump-app.s3.eu-west-2.amazonaws.com/exercise-assets/10821101-Suspender-Jack-knife_Waist_small.jpg"
+  },
+  {
+   "id": "ciclismo",
+   "name": "Ciclismo",
+   "nameEn": "Cycling",
+   "equipment": "machine",
+   "muscle": "cardio",
+   "secondary": [],
+   "image": null
+  },
+  {
+   "id": "clean",
+   "name": "Clean",
+   "nameEn": "Clean",
+   "equipment": "barbell",
+   "muscle": "full-body",
+   "secondary": [],
+   "image": "https://pump-app.s3.eu-west-2.amazonaws.com/exercise-assets/15211101-Barbell-Hang-Clean-Below-the-Knees_Weightlifts_small.jpg"
+  },
+  {
+   "id": "clean-kettlebell",
+   "name": "Clean (Kettlebell)",
+   "nameEn": "Kettlebell Clean",
+   "equipment": "kettlebell",
+   "muscle": "full-body",
+   "secondary": [],
+   "image": "https://pump-app.s3.eu-west-2.amazonaws.com/exercise-assets/45431101-Kettlebell-One-Arm-Clean_Weightlifting_small.jpg"
+  },
+  {
+   "id": "clean-and-press",
+   "name": "Clean and press",
+   "nameEn": "Clean and Press",
+   "equipment": "barbell",
+   "muscle": "full-body",
+   "secondary": [],
+   "image": null
+  },
+  {
+   "id": "clean-pull",
+   "name": "Clean pull",
+   "nameEn": "Clean Pull",
+   "equipment": "barbell",
+   "muscle": "full-body",
+   "secondary": [],
+   "image": "https://pump-app.s3.eu-west-2.amazonaws.com/exercise-assets/15171101-Barbell-Clean-Pull_Weightlifts_small.jpg"
+  },
+  {
+   "id": "coice-de-gluteo-maquina",
+   "name": "Coice de glúteo (Máquina)",
+   "nameEn": "Glute Kickback (Machine)",
+   "equipment": "machine",
+   "muscle": "glutes",
+   "secondary": [],
+   "image": null
+  },
+  {
+   "id": "coice-de-gluteo-em-pe-polia",
+   "name": "Coice de glúteo em pé (Polia)",
+   "nameEn": "Standing Cable Glute Kickbacks",
+   "equipment": "machine",
+   "muscle": "glutes",
+   "secondary": [],
+   "image": null
+  },
+  {
+   "id": "coice-de-gluteo-no-chao",
+   "name": "Coice de glúteo no chão",
+   "nameEn": "Glute Kickback on Floor",
+   "equipment": "none",
+   "muscle": "glutes",
+   "secondary": [],
+   "image": null
+  },
+  {
+   "id": "cordas-navais",
+   "name": "Cordas navais",
+   "nameEn": "Battle Ropes",
+   "equipment": "machine",
+   "muscle": "cardio",
+   "secondary": [],
+   "image": null
+  },
+  {
+   "id": "corrida",
+   "name": "Corrida",
+   "nameEn": "Running",
+   "equipment": "none",
+   "muscle": "cardio",
+   "secondary": [],
+   "image": null
+  },
+  {
+   "id": "corrida-com-joelho-alto",
+   "name": "Corrida com joelho alto",
+   "nameEn": "High Knees",
+   "equipment": "none",
+   "muscle": "glutes",
+   "secondary": [],
+   "image": "https://pump-app.s3.eu-west-2.amazonaws.com/exercise-assets/08291101-Walk-(high-knees)_Cardio_small.jpg"
+  },
+  {
+   "id": "cotovelo-ao-joelho",
+   "name": "Cotovelo ao joelho",
+   "nameEn": "Elbow to Knee",
+   "equipment": "none",
+   "muscle": "abdominals",
+   "secondary": [],
+   "image": null
+  },
+  {
+   "id": "crucifixo-elastico",
+   "name": "Crucifixo (Elástico)",
+   "nameEn": "Chest Fly (Band)",
+   "equipment": "resistance-band",
+   "muscle": "chest",
+   "secondary": [],
+   "image": "https://pump-app.s3.eu-west-2.amazonaws.com/exercise-assets/09131101-Band-middle-fly_Chest_small.jpg"
+  },
+  {
+   "id": "crucifixo-halter",
+   "name": "Crucifixo (Halter)",
+   "nameEn": "Chest Fly (Dumbbell)",
+   "equipment": "dumbbell",
+   "muscle": "chest",
+   "secondary": [],
+   "image": null
+  },
+  {
+   "id": "crucifixo-maquina",
+   "name": "Crucifixo (Máquina)",
+   "nameEn": "Chest Fly (Machine)",
+   "equipment": "machine",
+   "muscle": "chest",
+   "secondary": [],
+   "image": null
+  },
+  {
+   "id": "crucifixo-suspensao",
+   "name": "Crucifixo (Suspensão)",
+   "nameEn": "Chest Fly (Suspension)",
+   "equipment": "suspension",
+   "muscle": "chest",
+   "secondary": [],
+   "image": "https://pump-app.s3.eu-west-2.amazonaws.com/exercise-assets/10741101-Suspender-Fly_Chest_small.jpg"
+  },
+  {
+   "id": "crucifixo-cruzado-polia",
+   "name": "Crucifixo cruzado (Polia)",
+   "nameEn": "Cable Fly Crossovers",
+   "equipment": "machine",
+   "muscle": "chest",
+   "secondary": [],
+   "image": null
+  },
+  {
+   "id": "crucifixo-cruzado-baixo-polia",
+   "name": "Crucifixo cruzado baixo (Polia)",
+   "nameEn": "Low Cable Fly Crossovers",
+   "equipment": "machine",
+   "muscle": "chest",
+   "secondary": [],
+   "image": null
+  },
+  {
+   "id": "crucifixo-cruzado-unilateral-polia",
+   "name": "Crucifixo cruzado unilateral (Polia)",
+   "nameEn": "Single Arm Cable Crossover",
+   "equipment": "machine",
+   "muscle": "chest",
+   "secondary": [],
+   "image": null
+  },
+  {
+   "id": "crucifixo-declinado-halter",
+   "name": "Crucifixo declinado (Halter)",
+   "nameEn": "Decline Chest Fly (Dumbbell)",
+   "equipment": "dumbbell",
+   "muscle": "chest",
+   "secondary": [],
+   "image": null
+  },
+  {
+   "id": "crucifixo-inclinado-halter",
+   "name": "Crucifixo inclinado (Halter)",
+   "nameEn": "Incline Chest Fly (Dumbbell)",
+   "equipment": "dumbbell",
+   "muscle": "chest",
+   "secondary": [],
+   "image": null
+  },
+  {
+   "id": "crucifixo-inverso-halter",
+   "name": "Crucifixo inverso (Halter)",
+   "nameEn": "Rear Delt Reverse Fly (Dumbbell)",
+   "equipment": "dumbbell",
+   "muscle": "upper-back",
+   "secondary": [
+    "shoulders"
+   ],
+   "image": "https://pump-app.s3.eu-west-2.amazonaws.com/exercise-assets/24871101-Dumbbell-Rear-Delt-Fly-(female)_Shoulders_small.jpg"
+  },
+  {
+   "id": "crucifixo-inverso-maquina",
+   "name": "Crucifixo inverso (Máquina)",
+   "nameEn": "Rear Delt Reverse Fly (Machine)",
+   "equipment": "machine",
+   "muscle": "upper-back",
+   "secondary": [
+    "shoulders"
+   ],
+   "image": null
+  },
+  {
+   "id": "crucifixo-inverso-polia",
+   "name": "Crucifixo inverso (Polia)",
+   "nameEn": "Rear Delt Reverse Fly (Cable)",
+   "equipment": "machine",
+   "muscle": "upper-back",
+   "secondary": [
+    "shoulders"
+   ],
+   "image": "https://pump-app.s3.eu-west-2.amazonaws.com/exercise-assets/02251101-Cable-Standing-Cross-over-High-Reverse-Fly_Shoulders_small.jpg"
+  },
+  {
+   "id": "crucifixo-inverso-apoiado-halter",
+   "name": "Crucifixo inverso apoiado (Halter)",
+   "nameEn": "Chest Supported Reverse Fly (Dumbbell)",
+   "equipment": "dumbbell",
+   "muscle": "upper-back",
+   "secondary": [
+    "shoulders"
+   ],
+   "image": null
+  },
+  {
+   "id": "crucifixo-inverso-unilateral-polia",
+   "name": "Crucifixo inverso unilateral (Polia)",
+   "nameEn": "Reverse Fly Single Arm (Cable)",
+   "equipment": "machine",
+   "muscle": "upper-back",
+   "secondary": [
+    "shoulders"
+   ],
+   "image": null
+  },
+  {
+   "id": "crucifixo-na-maquina-peck-deck",
+   "name": "Crucifixo na máquina (Peck deck)",
+   "nameEn": "Butterfly (Pec Deck)",
+   "equipment": "machine",
+   "muscle": "chest",
+   "secondary": [],
+   "image": null
+  },
+  {
+   "id": "crucifixo-sentado-polia",
+   "name": "Crucifixo sentado (Polia)",
+   "nameEn": "Seated Chest Flys (Cable)",
+   "equipment": "machine",
+   "muscle": "chest",
+   "secondary": [],
+   "image": "https://pump-app.s3.eu-west-2.amazonaws.com/exercise-assets/38691101-Cable-Seated-Chest-Fly_Chest_small.jpg"
+  },
+  {
+   "id": "dead-bug",
+   "name": "Dead bug",
+   "nameEn": "Dead Bug",
+   "equipment": "none",
+   "muscle": "abdominals",
+   "secondary": [],
+   "image": "https://pump-app.s3.eu-west-2.amazonaws.com/exercise-assets/02761101-Dead-Bug_waist_small.jpg"
+  },
+  {
+   "id": "desenvolvimento-kettlebell",
+   "name": "Desenvolvimento (Kettlebell)",
+   "nameEn": "Kettlebell Shoulder Press",
+   "equipment": "kettlebell",
+   "muscle": "full-body",
+   "secondary": [],
+   "image": "https://pump-app.s3.eu-west-2.amazonaws.com/exercise-assets/35721101-Kettlebell-Strict-Press_Shoulders_small.jpg"
+  },
+  {
+   "id": "desenvolvimento-arnold-halter",
+   "name": "Desenvolvimento Arnold (Halter)",
+   "nameEn": "Arnold Press (Dumbbell)",
+   "equipment": "dumbbell",
+   "muscle": "shoulders",
+   "secondary": [],
+   "image": null
+  },
+  {
+   "id": "desenvolvimento-de-ombros-halter",
+   "name": "Desenvolvimento de ombros (Halter)",
+   "nameEn": "Shoulder Press (Dumbbell)",
+   "equipment": "dumbbell",
+   "muscle": "shoulders",
+   "secondary": [],
+   "image": null
+  },
+  {
+   "id": "desenvolvimento-de-ombros-maquina-de-anilhas",
+   "name": "Desenvolvimento de ombros (Máquina de anilhas)",
+   "nameEn": "Shoulder Press (Machine Plates)",
+   "equipment": "machine",
+   "muscle": "shoulders",
+   "secondary": [],
+   "image": null
+  },
+  {
+   "id": "desenvolvimento-em-pe-barra",
+   "name": "Desenvolvimento em pé (Barra)",
+   "nameEn": "Overhead Press (Barbell)",
+   "equipment": "barbell",
+   "muscle": "shoulders",
+   "secondary": [
+    "triceps"
+   ],
+   "image": null
+  },
+  {
+   "id": "desenvolvimento-em-pe-halter",
+   "name": "Desenvolvimento em pé (Halter)",
+   "nameEn": "Overhead Press (Dumbbell)",
+   "equipment": "dumbbell",
+   "muscle": "shoulders",
+   "secondary": [
+    "triceps"
+   ],
+   "image": null
+  },
+  {
+   "id": "desenvolvimento-em-pe-smith",
+   "name": "Desenvolvimento em pé (Smith)",
+   "nameEn": "Overhead Press (Smith Machine)",
+   "equipment": "machine",
+   "muscle": "shoulders",
+   "secondary": [
+    "triceps"
+   ],
+   "image": null
+  },
+  {
+   "id": "desenvolvimento-landmine-unilateral-barra",
+   "name": "Desenvolvimento landmine unilateral (Barra)",
+   "nameEn": "Single Arm Landmine Press (Barbell)",
+   "equipment": "barbell",
+   "muscle": "shoulders",
+   "secondary": [],
+   "image": null
+  },
+  {
+   "id": "desenvolvimento-militar-barra",
+   "name": "Desenvolvimento militar (Barra)",
+   "nameEn": "Standing Military Press (Barbell)",
+   "equipment": "barbell",
+   "muscle": "shoulders",
+   "secondary": [],
+   "image": null
+  },
+  {
+   "id": "desenvolvimento-sentado-barra",
+   "name": "Desenvolvimento sentado (Barra)",
+   "nameEn": "Seated Overhead Press (Barbell)",
+   "equipment": "barbell",
+   "muscle": "shoulders",
+   "secondary": [
+    "triceps"
+   ],
+   "image": "https://pump-app.s3.eu-west-2.amazonaws.com/exercise-assets/00911101-Barbell-Seated-Overhead-Press_Shoulders_small.jpg"
+  },
+  {
+   "id": "desenvolvimento-sentado-halter",
+   "name": "Desenvolvimento sentado (Halter)",
+   "nameEn": "Seated Overhead Press (Dumbbell)",
+   "equipment": "dumbbell",
+   "muscle": "shoulders",
+   "secondary": [
+    "triceps"
+   ],
+   "image": null
+  },
+  {
+   "id": "desenvolvimento-sentado-maquina",
+   "name": "Desenvolvimento sentado (Máquina)",
+   "nameEn": "Seated Shoulder Press (Machine)",
+   "equipment": "machine",
+   "muscle": "shoulders",
+   "secondary": [
+    "triceps"
+   ],
+   "image": null
+  },
+  {
+   "id": "dragon-flag",
+   "name": "Dragon flag",
+   "nameEn": "Dragon Flag",
+   "equipment": "none",
+   "muscle": "abdominals",
+   "secondary": [],
+   "image": null
+  },
+  {
+   "id": "dragonfly",
+   "name": "Dragonfly",
+   "nameEn": "Dragonfly",
+   "equipment": "none",
+   "muscle": "abdominals",
+   "secondary": [],
+   "image": null
+  },
+  {
+   "id": "elevacao-de-joelhos-deitado",
+   "name": "Elevação de joelhos deitado",
+   "nameEn": "Lying Knee Raise",
+   "equipment": "none",
+   "muscle": "abdominals",
+   "secondary": [],
+   "image": "https://pump-app.s3.eu-west-2.amazonaws.com/exercise-assets/06171101-Lying-Hip-Leg-Raise-(on-floor)_Hips_small.jpg"
+  },
+  {
+   "id": "elevacao-de-joelhos-na-barra",
+   "name": "Elevação de joelhos na barra",
+   "nameEn": "Hanging Knee Raise",
+   "equipment": "none",
+   "muscle": "abdominals",
+   "secondary": [],
+   "image": "https://pump-app.s3.eu-west-2.amazonaws.com/exercise-assets/04721101-Hanging-Leg-Raise_Hips_small.jpg"
+  },
+  {
+   "id": "elevacao-de-joelhos-nas-paralelas",
+   "name": "Elevação de joelhos nas paralelas",
+   "nameEn": "Knee Raise Parallel Bars",
+   "equipment": "machine",
+   "muscle": "abdominals",
+   "secondary": [],
+   "image": null
+  },
+  {
+   "id": "elevacao-de-pernas-deitado",
+   "name": "Elevação de pernas deitado",
+   "nameEn": "Lying Leg Raise",
+   "equipment": "none",
+   "muscle": "abdominals",
+   "secondary": [],
+   "image": null
+  },
+  {
+   "id": "elevacao-de-pernas-na-barra",
+   "name": "Elevação de pernas na barra",
+   "nameEn": "Hanging Leg Raise",
+   "equipment": "none",
+   "muscle": "abdominals",
+   "secondary": [],
+   "image": null
+  },
+  {
+   "id": "elevacao-de-pernas-nas-paralelas",
+   "name": "Elevação de pernas nas paralelas",
+   "nameEn": "Leg Raise Parallel Bars",
+   "equipment": "machine",
+   "muscle": "abdominals",
+   "secondary": [],
+   "image": "https://pump-app.s3.eu-west-2.amazonaws.com/exercise-assets/29631101-Captains-Chair-Straight-Leg-Raise_Waist_small.jpg"
+  },
+  {
+   "id": "elevacao-em-y-apoiada-halter",
+   "name": "Elevação em Y apoiada (Halter)",
+   "nameEn": "Chest Supported Y Raise (Dumbbell)",
+   "equipment": "dumbbell",
+   "muscle": "shoulders",
+   "secondary": [],
+   "image": null
+  },
+  {
+   "id": "elevacao-frontal-barra",
+   "name": "Elevação frontal (Barra)",
+   "nameEn": "Front Raise (Barbell)",
+   "equipment": "barbell",
+   "muscle": "shoulders",
+   "secondary": [],
+   "image": null
+  },
+  {
+   "id": "elevacao-frontal-elastico",
+   "name": "Elevação frontal (Elástico)",
+   "nameEn": "Front Raise (Band)",
+   "equipment": "resistance-band",
+   "muscle": "shoulders",
+   "secondary": [],
+   "image": "https://pump-app.s3.eu-west-2.amazonaws.com/exercise-assets/09781101-Band-front-raise_Shoulders_small.jpg"
+  },
+  {
+   "id": "elevacao-frontal-halter",
+   "name": "Elevação frontal (Halter)",
+   "nameEn": "Front Raise (Dumbbell)",
+   "equipment": "dumbbell",
+   "muscle": "shoulders",
+   "secondary": [],
+   "image": null
+  },
+  {
+   "id": "elevacao-frontal-polia",
+   "name": "Elevação frontal (Polia)",
+   "nameEn": "Front Raise (Cable)",
+   "equipment": "machine",
+   "muscle": "shoulders",
+   "secondary": [],
+   "image": null
+  },
+  {
+   "id": "elevacao-frontal-suspensao",
+   "name": "Elevação frontal (Suspensão)",
+   "nameEn": "Front Raise (Suspension)",
+   "equipment": "suspension",
+   "muscle": "shoulders",
+   "secondary": [],
+   "image": "https://pump-app.s3.eu-west-2.amazonaws.com/exercise-assets/10751101-Suspender-Front-Raise_Shoulders_small.jpg"
+  },
+  {
+   "id": "elevacao-frontal-com-anilha",
+   "name": "Elevação frontal com anilha",
+   "nameEn": "Plate Front Raise",
+   "equipment": "plate",
+   "muscle": "shoulders",
+   "secondary": [],
+   "image": null
+  },
+  {
+   "id": "elevacao-gluteo-isquio-ghr",
+   "name": "Elevação glúteo-isquio (GHR)",
+   "nameEn": "Glute Ham Raise",
+   "equipment": "machine",
+   "muscle": "hamstrings",
+   "secondary": [],
+   "image": "https://pump-app.s3.eu-west-2.amazonaws.com/exercise-assets/31931101-Glute-Ham-Raise_Thighs_small.jpg"
+  },
+  {
+   "id": "elevacao-lateral-elastico",
+   "name": "Elevação lateral (Elástico)",
+   "nameEn": "Lateral Raise (Band)",
+   "equipment": "resistance-band",
+   "muscle": "shoulders",
+   "secondary": [],
+   "image": "https://pump-app.s3.eu-west-2.amazonaws.com/exercise-assets/09071101-Band-lateral-raise_Shoulders_small.jpg"
+  },
+  {
+   "id": "elevacao-lateral-halter",
+   "name": "Elevação lateral (Halter)",
+   "nameEn": "Lateral Raise (Dumbbell)",
+   "equipment": "dumbbell",
+   "muscle": "shoulders",
+   "secondary": [],
+   "image": null
+  },
+  {
+   "id": "elevacao-lateral-maquina",
+   "name": "Elevação lateral (Máquina)",
+   "nameEn": "Lateral Raise (Machine)",
+   "equipment": "machine",
+   "muscle": "shoulders",
+   "secondary": [],
+   "image": null
+  },
+  {
+   "id": "elevacao-lateral-polia",
+   "name": "Elevação lateral (Polia)",
+   "nameEn": "Lateral Raise (Cable)",
+   "equipment": "machine",
+   "muscle": "shoulders",
+   "secondary": [],
+   "image": null
+  },
+  {
+   "id": "elevacao-lateral-de-perna",
+   "name": "Elevação lateral de perna",
+   "nameEn": "Lateral Leg Raises",
+   "equipment": "none",
+   "muscle": "glutes",
+   "secondary": [],
+   "image": null
+  },
+  {
+   "id": "elevacao-lateral-sentado-halter",
+   "name": "Elevação lateral sentado (Halter)",
+   "nameEn": "Seated Lateral Raise (Dumbbell)",
+   "equipment": "dumbbell",
+   "muscle": "shoulders",
+   "secondary": [],
+   "image": null
+  },
+  {
+   "id": "elevacao-lateral-unilateral-polia",
+   "name": "Elevação lateral unilateral (Polia)",
+   "nameEn": "Single Arm Lateral Raise (Cable)",
+   "equipment": "machine",
+   "muscle": "shoulders",
+   "secondary": [],
+   "image": null
+  },
+  {
+   "id": "elevacao-pelvica",
+   "name": "Elevação pélvica",
+   "nameEn": "Hip Thrust",
+   "equipment": "none",
+   "muscle": "glutes",
+   "secondary": [],
+   "image": "https://pump-app.s3.eu-west-2.amazonaws.com/exercise-assets/20721101-Hip-Thrusts_Hips-FIX_small.jpg"
+  },
+  {
+   "id": "elevacao-pelvica-barra",
+   "name": "Elevação pélvica (Barra)",
+   "nameEn": "Hip Thrust (Barbell)",
+   "equipment": "barbell",
+   "muscle": "glutes",
+   "secondary": [],
+   "image": "https://pump-app.s3.eu-west-2.amazonaws.com/exercise-assets/10601101-Barbell-Hip-Thrust_Hips_small.jpg"
+  },
+  {
+   "id": "elevacao-pelvica-maquina",
+   "name": "Elevação pélvica (Máquina)",
+   "nameEn": "Hip Thrust (Machine)",
+   "equipment": "machine",
+   "muscle": "glutes",
+   "secondary": [],
+   "image": null
+  },
+  {
+   "id": "elevacao-pelvica-unilateral",
+   "name": "Elevação pélvica unilateral",
+   "nameEn": "Single Leg Hip Thrust",
+   "equipment": "none",
+   "muscle": "glutes",
+   "secondary": [],
+   "image": "https://pump-app.s3.eu-west-2.amazonaws.com/exercise-assets/20711101-Single-Leg_Hip-Thrusts_Hips_small.jpg"
+  },
+  {
+   "id": "elevacao-pelvica-unilateral-halter",
+   "name": "Elevação pélvica unilateral (Halter)",
+   "nameEn": "Single Leg Hip Thrust (Dumbbell)",
+   "equipment": "dumbbell",
+   "muscle": "glutes",
+   "secondary": [],
+   "image": "https://pump-app.s3.eu-west-2.amazonaws.com/exercise-assets/47551101-Dumbbell-Single-Leg-Hip-Thrust_Hips_small.jpg"
+  },
+  {
+   "id": "eliptico",
+   "name": "Elíptico",
+   "nameEn": "Elliptical Trainer",
+   "equipment": "machine",
+   "muscle": "cardio",
+   "secondary": [],
+   "image": null
+  },
+  {
+   "id": "empurrar-treno",
+   "name": "Empurrar trenó",
+   "nameEn": "Sled Push",
+   "equipment": "other",
+   "muscle": "full-body",
+   "secondary": [],
+   "image": null
+  },
+  {
+   "id": "encolhimento-barra",
+   "name": "Encolhimento (Barra)",
+   "nameEn": "Shrug (Barbell)",
+   "equipment": "barbell",
+   "muscle": "traps",
+   "secondary": [
+    "neck"
+   ],
+   "image": null
+  },
+  {
+   "id": "encolhimento-halter",
+   "name": "Encolhimento (Halter)",
+   "nameEn": "Shrug (Dumbbell)",
+   "equipment": "dumbbell",
+   "muscle": "traps",
+   "secondary": [
+    "neck"
+   ],
+   "image": null
+  },
+  {
+   "id": "encolhimento-maquina",
+   "name": "Encolhimento (Máquina)",
+   "nameEn": "Shrug (Machine)",
+   "equipment": "machine",
+   "muscle": "traps",
+   "secondary": [
+    "neck"
+   ],
+   "image": null
+  },
+  {
+   "id": "encolhimento-polia",
+   "name": "Encolhimento (Polia)",
+   "nameEn": "Shrug (Cable)",
+   "equipment": "machine",
+   "muscle": "traps",
+   "secondary": [
+    "neck"
+   ],
+   "image": null
+  },
+  {
+   "id": "encolhimento-smith",
+   "name": "Encolhimento (Smith)",
+   "nameEn": "Shrug (Smith Machine)",
+   "equipment": "machine",
+   "muscle": "traps",
+   "secondary": [
+    "neck"
+   ],
+   "image": null
+  },
+  {
+   "id": "encolhimento-com-salto",
+   "name": "Encolhimento com salto",
+   "nameEn": "Jump Shrug",
+   "equipment": "barbell",
+   "muscle": "full-body",
+   "secondary": [],
+   "image": null
+  },
+  {
+   "id": "escalada",
+   "name": "Escalada",
+   "nameEn": "Climbing",
+   "equipment": "none",
+   "muscle": "cardio",
+   "secondary": [],
+   "image": null
+  },
+  {
+   "id": "escalador",
+   "name": "Escalador",
+   "nameEn": "Mountain Climber",
+   "equipment": "none",
+   "muscle": "full-body",
+   "secondary": [],
+   "image": "https://pump-app.s3.eu-west-2.amazonaws.com/exercise-assets/06301101-Mountain-Climber_Cardio_small.jpg"
+  },
+  {
+   "id": "esqui",
+   "name": "Esqui",
+   "nameEn": "Skiing",
+   "equipment": "none",
+   "muscle": "cardio",
+   "secondary": [],
+   "image": null
+  },
+  {
+   "id": "esteira",
+   "name": "Esteira",
+   "nameEn": "Treadmill",
+   "equipment": "machine",
+   "muscle": "cardio",
+   "secondary": [],
+   "image": null
+  },
+  {
+   "id": "extensao-de-panturrilha-maquina",
+   "name": "Extensão de panturrilha (Máquina)",
+   "nameEn": "Calf Extension (Machine)",
+   "equipment": "machine",
+   "muscle": "calves",
+   "secondary": [],
+   "image": null
+  },
+  {
+   "id": "extensao-de-pescoco-deitado",
+   "name": "Extensão de pescoço deitado",
+   "nameEn": "Lying Neck Extension",
+   "equipment": "none",
+   "muscle": "neck",
+   "secondary": [],
+   "image": null
+  },
+  {
+   "id": "extensao-de-pescoco-deitado-com-peso",
+   "name": "Extensão de pescoço deitado (Com peso)",
+   "nameEn": "Lying Neck Extension (Weighted)",
+   "equipment": "plate",
+   "muscle": "neck",
+   "secondary": [],
+   "image": "https://pump-app.s3.eu-west-2.amazonaws.com/exercise-assets/10421101-Weighted-Lying-Neck-Extension_neck_small.jpg"
+  },
+  {
+   "id": "extensao-de-punho-sentado-barra",
+   "name": "Extensão de punho sentado (Barra)",
+   "nameEn": "Seated Wrist Extension (Barbell)",
+   "equipment": "barbell",
+   "muscle": "forearms",
+   "secondary": [],
+   "image": null
+  },
+  {
+   "id": "extensao-lombar-hiperextensao-com-peso",
+   "name": "Extensão lombar (Hiperextensão com peso)",
+   "nameEn": "Back Extension (Weighted Hyperextension)",
+   "equipment": "machine",
+   "muscle": "lower-back",
+   "secondary": [],
+   "image": "https://pump-app.s3.eu-west-2.amazonaws.com/exercise-assets/12341101-Plate-Hyperextension_Hips_small.jpg"
+  },
+  {
+   "id": "extensao-lombar-hiperextensao",
+   "name": "Extensão lombar (Hiperextensão)",
+   "nameEn": "Back Extension (Hyperextension)",
+   "equipment": "machine",
+   "muscle": "lower-back",
+   "secondary": [],
+   "image": null
+  },
+  {
+   "id": "extensao-lombar-maquina",
+   "name": "Extensão lombar (Máquina)",
+   "nameEn": "Back Extension (Machine)",
+   "equipment": "machine",
+   "muscle": "lower-back",
+   "secondary": [],
+   "image": null
+  },
+  {
+   "id": "extensao-reversa",
+   "name": "Extensão reversa",
+   "nameEn": "Reverse Hyperextension",
+   "equipment": "machine",
+   "muscle": "glutes",
+   "secondary": [
+    "hamstrings"
+   ],
+   "image": null
+  },
+  {
+   "id": "extensao-unilateral-de-perna",
+   "name": "Extensão unilateral de perna",
+   "nameEn": "Single Leg Extensions",
+   "equipment": "machine",
+   "muscle": "quadriceps",
+   "secondary": [],
+   "image": null
+  },
+  {
+   "id": "face-pull",
+   "name": "Face pull",
+   "nameEn": "Face Pull",
+   "equipment": "machine",
+   "muscle": "shoulders",
+   "secondary": [],
+   "image": "https://pump-app.s3.eu-west-2.amazonaws.com/exercise-assets/08961101-Band-face-pull_Shoulders_small.jpg"
+  },
+  {
+   "id": "flexao-com-joelhos-no-chao",
+   "name": "Flexão com joelhos no chão",
+   "nameEn": "Kneeling Push Up",
+   "equipment": "none",
+   "muscle": "chest",
+   "secondary": [
+    "triceps",
+    "shoulders"
+   ],
+   "image": "https://pump-app.s3.eu-west-2.amazonaws.com/exercise-assets/32111101-Kneeling-Push-up-(male)_small.jpg"
+  },
+  {
+   "id": "flexao-com-palma",
+   "name": "Flexão com palma",
+   "nameEn": "Clap Push Ups",
+   "equipment": "none",
+   "muscle": "chest",
+   "secondary": [
+    "triceps",
+    "shoulders"
+   ],
+   "image": "https://pump-app.s3.eu-west-2.amazonaws.com/exercise-assets/12731101-Clap-Push-Up_Plyometrics_Chest_small.jpg"
+  },
+  {
+   "id": "flexao-com-um-braco",
+   "name": "Flexão com um braço",
+   "nameEn": "One Arm Push Up",
+   "equipment": "none",
+   "muscle": "full-body",
+   "secondary": [],
+   "image": null
+  },
+  {
+   "id": "flexao-da-prancha",
+   "name": "Flexão da prancha",
+   "nameEn": "Plank Pushup",
+   "equipment": "none",
+   "muscle": "chest",
+   "secondary": [
+    "abdominals"
+   ],
+   "image": "https://pump-app.s3.eu-west-2.amazonaws.com/exercise-assets/28901101-Front-Plank-to-Push-up-(female)_small.jpg"
+  },
+  {
+   "id": "flexao-de-bracos",
+   "name": "Flexão de braços",
+   "nameEn": "Push Up",
+   "equipment": "none",
+   "muscle": "chest",
+   "secondary": [
+    "triceps",
+    "shoulders"
+   ],
+   "image": null
+  },
+  {
+   "id": "flexao-de-bracos-com-peso",
+   "name": "Flexão de braços (Com peso)",
+   "nameEn": "Push Up (Weighted)",
+   "equipment": "none",
+   "muscle": "chest",
+   "secondary": [
+    "triceps",
+    "shoulders"
+   ],
+   "image": null
+  },
+  {
+   "id": "flexao-de-perna-em-pe",
+   "name": "Flexão de perna em pé",
+   "nameEn": "Standing Leg Curls",
+   "equipment": "machine",
+   "muscle": "hamstrings",
+   "secondary": [],
+   "image": null
+  },
+  {
+   "id": "flexao-de-pescoco-deitado",
+   "name": "Flexão de pescoço deitado",
+   "nameEn": "Lying Neck Curls",
+   "equipment": "none",
+   "muscle": "neck",
+   "secondary": [],
+   "image": null
+  },
+  {
+   "id": "flexao-de-pescoco-deitado-com-peso",
+   "name": "Flexão de pescoço deitado (Com peso)",
+   "nameEn": "Lying Neck Curls (Weighted)",
+   "equipment": "plate",
+   "muscle": "neck",
+   "secondary": [],
+   "image": null
+  },
+  {
+   "id": "flexao-declinada",
+   "name": "Flexão declinada",
+   "nameEn": "Decline Push Up",
+   "equipment": "other",
+   "muscle": "chest",
+   "secondary": [
+    "shoulders",
+    "triceps"
+   ],
+   "image": null
+  },
+  {
+   "id": "flexao-diamante",
+   "name": "Flexão diamante",
+   "nameEn": "Diamond Push Up",
+   "equipment": "none",
+   "muscle": "triceps",
+   "secondary": [
+    "chest"
+   ],
+   "image": "https://pump-app.s3.eu-west-2.amazonaws.com/exercise-assets/02831101-Diamond-Push-up_Upper-Arms_small.jpg"
+  },
+  {
+   "id": "flexao-em-parada-de-mao",
+   "name": "Flexão em parada de mão",
+   "nameEn": "Handstand Push Up",
+   "equipment": "none",
+   "muscle": "shoulders",
+   "secondary": [],
+   "image": "https://pump-app.s3.eu-west-2.amazonaws.com/exercise-assets/04711101-Handstand-Push-Up_Shoulders_small.jpg"
+  },
+  {
+   "id": "flexao-inclinada",
+   "name": "Flexão inclinada",
+   "nameEn": "Incline Push Ups",
+   "equipment": "none",
+   "muscle": "chest",
+   "secondary": [],
+   "image": null
+  },
+  {
+   "id": "flexao-lateral-de-tronco",
+   "name": "Flexão lateral de tronco",
+   "nameEn": "Side Bend",
+   "equipment": "none",
+   "muscle": "abdominals",
+   "secondary": [],
+   "image": null
+  },
+  {
+   "id": "flexao-lateral-de-tronco-halter",
+   "name": "Flexão lateral de tronco (Halter)",
+   "nameEn": "Side Bend (Dumbbell)",
+   "equipment": "dumbbell",
+   "muscle": "abdominals",
+   "secondary": [],
+   "image": null
+  },
+  {
+   "id": "flexao-nordica",
+   "name": "Flexão nórdica",
+   "nameEn": "Nordic Hamstrings Curls",
+   "equipment": "none",
+   "muscle": "hamstrings",
+   "secondary": [
+    "glutes"
+   ],
+   "image": "https://pump-app.s3.eu-west-2.amazonaws.com/exercise-assets/42041101-Resistance-Band-Assisted-Nordic-Hamstring-Curl_Thighs_small.jpg"
+  },
+  {
+   "id": "flexao-pegada-fechada",
+   "name": "Flexão pegada fechada",
+   "nameEn": "Push Up - Close Grip",
+   "equipment": "none",
+   "muscle": "chest",
+   "secondary": [
+    "triceps",
+    "shoulders"
+   ],
+   "image": null
+  },
+  {
+   "id": "flexao-pike",
+   "name": "Flexão pike",
+   "nameEn": "Pike Pushup",
+   "equipment": "none",
+   "muscle": "triceps",
+   "secondary": [
+    "shoulders"
+   ],
+   "image": "https://pump-app.s3.eu-west-2.amazonaws.com/exercise-assets/29211101-Pike-Push-up_Chest_small.jpg"
+  },
+  {
+   "id": "front-lever-elevacao",
+   "name": "Front lever (Elevação)",
+   "nameEn": "Front Lever Raise",
+   "equipment": "none",
+   "muscle": "abdominals",
+   "secondary": [],
+   "image": "https://pump-app.s3.eu-west-2.amazonaws.com/exercise-assets/32961101-Front-Lever_Waist_small.jpg"
+  },
+  {
+   "id": "front-lever-isometria",
+   "name": "Front lever (Isometria)",
+   "nameEn": "Front Lever Hold",
+   "equipment": "none",
+   "muscle": "abdominals",
+   "secondary": [],
+   "image": "https://pump-app.s3.eu-west-2.amazonaws.com/exercise-assets/32961101-Front-Lever_Waist_small.jpg"
+  },
+  {
+   "id": "hang-clean",
+   "name": "Hang clean",
+   "nameEn": "Hang Clean",
+   "equipment": "barbell",
+   "muscle": "full-body",
+   "secondary": [],
+   "image": "https://pump-app.s3.eu-west-2.amazonaws.com/exercise-assets/15201101-Barbell-Hang-Clean_Weightlifts_small.jpg"
+  },
+  {
+   "id": "hang-snatch",
+   "name": "Hang snatch",
+   "nameEn": "Hang Snatch",
+   "equipment": "barbell",
+   "muscle": "full-body",
+   "secondary": [],
+   "image": "https://pump-app.s3.eu-west-2.amazonaws.com/exercise-assets/15221101-Barbell-Hang-Snatch_Weightlifts_small.jpg"
+  },
+  {
+   "id": "hidrante",
+   "name": "Hidrante",
+   "nameEn": "Fire Hydrants",
+   "equipment": "none",
+   "muscle": "glutes",
+   "secondary": [],
+   "image": null
+  },
+  {
+   "id": "hiit",
+   "name": "HIIT",
+   "nameEn": "HIIT",
+   "equipment": "none",
+   "muscle": "cardio",
+   "secondary": [],
+   "image": null
+  },
+  {
+   "id": "hollow-rock",
+   "name": "Hollow rock",
+   "nameEn": "Hollow Rock",
+   "equipment": "none",
+   "muscle": "abdominals",
+   "secondary": [],
+   "image": "https://pump-app.s3.eu-west-2.amazonaws.com/exercise-assets/12461101-Hollow-Hold_Waist_small.jpg"
+  },
+  {
+   "id": "homem-aranha-alongamento",
+   "name": "Homem-aranha (Alongamento)",
+   "nameEn": "Spiderman",
+   "equipment": "none",
+   "muscle": "abdominals",
+   "secondary": [],
+   "image": null
+  },
+  {
+   "id": "jm-press-barra",
+   "name": "JM press (Barra)",
+   "nameEn": "JM Press (Barbell)",
+   "equipment": "barbell",
+   "muscle": "triceps",
+   "secondary": [],
+   "image": null
+  },
+  {
+   "id": "l-sit-isometria",
+   "name": "L-sit (Isometria)",
+   "nameEn": "L-Sit Hold",
+   "equipment": "none",
+   "muscle": "abdominals",
+   "secondary": [],
+   "image": null
+  },
+  {
+   "id": "landmine-180",
+   "name": "Landmine 180",
+   "nameEn": "Landmine 180",
+   "equipment": "barbell",
+   "muscle": "abdominals",
+   "secondary": [],
+   "image": null
+  },
+  {
+   "id": "leg-press-maquina",
+   "name": "Leg press (Máquina)",
+   "nameEn": "Leg Press (Machine)",
+   "equipment": "machine",
+   "muscle": "quadriceps",
+   "secondary": [],
+   "image": null
+  },
+  {
+   "id": "leg-press-horizontal-maquina",
+   "name": "Leg press horizontal (Máquina)",
+   "nameEn": "Leg Press Horizontal (Machine)",
+   "equipment": "machine",
+   "muscle": "quadriceps",
+   "secondary": [
+    "hamstrings",
+    "glutes"
+   ],
+   "image": null
+  },
+  {
+   "id": "leg-press-unilateral-maquina",
+   "name": "Leg press unilateral (Máquina)",
+   "nameEn": "Single Leg Press (Machine)",
+   "equipment": "machine",
+   "muscle": "quadriceps",
+   "secondary": [],
+   "image": null
+  },
+  {
+   "id": "levantamento-terra-barra-hexagonal",
+   "name": "Levantamento terra (Barra hexagonal)",
+   "nameEn": "Deadlift (Trap bar)",
+   "equipment": "barbell",
+   "muscle": "hamstrings",
+   "secondary": [
+    "quadriceps",
+    "lower-back",
+    "glutes"
+   ],
+   "image": null
+  },
+  {
+   "id": "levantamento-terra-barra",
+   "name": "Levantamento terra (Barra)",
+   "nameEn": "Deadlift (Barbell)",
+   "equipment": "barbell",
+   "muscle": "hamstrings",
+   "secondary": [
+    "quadriceps",
+    "lower-back",
+    "glutes"
+   ],
+   "image": null
+  },
+  {
+   "id": "levantamento-terra-elastico",
+   "name": "Levantamento terra (Elástico)",
+   "nameEn": "Deadlift (Band)",
+   "equipment": "resistance-band",
+   "muscle": "hamstrings",
+   "secondary": [
+    "quadriceps",
+    "lower-back",
+    "glutes"
+   ],
+   "image": "https://pump-app.s3.eu-west-2.amazonaws.com/exercise-assets/08951101-Band-deadlift_Hips_small.jpg"
+  },
+  {
+   "id": "levantamento-terra-halter",
+   "name": "Levantamento terra (Halter)",
+   "nameEn": "Deadlift (Dumbbell)",
+   "equipment": "dumbbell",
+   "muscle": "hamstrings",
+   "secondary": [
+    "quadriceps",
+    "lower-back",
+    "glutes"
+   ],
+   "image": null
+  },
+  {
+   "id": "levantamento-terra-smith",
+   "name": "Levantamento terra (Smith)",
+   "nameEn": "Deadlift (Smith Machine)",
+   "equipment": "machine",
+   "muscle": "hamstrings",
+   "secondary": [
+    "quadriceps",
+    "lower-back",
+    "glutes"
+   ],
+   "image": null
+  },
+  {
+   "id": "levantamento-terra-sumo",
+   "name": "Levantamento terra sumô",
+   "nameEn": "Sumo Deadlift",
+   "equipment": "barbell",
+   "muscle": "hamstrings",
+   "secondary": [
+    "quadriceps",
+    "lower-back",
+    "glutes"
+   ],
+   "image": null
+  },
+  {
+   "id": "levantamento-turco-kettlebell",
+   "name": "Levantamento turco (Kettlebell)",
+   "nameEn": "Kettlebell Turkish Get Up",
+   "equipment": "kettlebell",
+   "muscle": "full-body",
+   "secondary": [],
+   "image": "https://pump-app.s3.eu-west-2.amazonaws.com/exercise-assets/05511101-Kettlebell-Turkish-Get-Up-(Squat-style)_Thighs_small.jpg"
+  },
+  {
+   "id": "mergulho-de-triceps",
+   "name": "Mergulho de tríceps",
+   "nameEn": "Triceps Dip",
+   "equipment": "machine",
+   "muscle": "triceps",
+   "secondary": [],
+   "image": null
+  },
+  {
+   "id": "mergulho-de-triceps-assistido",
+   "name": "Mergulho de tríceps (Assistido)",
+   "nameEn": "Triceps Dip (Assisted)",
+   "equipment": "machine",
+   "muscle": "triceps",
+   "secondary": [],
+   "image": null
+  },
+  {
+   "id": "mergulho-de-triceps-com-peso",
+   "name": "Mergulho de tríceps (Com peso)",
+   "nameEn": "Triceps Dip (Weighted)",
+   "equipment": "machine",
+   "muscle": "triceps",
+   "secondary": [],
+   "image": "https://pump-app.s3.eu-west-2.amazonaws.com/exercise-assets/17551101-Weighted-Tricep-Dips_Upper-Arms_small.jpg"
+  },
+  {
+   "id": "mergulho-de-triceps-no-chao",
+   "name": "Mergulho de tríceps no chão",
+   "nameEn": "Floor Triceps Dip",
+   "equipment": "none",
+   "muscle": "triceps",
+   "secondary": [],
+   "image": null
+  },
+  {
+   "id": "mergulho-no-banco",
+   "name": "Mergulho no banco",
+   "nameEn": "Bench Dip",
+   "equipment": "other",
+   "muscle": "triceps",
+   "secondary": [],
+   "image": null
+  },
+  {
+   "id": "mesa-flexora-maquina",
+   "name": "Mesa flexora (Máquina)",
+   "nameEn": "Lying Leg Curl (Machine)",
+   "equipment": "machine",
+   "muscle": "hamstrings",
+   "secondary": [],
+   "image": null
+  },
+  {
+   "id": "muscle-up",
+   "name": "Muscle up",
+   "nameEn": "Muscle Up",
+   "equipment": "machine",
+   "muscle": "full-body",
+   "secondary": [],
+   "image": "https://pump-app.s3.eu-west-2.amazonaws.com/exercise-assets/14011101-Muscle-up-(on-vertical-bar)_Back_small.jpg"
+  },
+  {
+   "id": "natacao",
+   "name": "Natação",
+   "nameEn": "Swimming",
+   "equipment": "none",
+   "muscle": "cardio",
+   "secondary": [],
+   "image": null
+  },
+  {
+   "id": "pallof-press-polia",
+   "name": "Pallof press (Polia)",
+   "nameEn": "Cable Core Palloff Press",
+   "equipment": "machine",
+   "muscle": "abdominals",
+   "secondary": [],
+   "image": null
+  },
+  {
+   "id": "panturrilha-em-pe",
+   "name": "Panturrilha em pé",
+   "nameEn": "Standing Calf Raise",
+   "equipment": "none",
+   "muscle": "calves",
+   "secondary": [],
+   "image": "https://pump-app.s3.eu-west-2.amazonaws.com/exercise-assets/13731101-Bodyweight-Standing-Calf-Raise_Calves_small.jpg"
+  },
+  {
+   "id": "panturrilha-em-pe-barra",
+   "name": "Panturrilha em pé (Barra)",
+   "nameEn": "Standing Calf Raise (Barbell)",
+   "equipment": "barbell",
+   "muscle": "calves",
+   "secondary": [],
+   "image": "https://pump-app.s3.eu-west-2.amazonaws.com/exercise-assets/01081101-Barbell-Standing-Leg-Calf-Raise_Calf_small.jpg"
+  },
+  {
+   "id": "panturrilha-em-pe-halter",
+   "name": "Panturrilha em pé (Halter)",
+   "nameEn": "Standing Calf Raise (Dumbbell)",
+   "equipment": "dumbbell",
+   "muscle": "calves",
+   "secondary": [],
+   "image": null
+  },
+  {
+   "id": "panturrilha-em-pe-maquina",
+   "name": "Panturrilha em pé (Máquina)",
+   "nameEn": "Standing Calf Raise (Machine)",
+   "equipment": "machine",
+   "muscle": "calves",
+   "secondary": [],
+   "image": null
+  },
+  {
+   "id": "panturrilha-em-pe-smith",
+   "name": "Panturrilha em pé (Smith)",
+   "nameEn": "Standing Calf Raise (Smith)",
+   "equipment": "machine",
+   "muscle": "calves",
+   "secondary": [],
+   "image": null
+  },
+  {
+   "id": "panturrilha-no-leg-press-maquina",
+   "name": "Panturrilha no leg press (Máquina)",
+   "nameEn": "Calf Press (Machine)",
+   "equipment": "machine",
+   "muscle": "calves",
+   "secondary": [],
+   "image": null
+  },
+  {
+   "id": "panturrilha-sentado",
+   "name": "Panturrilha sentado",
+   "nameEn": "Seated Calf Raise",
+   "equipment": "machine",
+   "muscle": "calves",
+   "secondary": [],
+   "image": null
+  },
+  {
+   "id": "panturrilha-unilateral-em-pe",
+   "name": "Panturrilha unilateral em pé",
+   "nameEn": "Single Leg Standing Calf Raise",
+   "equipment": "none",
+   "muscle": "calves",
+   "secondary": [],
+   "image": "https://pump-app.s3.eu-west-2.amazonaws.com/exercise-assets/13731101-Bodyweight-Standing-Calf-Raise_Calves_small.jpg"
+  },
+  {
+   "id": "panturrilha-unilateral-em-pe-barra",
+   "name": "Panturrilha unilateral em pé (Barra)",
+   "nameEn": "Single Leg Standing Calf Raise (Barbell)",
+   "equipment": "barbell",
+   "muscle": "calves",
+   "secondary": [],
+   "image": "https://pump-app.s3.eu-west-2.amazonaws.com/exercise-assets/01081101-Barbell-Standing-Leg-Calf-Raise_Calf_small.jpg"
+  },
+  {
+   "id": "panturrilha-unilateral-em-pe-halter",
+   "name": "Panturrilha unilateral em pé (Halter)",
+   "nameEn": "Single Leg Standing Calf Raise (Dumbbell)",
+   "equipment": "dumbbell",
+   "muscle": "calves",
+   "secondary": [],
+   "image": null
+  },
+  {
+   "id": "panturrilha-unilateral-em-pe-maquina",
+   "name": "Panturrilha unilateral em pé (Máquina)",
+   "nameEn": "Single Leg Standing Calf Raise (Machine)",
+   "equipment": "machine",
+   "muscle": "calves",
+   "secondary": [],
+   "image": null
+  },
+  {
+   "id": "parada-de-mao",
+   "name": "Parada de mão",
+   "nameEn": "Handstand Hold",
+   "equipment": "none",
+   "muscle": "full-body",
+   "secondary": [],
+   "image": "https://pump-app.s3.eu-west-2.amazonaws.com/exercise-assets/33021101-Handstand_Upper-arms_small.jpg"
+  },
+  {
+   "id": "paralelas-nas-argolas",
+   "name": "Paralelas nas argolas",
+   "nameEn": "Ring Dips",
+   "equipment": "none",
+   "muscle": "triceps",
+   "secondary": [],
+   "image": "https://pump-app.s3.eu-west-2.amazonaws.com/exercise-assets/06771101-Ring-Dips_Upper-Arms_small.jpg"
+  },
+  {
+   "id": "paralelas-para-peito",
+   "name": "Paralelas para peito",
+   "nameEn": "Chest Dip",
+   "equipment": "machine",
+   "muscle": "chest",
+   "secondary": [
+    "triceps"
+   ],
+   "image": null
+  },
+  {
+   "id": "paralelas-para-peito-assistida",
+   "name": "Paralelas para peito (Assistida)",
+   "nameEn": "Chest Dip (Assisted)",
+   "equipment": "machine",
+   "muscle": "chest",
+   "secondary": [],
+   "image": null
+  },
+  {
+   "id": "paralelas-para-peito-com-peso",
+   "name": "Paralelas para peito (Com peso)",
+   "nameEn": "Chest Dip (Weighted)",
+   "equipment": "machine",
+   "muscle": "chest",
+   "secondary": [
+    "triceps"
+   ],
+   "image": null
+  },
+  {
+   "id": "paralelas-sentado-maquina",
+   "name": "Paralelas sentado (Máquina)",
+   "nameEn": "Seated Dip Machine",
+   "equipment": "machine",
+   "muscle": "triceps",
+   "secondary": [],
+   "image": null
+  },
+  {
+   "id": "patinacao",
+   "name": "Patinação",
+   "nameEn": "Skating",
+   "equipment": "none",
+   "muscle": "cardio",
+   "secondary": [],
+   "image": null
+  },
+  {
+   "id": "pendurar-na-barra",
+   "name": "Pendurar na barra",
+   "nameEn": "Dead Hang",
+   "equipment": "none",
+   "muscle": "upper-back",
+   "secondary": [],
+   "image": "https://pump-app.s3.eu-west-2.amazonaws.com/exercise-assets/50551101-Dead-Hang-Stretch_Stretching_small.jpg"
+  },
+  {
+   "id": "pilates",
+   "name": "Pilates",
+   "nameEn": "Pilates",
+   "equipment": "none",
+   "muscle": "full-body",
+   "secondary": [],
+   "image": null
+  },
+  {
+   "id": "polichinelo",
+   "name": "Polichinelo",
+   "nameEn": "Jumping Jack",
+   "equipment": "none",
+   "muscle": "full-body",
+   "secondary": [],
+   "image": "https://pump-app.s3.eu-west-2.amazonaws.com/exercise-assets/05161101-Jumping-Jack_Cardio_small.jpg"
+  },
+  {
+   "id": "ponte-de-gluteo",
+   "name": "Ponte de glúteo",
+   "nameEn": "Glute Bridge",
+   "equipment": "none",
+   "muscle": "glutes",
+   "secondary": [],
+   "image": "https://pump-app.s3.eu-west-2.amazonaws.com/exercise-assets/06681101-Rear-Decline-Bridge_Waist_small.jpg"
+  },
+  {
+   "id": "ponte-de-gluteo-unilateral",
+   "name": "Ponte de glúteo unilateral",
+   "nameEn": "Single Leg Glute Bridge",
+   "equipment": "none",
+   "muscle": "glutes",
+   "secondary": [],
+   "image": null
+  },
+  {
+   "id": "power-clean",
+   "name": "Power clean",
+   "nameEn": "Power Clean",
+   "equipment": "barbell",
+   "muscle": "full-body",
+   "secondary": [],
+   "image": null
+  },
+  {
+   "id": "power-snatch",
+   "name": "Power snatch",
+   "nameEn": "Power Snatch",
+   "equipment": "barbell",
+   "muscle": "full-body",
+   "secondary": [],
+   "image": "https://pump-app.s3.eu-west-2.amazonaws.com/exercise-assets/15301101-Barbell-Power-Snatch_Weightlifts_small.jpg"
+  },
+  {
+   "id": "prancha",
+   "name": "Prancha",
+   "nameEn": "Plank",
+   "equipment": "none",
+   "muscle": "abdominals",
+   "secondary": [],
+   "image": null
+  },
+  {
+   "id": "prancha-invertida",
+   "name": "Prancha invertida",
+   "nameEn": "Reverse Plank",
+   "equipment": "none",
+   "muscle": "abdominals",
+   "secondary": [],
+   "image": null
+  },
+  {
+   "id": "prancha-lateral",
+   "name": "Prancha lateral",
+   "nameEn": "Side Plank",
+   "equipment": "none",
+   "muscle": "abdominals",
+   "secondary": [],
+   "image": null
+  },
+  {
+   "id": "press-under",
+   "name": "Press under",
+   "nameEn": "Press Under",
+   "equipment": "barbell",
+   "muscle": "full-body",
+   "secondary": [],
+   "image": null
+  },
+  {
+   "id": "pular-corda",
+   "name": "Pular corda",
+   "nameEn": "Jump Rope",
+   "equipment": "other",
+   "muscle": "cardio",
+   "secondary": [],
+   "image": "https://pump-app.s3.eu-west-2.amazonaws.com/exercise-assets/05111101-Jump-Rope_Cardio_small.jpg"
+  },
+  {
+   "id": "pull-through-polia",
+   "name": "Pull through (Polia)",
+   "nameEn": "Cable Pull Through",
+   "equipment": "machine",
+   "muscle": "glutes",
+   "secondary": [],
+   "image": null
+  },
+  {
+   "id": "pulldown-de-braco-estendido-polia",
+   "name": "Pulldown de braço estendido (Polia)",
+   "nameEn": "Straight Arm Lat Pulldown (Cable)",
+   "equipment": "machine",
+   "muscle": "lats",
+   "secondary": [],
+   "image": null
+  },
+  {
+   "id": "pulldown-de-braco-estendido-na-corda",
+   "name": "Pulldown de braço estendido na corda",
+   "nameEn": "Rope Straight Arm Pulldown",
+   "equipment": "machine",
+   "muscle": "lats",
+   "secondary": [],
+   "image": null
+  },
+  {
+   "id": "pullover-halter",
+   "name": "Pullover (Halter)",
+   "nameEn": "Pullover (Dumbbell)",
+   "equipment": "dumbbell",
+   "muscle": "chest",
+   "secondary": [],
+   "image": null
+  },
+  {
+   "id": "pullover-maquina",
+   "name": "Pullover (Máquina)",
+   "nameEn": "Pullover (Machine)",
+   "equipment": "machine",
+   "muscle": "chest",
+   "secondary": [
+    "lats"
+   ],
+   "image": null
+  },
+  {
+   "id": "push-press",
+   "name": "Push press",
+   "nameEn": "Push Press",
+   "equipment": "barbell",
+   "muscle": "shoulders",
+   "secondary": [],
+   "image": null
+  },
+  {
+   "id": "puxada-ajoelhado-elastico",
+   "name": "Puxada ajoelhado (Elástico)",
+   "nameEn": "Kneeling Pulldown (band)",
+   "equipment": "machine",
+   "muscle": "lats",
+   "secondary": [],
+   "image": "https://pump-app.s3.eu-west-2.amazonaws.com/exercise-assets/09051101-Band-kneeling-pulldown_Back_small.jpg"
+  },
+  {
+   "id": "puxada-alta-elastico",
+   "name": "Puxada alta (Elástico)",
+   "nameEn": "Lat Pulldown (Band)",
+   "equipment": "resistance-band",
+   "muscle": "lats",
+   "secondary": [],
+   "image": "https://pump-app.s3.eu-west-2.amazonaws.com/exercise-assets/09741101-Band-close-grip-pulldown_Back_small.jpg"
+  },
+  {
+   "id": "puxada-alta-kettlebell",
+   "name": "Puxada alta (Kettlebell)",
+   "nameEn": "Kettlebell High Pull",
+   "equipment": "kettlebell",
+   "muscle": "full-body",
+   "secondary": [
+    "traps"
+   ],
+   "image": "https://pump-app.s3.eu-west-2.amazonaws.com/exercise-assets/05481101-Kettlebell-Sumo-High-Pull_back_small.jpg"
+  },
+  {
+   "id": "puxada-alta-maquina",
+   "name": "Puxada alta (Máquina)",
+   "nameEn": "Lat Pulldown (Machine)",
+   "equipment": "machine",
+   "muscle": "lats",
+   "secondary": [],
+   "image": null
+  },
+  {
+   "id": "puxada-alta-polia",
+   "name": "Puxada alta (Polia)",
+   "nameEn": "Lat Pulldown (Cable)",
+   "equipment": "machine",
+   "muscle": "lats",
+   "secondary": [],
+   "image": null
+  },
+  {
+   "id": "puxada-pegada-fechada-polia",
+   "name": "Puxada pegada fechada (Polia)",
+   "nameEn": "Lat Pulldown - Close Grip (Cable)",
+   "equipment": "machine",
+   "muscle": "lats",
+   "secondary": [],
+   "image": "https://pump-app.s3.eu-west-2.amazonaws.com/exercise-assets/26161101-Cable-Lateral-Pulldown-with-V-bar_Back_small.jpg"
+  },
+  {
+   "id": "puxada-pegada-supinada-polia",
+   "name": "Puxada pegada supinada (Polia)",
+   "nameEn": "Reverse Grip Lat Pulldown (Cable)",
+   "equipment": "machine",
+   "muscle": "upper-back",
+   "secondary": [],
+   "image": null
+  },
+  {
+   "id": "puxada-unilateral",
+   "name": "Puxada unilateral",
+   "nameEn": "Single Arm Lat Pulldown",
+   "equipment": "machine",
+   "muscle": "lats",
+   "secondary": [],
+   "image": "https://pump-app.s3.eu-west-2.amazonaws.com/exercise-assets/12041101-Cable-one-arm-lat-pulldown_back_small.jpg"
+  },
+  {
+   "id": "pes-a-barra",
+   "name": "Pés à barra",
+   "nameEn": "Toes to Bar",
+   "equipment": "none",
+   "muscle": "abdominals",
+   "secondary": [],
+   "image": null
+  },
+  {
+   "id": "rack-pull",
+   "name": "Rack pull",
+   "nameEn": "Rack Pull",
+   "equipment": "barbell",
+   "muscle": "lower-back",
+   "secondary": [
+    "glutes",
+    "quadriceps",
+    "hamstrings"
+   ],
+   "image": "https://pump-app.s3.eu-west-2.amazonaws.com/exercise-assets/00741101-Barbell-Rack-Pull_Hips-FIX_small.jpg"
+  },
+  {
+   "id": "remada-alta-barra",
+   "name": "Remada alta (Barra)",
+   "nameEn": "Upright Row (Barbell)",
+   "equipment": "barbell",
+   "muscle": "traps",
+   "secondary": [
+    "upper-back",
+    "shoulders"
+   ],
+   "image": null
+  },
+  {
+   "id": "remada-alta-halter",
+   "name": "Remada alta (Halter)",
+   "nameEn": "Upright Row (Dumbbell)",
+   "equipment": "dumbbell",
+   "muscle": "shoulders",
+   "secondary": [],
+   "image": null
+  },
+  {
+   "id": "remada-alta-polia",
+   "name": "Remada alta (Polia)",
+   "nameEn": "Upright Row (Cable)",
+   "equipment": "machine",
+   "muscle": "shoulders",
+   "secondary": [],
+   "image": null
+  },
+  {
+   "id": "remada-alta-isolateral-maquina",
+   "name": "Remada alta isolateral (Máquina)",
+   "nameEn": "Iso-Lateral High Row (Machine)",
+   "equipment": "machine",
+   "muscle": "lats",
+   "secondary": [],
+   "image": "https://pump-app.s3.eu-west-2.amazonaws.com/exercise-assets/05811101-Lever-High-Row-(plate-loaded)_Back_small.jpg"
+  },
+  {
+   "id": "remada-apoiada-no-banco-inclinado-halter",
+   "name": "Remada apoiada no banco inclinado (Halter)",
+   "nameEn": "Chest Supported Incline Row (Dumbbell)",
+   "equipment": "dumbbell",
+   "muscle": "upper-back",
+   "secondary": [],
+   "image": null
+  },
+  {
+   "id": "remada-baixa-suspensao",
+   "name": "Remada baixa (Suspensão)",
+   "nameEn": "Low Row (Suspension)",
+   "equipment": "suspension",
+   "muscle": "upper-back",
+   "secondary": [],
+   "image": "https://pump-app.s3.eu-west-2.amazonaws.com/exercise-assets/10921101-Suspender-Row_Back_small.jpg"
+  },
+  {
+   "id": "remada-baixa-isolateral",
+   "name": "Remada baixa isolateral",
+   "nameEn": "Iso-Lateral Low Row",
+   "equipment": "machine",
+   "muscle": "lats",
+   "secondary": [
+    "upper-back"
+   ],
+   "image": null
+  },
+  {
+   "id": "remada-cavalinho-barra-t",
+   "name": "Remada cavalinho (Barra T)",
+   "nameEn": "T Bar Row",
+   "equipment": "barbell",
+   "muscle": "upper-back",
+   "secondary": [],
+   "image": null
+  },
+  {
+   "id": "remada-curvada-barra",
+   "name": "Remada curvada (Barra)",
+   "nameEn": "Bent Over Row (Barbell)",
+   "equipment": "barbell",
+   "muscle": "upper-back",
+   "secondary": [],
+   "image": null
+  },
+  {
+   "id": "remada-curvada-elastico",
+   "name": "Remada curvada (Elástico)",
+   "nameEn": "Bent Over Row (Band)",
+   "equipment": "resistance-band",
+   "muscle": "upper-back",
+   "secondary": [],
+   "image": "https://pump-app.s3.eu-west-2.amazonaws.com/exercise-assets/08921101-Band-bent_Back-over-row_Back_small.jpg"
+  },
+  {
+   "id": "remada-curvada-halter",
+   "name": "Remada curvada (Halter)",
+   "nameEn": "Bent Over Row (Dumbbell)",
+   "equipment": "dumbbell",
+   "muscle": "upper-back",
+   "secondary": [],
+   "image": null
+  },
+  {
+   "id": "remada-gorila-kettlebell",
+   "name": "Remada gorila (Kettlebell)",
+   "nameEn": "Gorilla Row (Kettlebell)",
+   "equipment": "kettlebell",
+   "muscle": "upper-back",
+   "secondary": [],
+   "image": null
+  },
+  {
+   "id": "remada-invertida",
+   "name": "Remada invertida",
+   "nameEn": "Inverted Row",
+   "equipment": "machine",
+   "muscle": "upper-back",
+   "secondary": [],
+   "image": null
+  },
+  {
+   "id": "remada-isolateral-maquina",
+   "name": "Remada isolateral (Máquina)",
+   "nameEn": "Iso-Lateral Row (Machine)",
+   "equipment": "machine",
+   "muscle": "lats",
+   "secondary": [],
+   "image": "https://pump-app.s3.eu-west-2.amazonaws.com/exercise-assets/05881101-Lever-Narrow-Grip-Seated-Row-(plate-loaded)_Back_small.jpg"
+  },
+  {
+   "id": "remada-landmine",
+   "name": "Remada landmine",
+   "nameEn": "Landmine Row",
+   "equipment": "barbell",
+   "muscle": "upper-back",
+   "secondary": [
+    "lats"
+   ],
+   "image": null
+  },
+  {
+   "id": "remada-meadows-barra",
+   "name": "Remada Meadows (Barra)",
+   "nameEn": "Meadows Rows (Barbell)",
+   "equipment": "barbell",
+   "muscle": "upper-back",
+   "secondary": [],
+   "image": null
+  },
+  {
+   "id": "remada-pendlay-barra",
+   "name": "Remada Pendlay (Barra)",
+   "nameEn": "Pendlay Row (Barbell)",
+   "equipment": "barbell",
+   "muscle": "upper-back",
+   "secondary": [],
+   "image": null
+  },
+  {
+   "id": "remada-renegada-halter",
+   "name": "Remada renegada (Halter)",
+   "nameEn": "Renegade Row (Dumbbell)",
+   "equipment": "dumbbell",
+   "muscle": "upper-back",
+   "secondary": [],
+   "image": "https://pump-app.s3.eu-west-2.amazonaws.com/exercise-assets/05211101-Kettlebell-Alternating-Renegade-Row_back_small.jpg"
+  },
+  {
+   "id": "remada-sentada-maquina",
+   "name": "Remada sentada (Máquina)",
+   "nameEn": "Seated Row (Machine)",
+   "equipment": "machine",
+   "muscle": "upper-back",
+   "secondary": [],
+   "image": null
+  },
+  {
+   "id": "remada-sentada-polia-barra-aberta",
+   "name": "Remada sentada (Polia, barra aberta)",
+   "nameEn": "Seated Cable Row - Bar Wide Grip",
+   "equipment": "machine",
+   "muscle": "upper-back",
+   "secondary": [],
+   "image": null
+  },
+  {
+   "id": "remada-sentada-polia-barra-reta",
+   "name": "Remada sentada (Polia, barra reta)",
+   "nameEn": "Seated Cable Row - Bar Grip",
+   "equipment": "machine",
+   "muscle": "upper-back",
+   "secondary": [],
+   "image": null
+  },
+  {
+   "id": "remada-sentada-polia-triangulo",
+   "name": "Remada sentada (Polia, triângulo)",
+   "nameEn": "Seated Cable Row - V Grip (Cable)",
+   "equipment": "machine",
+   "muscle": "upper-back",
+   "secondary": [],
+   "image": null
+  },
+  {
+   "id": "remada-unilateral-halter",
+   "name": "Remada unilateral (Halter)",
+   "nameEn": "Dumbbell Row",
+   "equipment": "dumbbell",
+   "muscle": "upper-back",
+   "secondary": [],
+   "image": null
+  },
+  {
+   "id": "remada-unilateral-polia",
+   "name": "Remada unilateral (Polia)",
+   "nameEn": "Single Arm Cable Row",
+   "equipment": "machine",
+   "muscle": "upper-back",
+   "secondary": [],
+   "image": null
+  },
+  {
+   "id": "remo-maquina",
+   "name": "Remo (Máquina)",
+   "nameEn": "Rowing Machine",
+   "equipment": "machine",
+   "muscle": "cardio",
+   "secondary": [],
+   "image": null
+  },
+  {
+   "id": "roda-abdominal",
+   "name": "Roda abdominal",
+   "nameEn": "Ab Wheel",
+   "equipment": "other",
+   "muscle": "abdominals",
+   "secondary": [],
+   "image": null
+  },
+  {
+   "id": "rolo-de-punho",
+   "name": "Rolo de punho",
+   "nameEn": "Wrist Roller",
+   "equipment": "machine",
+   "muscle": "forearms",
+   "secondary": [],
+   "image": "https://pump-app.s3.eu-west-2.amazonaws.com/exercise-assets/08591101-Wrist-Roller_Forearms_small.jpg"
+  },
+  {
+   "id": "rosca-kettlebell",
+   "name": "Rosca (Kettlebell)",
+   "nameEn": "Kettlebell Curl",
+   "equipment": "kettlebell",
+   "muscle": "biceps",
+   "secondary": [],
+   "image": null
+  },
+  {
+   "id": "rosca-21",
+   "name": "Rosca 21",
+   "nameEn": "21s Bicep Curl",
+   "equipment": "barbell",
+   "muscle": "biceps",
+   "secondary": [],
+   "image": null
+  },
+  {
+   "id": "rosca-acima-da-cabeca-polia",
+   "name": "Rosca acima da cabeça (Polia)",
+   "nameEn": "Overhead Curl (Cable)",
+   "equipment": "machine",
+   "muscle": "biceps",
+   "secondary": [],
+   "image": "https://pump-app.s3.eu-west-2.amazonaws.com/exercise-assets/16361101-Cable-Overhead-Curl_Upper-Arms_small.jpg"
+  },
+  {
+   "id": "rosca-aranha-barra",
+   "name": "Rosca aranha (Barra)",
+   "nameEn": "Spider Curl (Barbell)",
+   "equipment": "barbell",
+   "muscle": "biceps",
+   "secondary": [],
+   "image": null
+  },
+  {
+   "id": "rosca-aranha-halter",
+   "name": "Rosca aranha (Halter)",
+   "nameEn": "Spider Curl (Dumbbell)",
+   "equipment": "dumbbell",
+   "muscle": "biceps",
+   "secondary": [],
+   "image": null
+  },
+  {
+   "id": "rosca-arrastada",
+   "name": "Rosca arrastada",
+   "nameEn": "Drag Curl",
+   "equipment": "barbell",
+   "muscle": "biceps",
+   "secondary": [],
+   "image": null
+  },
+  {
+   "id": "rosca-cata-vento-halter",
+   "name": "Rosca cata-vento (Halter)",
+   "nameEn": "Pinwheel Curl (Dumbbell)",
+   "equipment": "dumbbell",
+   "muscle": "biceps",
+   "secondary": [],
+   "image": null
+  },
+  {
+   "id": "rosca-com-anilha",
+   "name": "Rosca com anilha",
+   "nameEn": "Plate Curl",
+   "equipment": "plate",
+   "muscle": "biceps",
+   "secondary": [],
+   "image": "https://pump-app.s3.eu-west-2.amazonaws.com/exercise-assets/08531101-Weighted-Standing-Curl_Forearms_small.jpg"
+  },
+  {
+   "id": "rosca-concentrada",
+   "name": "Rosca concentrada",
+   "nameEn": "Concentration Curl",
+   "equipment": "dumbbell",
+   "muscle": "biceps",
+   "secondary": [],
+   "image": null
+  },
+  {
+   "id": "rosca-concentrada-pegada-inversa",
+   "name": "Rosca concentrada pegada inversa",
+   "nameEn": "Reverse Grip Concentration Curl",
+   "equipment": "dumbbell",
+   "muscle": "biceps",
+   "secondary": [],
+   "image": "https://pump-app.s3.eu-west-2.amazonaws.com/exercise-assets/04031101-Dumbbell-Seated-Revers-grip-Concentration-Curl_Forearms_small.jpg"
+  },
+  {
+   "id": "rosca-de-punho-atras-das-costas-barra",
+   "name": "Rosca de punho atrás das costas (Barra)",
+   "nameEn": "Behind the Back Bicep Wrist Curl (Barbell)",
+   "equipment": "barbell",
+   "muscle": "forearms",
+   "secondary": [],
+   "image": "https://pump-app.s3.eu-west-2.amazonaws.com/exercise-assets/01041101-Barbell-Standing-Back-Wrist-Curl_Forearms_small.jpg"
+  },
+  {
+   "id": "rosca-de-punho-sentado-palmas-para-cima",
+   "name": "Rosca de punho sentado (Palmas para cima)",
+   "nameEn": "Seated Palms Up Wrist Curl",
+   "equipment": "dumbbell",
+   "muscle": "forearms",
+   "secondary": [],
+   "image": "https://pump-app.s3.eu-west-2.amazonaws.com/exercise-assets/0401-seated-palms-up-wrist-curl.jpg"
+  },
+  {
+   "id": "rosca-direta-barra-w",
+   "name": "Rosca direta (Barra W)",
+   "nameEn": "EZ Bar Biceps Curl",
+   "equipment": "barbell",
+   "muscle": "biceps",
+   "secondary": [],
+   "image": null
+  },
+  {
+   "id": "rosca-direta-barra",
+   "name": "Rosca direta (Barra)",
+   "nameEn": "Bicep Curl (Barbell)",
+   "equipment": "barbell",
+   "muscle": "biceps",
+   "secondary": [],
+   "image": null
+  },
+  {
+   "id": "rosca-direta-halter",
+   "name": "Rosca direta (Halter)",
+   "nameEn": "Bicep Curl (Dumbbell)",
+   "equipment": "dumbbell",
+   "muscle": "biceps",
+   "secondary": [],
+   "image": null
+  },
+  {
+   "id": "rosca-direta-maquina",
+   "name": "Rosca direta (Máquina)",
+   "nameEn": "Bicep Curl (Machine)",
+   "equipment": "machine",
+   "muscle": "biceps",
+   "secondary": [],
+   "image": "https://pump-app.s3.eu-west-2.amazonaws.com/exercise-assets/10321101-Lever-Alternate-Biceps-Curl_Upper-Arms_small.jpg"
+  },
+  {
+   "id": "rosca-direta-polia",
+   "name": "Rosca direta (Polia)",
+   "nameEn": "Bicep Curl (Cable)",
+   "equipment": "machine",
+   "muscle": "biceps",
+   "secondary": [],
+   "image": null
+  },
+  {
+   "id": "rosca-direta-suspensao",
+   "name": "Rosca direta (Suspensão)",
+   "nameEn": "Bicep Curl (Suspension)",
+   "equipment": "suspension",
+   "muscle": "biceps",
+   "secondary": [],
+   "image": "https://pump-app.s3.eu-west-2.amazonaws.com/exercise-assets/10701101-Suspender-Arm-Curl_Upper-Arms_small.jpg"
+  },
+  {
+   "id": "rosca-inclinada-sentado-halter",
+   "name": "Rosca inclinada sentado (Halter)",
+   "nameEn": "Seated Incline Curl (Dumbbell)",
+   "equipment": "dumbbell",
+   "muscle": "biceps",
+   "secondary": [],
+   "image": null
+  },
+  {
+   "id": "rosca-inversa-barra",
+   "name": "Rosca inversa (Barra)",
+   "nameEn": "Reverse Curl (Barbell)",
+   "equipment": "barbell",
+   "muscle": "biceps",
+   "secondary": [
+    "forearms"
+   ],
+   "image": null
+  },
+  {
+   "id": "rosca-inversa-halter",
+   "name": "Rosca inversa (Halter)",
+   "nameEn": "Reverse Curl (Dumbbell)",
+   "equipment": "dumbbell",
+   "muscle": "biceps",
+   "secondary": [
+    "forearms"
+   ],
+   "image": null
+  },
+  {
+   "id": "rosca-inversa-polia",
+   "name": "Rosca inversa (Polia)",
+   "nameEn": "Reverse Curl (Cable)",
+   "equipment": "machine",
+   "muscle": "biceps",
+   "secondary": [],
+   "image": null
+  },
+  {
+   "id": "rosca-martelo-elastico",
+   "name": "Rosca martelo (Elástico)",
+   "nameEn": "Hammer Curl (Band)",
+   "equipment": "resistance-band",
+   "muscle": "biceps",
+   "secondary": [],
+   "image": "https://pump-app.s3.eu-west-2.amazonaws.com/exercise-assets/08971101-Band-hammer-curl_Forearms_small.jpg"
+  },
+  {
+   "id": "rosca-martelo-halter",
+   "name": "Rosca martelo (Halter)",
+   "nameEn": "Hammer Curl (Dumbbell)",
+   "equipment": "dumbbell",
+   "muscle": "biceps",
+   "secondary": [],
+   "image": null
+  },
+  {
+   "id": "rosca-martelo-polia",
+   "name": "Rosca martelo (Polia)",
+   "nameEn": "Hammer Curl (Cable)",
+   "equipment": "machine",
+   "muscle": "biceps",
+   "secondary": [],
+   "image": null
+  },
+  {
+   "id": "rosca-martelo-cruzada",
+   "name": "Rosca martelo cruzada",
+   "nameEn": "Cross Body Hammer Curl",
+   "equipment": "dumbbell",
+   "muscle": "biceps",
+   "secondary": [],
+   "image": "https://pump-app.s3.eu-west-2.amazonaws.com/exercise-assets/02981101-Dumbbell-Cross-Body-Hammer-Curl_Forearms_small.jpg"
+  },
+  {
+   "id": "rosca-na-corda-polia",
+   "name": "Rosca na corda (Polia)",
+   "nameEn": "Rope Cable Curl",
+   "equipment": "machine",
+   "muscle": "biceps",
+   "secondary": [],
+   "image": "https://pump-app.s3.eu-west-2.amazonaws.com/exercise-assets/01651101-Cable-Hammer-Curl-(with-rope)-m_Forearms_small.jpg"
+  },
+  {
+   "id": "rosca-scott-barra",
+   "name": "Rosca Scott (Barra)",
+   "nameEn": "Preacher Curl (Barbell)",
+   "equipment": "barbell",
+   "muscle": "biceps",
+   "secondary": [],
+   "image": null
+  },
+  {
+   "id": "rosca-scott-halter",
+   "name": "Rosca Scott (Halter)",
+   "nameEn": "Preacher Curl (Dumbbell)",
+   "equipment": "dumbbell",
+   "muscle": "biceps",
+   "secondary": [],
+   "image": null
+  },
+  {
+   "id": "rosca-scott-maquina",
+   "name": "Rosca Scott (Máquina)",
+   "nameEn": "Preacher Curl (Machine)",
+   "equipment": "machine",
+   "muscle": "biceps",
+   "secondary": [],
+   "image": null
+  },
+  {
+   "id": "rosca-unilateral-polia",
+   "name": "Rosca unilateral (Polia)",
+   "nameEn": "Single Arm Curl (Cable)",
+   "equipment": "machine",
+   "muscle": "biceps",
+   "secondary": [],
+   "image": "https://pump-app.s3.eu-west-2.amazonaws.com/exercise-assets/01901101-Cable-One-Arm-Curl_Upper-Arms_small.jpg"
+  },
+  {
+   "id": "rosca-zottman-halter",
+   "name": "Rosca Zottman (Halter)",
+   "nameEn": "Zottman Curl (Dumbbell)",
+   "equipment": "dumbbell",
+   "muscle": "biceps",
+   "secondary": [],
+   "image": null
+  },
+  {
+   "id": "rotacao-de-tronco",
+   "name": "Rotação de tronco",
+   "nameEn": "Torso Rotation",
+   "equipment": "machine",
+   "muscle": "abdominals",
+   "secondary": [],
+   "image": null
+  },
+  {
+   "id": "rotacao-na-polia-de-baixo-para-cima",
+   "name": "Rotação na polia (De baixo para cima)",
+   "nameEn": "Cable Twist (Down to up)",
+   "equipment": "machine",
+   "muscle": "abdominals",
+   "secondary": [],
+   "image": null
+  },
+  {
+   "id": "rotacao-na-polia-de-cima-para-baixo",
+   "name": "Rotação na polia (De cima para baixo)",
+   "nameEn": "Cable Twist (Up to down)",
+   "equipment": "machine",
+   "muscle": "abdominals",
+   "secondary": [],
+   "image": null
+  },
+  {
+   "id": "rotacao-russa-com-peso",
+   "name": "Rotação russa (Com peso)",
+   "nameEn": "Russian Twist (Weighted)",
+   "equipment": "plate",
+   "muscle": "abdominals",
+   "secondary": [],
+   "image": null
+  },
+  {
+   "id": "rotacao-russa-peso-corporal",
+   "name": "Rotação russa (Peso corporal)",
+   "nameEn": "Russian Twist (Bodyweight)",
+   "equipment": "none",
+   "muscle": "abdominals",
+   "secondary": [],
+   "image": null
+  },
+  {
+   "id": "salto-lateral-na-caixa",
+   "name": "Salto lateral na caixa",
+   "nameEn": "Lateral Box Jump",
+   "equipment": "other",
+   "muscle": "quadriceps",
+   "secondary": [],
+   "image": "https://pump-app.s3.eu-west-2.amazonaws.com/exercise-assets/05641101-Lateral-Box-Jump_Plyometrics_small.jpg"
+  },
+  {
+   "id": "salto-na-caixa",
+   "name": "Salto na caixa",
+   "nameEn": "Box Jump",
+   "equipment": "other",
+   "muscle": "quadriceps",
+   "secondary": [
+    "hamstrings",
+    "glutes",
+    "calves"
+   ],
+   "image": "https://pump-app.s3.eu-west-2.amazonaws.com/exercise-assets/05091101-Jump-Box_Plyometrics_small.jpg"
+  },
+  {
+   "id": "saltos-de-sapo",
+   "name": "Saltos de sapo",
+   "nameEn": "Frog Jumps",
+   "equipment": "none",
+   "muscle": "full-body",
+   "secondary": [],
+   "image": "https://pump-app.s3.eu-west-2.amazonaws.com/exercise-assets/30881101-Frog-Hops-(male)_Plyometrics_small.jpg"
+  },
+  {
+   "id": "simulador-de-escada",
+   "name": "Simulador de escada",
+   "nameEn": "Stair Machine",
+   "equipment": "machine",
+   "muscle": "cardio",
+   "secondary": [],
+   "image": null
+  },
+  {
+   "id": "skipping-alto",
+   "name": "Skipping alto",
+   "nameEn": "High Knee Skips",
+   "equipment": "none",
+   "muscle": "quadriceps",
+   "secondary": [],
+   "image": "https://pump-app.s3.eu-west-2.amazonaws.com/exercise-assets/04771101-High-Knee-Skips_Cardio_small.jpg"
+  },
+  {
+   "id": "snowboard",
+   "name": "Snowboard",
+   "nameEn": "Snowboarding",
+   "equipment": "none",
+   "muscle": "cardio",
+   "secondary": [],
+   "image": null
+  },
+  {
+   "id": "spinning",
+   "name": "Spinning",
+   "nameEn": "Spinning",
+   "equipment": "machine",
+   "muscle": "cardio",
+   "secondary": [],
+   "image": null
+  },
+  {
+   "id": "split-jerk",
+   "name": "Split jerk",
+   "nameEn": "Split Jerk",
+   "equipment": "barbell",
+   "muscle": "full-body",
+   "secondary": [],
+   "image": "https://pump-app.s3.eu-west-2.amazonaws.com/exercise-assets/15381101-Barbell-Split-Jerk_Weightlifts_small.jpg"
+  },
+  {
+   "id": "stiff-pernas-estendidas",
+   "name": "Stiff (Pernas estendidas)",
+   "nameEn": "Straight Leg Deadlift",
+   "equipment": "barbell",
+   "muscle": "hamstrings",
+   "secondary": [
+    "glutes"
+   ],
+   "image": null
+  },
+  {
+   "id": "stiff-romeno-barra",
+   "name": "Stiff romeno (Barra)",
+   "nameEn": "Romanian Deadlift (Barbell)",
+   "equipment": "barbell",
+   "muscle": "hamstrings",
+   "secondary": [
+    "glutes"
+   ],
+   "image": null
+  },
+  {
+   "id": "stiff-romeno-halter",
+   "name": "Stiff romeno (Halter)",
+   "nameEn": "Romanian Deadlift (Dumbbell)",
+   "equipment": "dumbbell",
+   "muscle": "hamstrings",
+   "secondary": [
+    "glutes"
+   ],
+   "image": null
+  },
+  {
+   "id": "stiff-unilateral-barra",
+   "name": "Stiff unilateral (Barra)",
+   "nameEn": "Single Leg Romanian Deadlift (Barbell)",
+   "equipment": "barbell",
+   "muscle": "hamstrings",
+   "secondary": [
+    "glutes"
+   ],
+   "image": null
+  },
+  {
+   "id": "stiff-unilateral-halter",
+   "name": "Stiff unilateral (Halter)",
+   "nameEn": "Single Leg Romanian Deadlift (Dumbbell)",
+   "equipment": "dumbbell",
+   "muscle": "hamstrings",
+   "secondary": [
+    "glutes"
+   ],
+   "image": null
+  },
+  {
+   "id": "subida-no-caixote",
+   "name": "Subida no caixote",
+   "nameEn": "Step Up",
+   "equipment": "other",
+   "muscle": "quadriceps",
+   "secondary": [],
+   "image": "https://pump-app.s3.eu-west-2.amazonaws.com/exercise-assets/08011101-Step-up_Hips_small.jpg"
+  },
+  {
+   "id": "subida-no-caixote-halter",
+   "name": "Subida no caixote (Halter)",
+   "nameEn": "Dumbbell Step Up",
+   "equipment": "dumbbell",
+   "muscle": "quadriceps",
+   "secondary": [],
+   "image": "https://pump-app.s3.eu-west-2.amazonaws.com/exercise-assets/04311101-Dumbbell-Step-up_Hips_small.jpg"
+  },
+  {
+   "id": "superman",
+   "name": "Superman",
+   "nameEn": "Superman",
+   "equipment": "none",
+   "muscle": "lower-back",
+   "secondary": [],
+   "image": "https://pump-app.s3.eu-west-2.amazonaws.com/exercise-assets/08041101-Superman_Waist_small.jpg"
+  },
+  {
+   "id": "supino-elastico",
+   "name": "Supino (Elástico)",
+   "nameEn": "Chest Press (Band)",
+   "equipment": "resistance-band",
+   "muscle": "chest",
+   "secondary": [],
+   "image": "https://pump-app.s3.eu-west-2.amazonaws.com/exercise-assets/09201101-Band-standing-chest-press_Chest_small.jpg"
+  },
+  {
+   "id": "supino-maquina",
+   "name": "Supino (Máquina)",
+   "nameEn": "Chest Press (Machine)",
+   "equipment": "machine",
+   "muscle": "chest",
+   "secondary": [],
+   "image": null
+  },
+  {
+   "id": "supino-com-anilha",
+   "name": "Supino com anilha",
+   "nameEn": "Plate Press",
+   "equipment": "plate",
+   "muscle": "chest",
+   "secondary": [],
+   "image": "https://pump-app.s3.eu-west-2.amazonaws.com/exercise-assets/12251101-Standing-Plate-Presses_Shoulders_small.jpg"
+  },
+  {
+   "id": "supino-com-halteres-juntos",
+   "name": "Supino com halteres juntos",
+   "nameEn": "Dumbbell Squeeze Press",
+   "equipment": "dumbbell",
+   "muscle": "chest",
+   "secondary": [],
+   "image": null
+  },
+  {
+   "id": "supino-declinado-barra",
+   "name": "Supino declinado (Barra)",
+   "nameEn": "Decline Bench Press (Barbell)",
+   "equipment": "barbell",
+   "muscle": "chest",
+   "secondary": [
+    "triceps"
+   ],
+   "image": null
+  },
+  {
+   "id": "supino-declinado-halter",
+   "name": "Supino declinado (Halter)",
+   "nameEn": "Decline Bench Press (Dumbbell)",
+   "equipment": "dumbbell",
+   "muscle": "chest",
+   "secondary": [
+    "triceps"
+   ],
+   "image": null
+  },
+  {
+   "id": "supino-declinado-maquina",
+   "name": "Supino declinado (Máquina)",
+   "nameEn": "Decline Bench Press (Machine)",
+   "equipment": "machine",
+   "muscle": "chest",
+   "secondary": [
+    "triceps"
+   ],
+   "image": null
+  },
+  {
+   "id": "supino-declinado-smith",
+   "name": "Supino declinado (Smith)",
+   "nameEn": "Decline Bench Press (Smith Machine)",
+   "equipment": "machine",
+   "muscle": "chest",
+   "secondary": [
+    "triceps"
+   ],
+   "image": null
+  },
+  {
+   "id": "supino-hex-halter",
+   "name": "Supino hex (Halter)",
+   "nameEn": "Hex Press (Dumbbell)",
+   "equipment": "dumbbell",
+   "muscle": "chest",
+   "secondary": [
+    "triceps"
+   ],
+   "image": null
+  },
+  {
+   "id": "supino-inclinado-barra",
+   "name": "Supino inclinado (Barra)",
+   "nameEn": "Incline Bench Press (Barbell)",
+   "equipment": "barbell",
+   "muscle": "chest",
+   "secondary": [
+    "triceps",
+    "shoulders"
+   ],
+   "image": null
+  },
+  {
+   "id": "supino-inclinado-halter",
+   "name": "Supino inclinado (Halter)",
+   "nameEn": "Incline Bench Press (Dumbbell)",
+   "equipment": "dumbbell",
+   "muscle": "chest",
+   "secondary": [
+    "triceps",
+    "shoulders"
+   ],
+   "image": null
+  },
+  {
+   "id": "supino-inclinado-maquina",
+   "name": "Supino inclinado (Máquina)",
+   "nameEn": "Incline Chest Press (Machine)",
+   "equipment": "machine",
+   "muscle": "chest",
+   "secondary": [
+    "triceps",
+    "shoulders"
+   ],
+   "image": null
+  },
+  {
+   "id": "supino-inclinado-smith",
+   "name": "Supino inclinado (Smith)",
+   "nameEn": "Incline Bench Press (Smith Machine)",
+   "equipment": "machine",
+   "muscle": "chest",
+   "secondary": [
+    "triceps",
+    "shoulders"
+   ],
+   "image": null
+  },
+  {
+   "id": "supino-isolateral-maquina",
+   "name": "Supino isolateral (Máquina)",
+   "nameEn": "Iso-Lateral Chest Press (Machine)",
+   "equipment": "machine",
+   "muscle": "chest",
+   "secondary": [],
+   "image": null
+  },
+  {
+   "id": "supino-no-chao-barra",
+   "name": "Supino no chão (Barra)",
+   "nameEn": "Floor Press (Barbell)",
+   "equipment": "barbell",
+   "muscle": "chest",
+   "secondary": [],
+   "image": null
+  },
+  {
+   "id": "supino-no-chao-halter",
+   "name": "Supino no chão (Halter)",
+   "nameEn": "Floor Press (Dumbbell)",
+   "equipment": "dumbbell",
+   "muscle": "chest",
+   "secondary": [],
+   "image": "https://pump-app.s3.eu-west-2.amazonaws.com/exercise-assets/36681101-Dumbbell-Lying-on-Floor-Chest-Press_Chest_small.jpg"
+  },
+  {
+   "id": "supino-pegada-aberta-barra",
+   "name": "Supino pegada aberta (Barra)",
+   "nameEn": "Bench Press - Wide Grip (Barbell)",
+   "equipment": "barbell",
+   "muscle": "chest",
+   "secondary": [
+    "triceps",
+    "shoulders"
+   ],
+   "image": null
+  },
+  {
+   "id": "supino-pegada-fechada-barra",
+   "name": "Supino pegada fechada (Barra)",
+   "nameEn": "Bench Press - Close Grip (Barbell)",
+   "equipment": "barbell",
+   "muscle": "triceps",
+   "secondary": [],
+   "image": null
+  },
+  {
+   "id": "supino-reto-barra",
+   "name": "Supino reto (Barra)",
+   "nameEn": "Bench Press (Barbell)",
+   "equipment": "barbell",
+   "muscle": "chest",
+   "secondary": [
+    "triceps",
+    "shoulders"
+   ],
+   "image": null
+  },
+  {
+   "id": "supino-reto-halter",
+   "name": "Supino reto (Halter)",
+   "nameEn": "Bench Press (Dumbbell)",
+   "equipment": "dumbbell",
+   "muscle": "chest",
+   "secondary": [
+    "triceps",
+    "shoulders"
+   ],
+   "image": null
+  },
+  {
+   "id": "supino-reto-polia",
+   "name": "Supino reto (Polia)",
+   "nameEn": "Bench Press (Cable)",
+   "equipment": "machine",
+   "muscle": "chest",
+   "secondary": [
+    "triceps",
+    "shoulders"
+   ],
+   "image": null
+  },
+  {
+   "id": "supino-reto-smith",
+   "name": "Supino reto (Smith)",
+   "nameEn": "Bench Press (Smith Machine)",
+   "equipment": "machine",
+   "muscle": "chest",
+   "secondary": [
+    "triceps",
+    "shoulders"
+   ],
+   "image": null
+  },
+  {
+   "id": "svend-press-anilha",
+   "name": "Svend press (Anilha)",
+   "nameEn": "Plate Squeeze (Svend Press)",
+   "equipment": "plate",
+   "muscle": "chest",
+   "secondary": [],
+   "image": null
+  },
+  {
+   "id": "swing-kettlebell",
+   "name": "Swing (Kettlebell)",
+   "nameEn": "Kettlebell Swing",
+   "equipment": "kettlebell",
+   "muscle": "full-body",
+   "secondary": [],
+   "image": "https://pump-app.s3.eu-west-2.amazonaws.com/exercise-assets/05491101-Kettlebell-Swing_Kettlebell_small.jpg"
+  },
+  {
+   "id": "terra-com-puxada-alta",
+   "name": "Terra com puxada alta",
+   "nameEn": "Deadlift High Pull",
+   "equipment": "barbell",
+   "muscle": "full-body",
+   "secondary": [],
+   "image": null
+  },
+  {
+   "id": "thruster-barra",
+   "name": "Thruster (Barra)",
+   "nameEn": "Thruster (Barbell)",
+   "equipment": "barbell",
+   "muscle": "full-body",
+   "secondary": [],
+   "image": null
+  },
+  {
+   "id": "thruster-kettlebell",
+   "name": "Thruster (Kettlebell)",
+   "nameEn": "Thruster (Kettlebell)",
+   "equipment": "kettlebell",
+   "muscle": "full-body",
+   "secondary": [],
+   "image": "https://pump-app.s3.eu-west-2.amazonaws.com/exercise-assets/05501101-Kettlebell-Thruster_Shoulders_small.jpg"
+  },
+  {
+   "id": "tiros-de-corrida",
+   "name": "Tiros de corrida",
+   "nameEn": "Sprints",
+   "equipment": "none",
+   "muscle": "cardio",
+   "secondary": [],
+   "image": null
+  },
+  {
+   "id": "toque-no-calcanhar",
+   "name": "Toque no calcanhar",
+   "nameEn": "Heel Taps",
+   "equipment": "none",
+   "muscle": "abdominals",
+   "secondary": [],
+   "image": "https://pump-app.s3.eu-west-2.amazonaws.com/exercise-assets/00061101-Alternate-Heel-Touchers_waist-FIX_small.jpg"
+  },
+  {
+   "id": "toque-no-ombro",
+   "name": "Toque no ombro",
+   "nameEn": "Shoulder Taps",
+   "equipment": "none",
+   "muscle": "shoulders",
+   "secondary": [
+    "abdominals"
+   ],
+   "image": null
+  },
+  {
+   "id": "toque-nos-pes",
+   "name": "Toque nos pés",
+   "nameEn": "Toe Touch",
+   "equipment": "none",
+   "muscle": "abdominals",
+   "secondary": [],
+   "image": null
+  },
+  {
+   "id": "trilha",
+   "name": "Trilha",
+   "nameEn": "Hiking",
+   "equipment": "none",
+   "muscle": "cardio",
+   "secondary": [],
+   "image": null
+  },
+  {
+   "id": "triceps-coice-halter",
+   "name": "Tríceps coice (Halter)",
+   "nameEn": "Triceps Kickback (Dumbbell)",
+   "equipment": "dumbbell",
+   "muscle": "triceps",
+   "secondary": [],
+   "image": null
+  },
+  {
+   "id": "triceps-coice-polia",
+   "name": "Tríceps coice (Polia)",
+   "nameEn": "Triceps Kickback (Cable)",
+   "equipment": "machine",
+   "muscle": "triceps",
+   "secondary": [],
+   "image": "https://pump-app.s3.eu-west-2.amazonaws.com/exercise-assets/45661101-Cable-Neutral-Grip-Kickback_Upper-arms_small.jpg"
+  },
+  {
+   "id": "triceps-corda-polia",
+   "name": "Tríceps corda (Polia)",
+   "nameEn": "Triceps Rope Pushdown",
+   "equipment": "machine",
+   "muscle": "triceps",
+   "secondary": [],
+   "image": "https://pump-app.s3.eu-west-2.amazonaws.com/exercise-assets/02001101-Cable-Pushdown-(with-rope-attachment)_Upper-Arms_small.jpg"
+  },
+  {
+   "id": "triceps-frances-barra",
+   "name": "Tríceps francês (Barra)",
+   "nameEn": "Triceps Extension (Barbell)",
+   "equipment": "barbell",
+   "muscle": "triceps",
+   "secondary": [],
+   "image": null
+  },
+  {
+   "id": "triceps-frances-halter",
+   "name": "Tríceps francês (Halter)",
+   "nameEn": "Triceps Extension (Dumbbell)",
+   "equipment": "dumbbell",
+   "muscle": "triceps",
+   "secondary": [],
+   "image": null
+  },
+  {
+   "id": "triceps-frances-maquina",
+   "name": "Tríceps francês (Máquina)",
+   "nameEn": "Triceps Extension (Machine)",
+   "equipment": "machine",
+   "muscle": "triceps",
+   "secondary": [],
+   "image": null
+  },
+  {
+   "id": "triceps-frances-polia",
+   "name": "Tríceps francês (Polia)",
+   "nameEn": "Triceps Extension (Cable)",
+   "equipment": "machine",
+   "muscle": "triceps",
+   "secondary": [],
+   "image": "https://pump-app.s3.eu-west-2.amazonaws.com/exercise-assets/01491101-Cable-Alternate-Triceps-Extension_Upper-Arms_small.jpg"
+  },
+  {
+   "id": "triceps-frances-suspensao",
+   "name": "Tríceps francês (Suspensão)",
+   "nameEn": "Triceps Extension (Suspension)",
+   "equipment": "suspension",
+   "muscle": "triceps",
+   "secondary": [],
+   "image": "https://pump-app.s3.eu-west-2.amazonaws.com/exercise-assets/11041101-Suspender-Triceps-Extension_Upper-Arms_small.jpg"
+  },
+  {
+   "id": "triceps-pressdown",
+   "name": "Tríceps pressdown",
+   "nameEn": "Triceps Pressdown",
+   "equipment": "machine",
+   "muscle": "triceps",
+   "secondary": [],
+   "image": null
+  },
+  {
+   "id": "triceps-pulley",
+   "name": "Tríceps pulley",
+   "nameEn": "Triceps Pushdown",
+   "equipment": "machine",
+   "muscle": "triceps",
+   "secondary": [],
+   "image": null
+  },
+  {
+   "id": "triceps-pulley-unilateral-polia",
+   "name": "Tríceps pulley unilateral (Polia)",
+   "nameEn": "Single Arm Triceps Pushdown (Cable)",
+   "equipment": "machine",
+   "muscle": "triceps",
+   "secondary": [],
+   "image": null
+  },
+  {
+   "id": "triceps-sentado-acima-da-cabeca",
+   "name": "Tríceps sentado acima da cabeça",
+   "nameEn": "Seated Triceps Press",
+   "equipment": "machine",
+   "muscle": "triceps",
+   "secondary": [],
+   "image": null
+  },
+  {
+   "id": "triceps-testa-barra",
+   "name": "Tríceps testa (Barra)",
+   "nameEn": "Skullcrusher (Barbell)",
+   "equipment": "barbell",
+   "muscle": "triceps",
+   "secondary": [],
+   "image": "https://pump-app.s3.eu-west-2.amazonaws.com/exercise-assets/00351101-Barbell-Decline-Close-Grip-To-Skull-Press_Upper-Arms_small.jpg"
+  },
+  {
+   "id": "triceps-testa-halter",
+   "name": "Tríceps testa (Halter)",
+   "nameEn": "Skullcrusher (Dumbbell)",
+   "equipment": "dumbbell",
+   "muscle": "triceps",
+   "secondary": [],
+   "image": "https://pump-app.s3.eu-west-2.amazonaws.com/exercise-assets/03511101-Dumbbell-Lying-Triceps-Extension_Upper-Arms_small.jpg"
+  },
+  {
+   "id": "triceps-unilateral-acima-da-cabeca-halter",
+   "name": "Tríceps unilateral acima da cabeça (Halter)",
+   "nameEn": "Single Arm Tricep Extension (Dumbbell)",
+   "equipment": "dumbbell",
+   "muscle": "triceps",
+   "secondary": [],
+   "image": null
+  },
+  {
+   "id": "voltas-ao-mundo-halter",
+   "name": "Voltas ao mundo (Halter)",
+   "nameEn": "Around The World",
+   "equipment": "dumbbell",
+   "muscle": "chest",
+   "secondary": [
+    "upper-back",
+    "shoulders"
+   ],
+   "image": null
+  },
+  {
+   "id": "wall-ball",
+   "name": "Wall ball",
+   "nameEn": "Wall Ball",
+   "equipment": "other",
+   "muscle": "full-body",
+   "secondary": [],
+   "image": "https://pump-app.s3.eu-west-2.amazonaws.com/exercise-assets/24581101-Wall-Ball_Thighs_small.jpg"
+  },
+  {
+   "id": "yoga",
+   "name": "Yoga",
+   "nameEn": "Yoga",
+   "equipment": "none",
+   "muscle": "full-body",
+   "secondary": [],
+   "image": null
+  }
+ ],
+ "aliases": {
+  "agachamento-high-bar": "agachamento-livre-barra",
+  "agachamento-pausa-2-3s": "agachamento-com-pausa-barra",
+  "agachamento-single-de-ativacao": "agachamento-livre-barra",
+  "agachamento-walkout": "agachamento-livre-barra",
+  "agacho-back-off": "agachamento-livre-barra",
+  "agacho-duplas-de-volume": "agachamento-livre-barra",
+  "barra-fixa": "barra-fixa",
+  "crucifixo-inverso": "crucifixo-inverso-halter",
+  "elevacao-lateral": "elevacao-lateral-halter",
+  "flexora-deitada": "mesa-flexora-maquina",
+  "pallof-press-elastico": "pallof-press-polia",
+  "panturrilha-em-pe": "panturrilha-em-pe",
+  "prancha-frontal": "prancha",
+  "prancha-lateral": "prancha-lateral",
+  "puxada-aberta": "puxada-alta-polia",
+  "puxada-pegada-neutra": "puxada-pegada-fechada-polia",
+  "remada-apoiada-maquina-ou-banco-inclinado": "remada-apoiada-no-banco-inclinado-halter",
+  "remada-apoiada-peito-no-banco": "remada-apoiada-no-banco-inclinado-halter",
+  "rosca-scott": "rosca-scott-barra",
+  "stiff": "stiff-romeno-barra",
+  "stiff-terra-romeno": "stiff-romeno-barra",
+  "supino-back-off": "supino-reto-barra",
+  "supino-com-pausa-no-meio": "supino-reto-barra",
+  "supino-competicao-pausa": "supino-reto-barra",
+  "supino-duplas-de-volume": "supino-reto-barra",
+  "supino-pausa-3s": "supino-reto-barra",
+  "supino-pegada-fechada": "supino-pegada-fechada-barra",
+  "supino-single-de-ativacao": "supino-reto-barra",
+  "terra": "levantamento-terra-barra",
+  "terra-back-off": "levantamento-terra-barra",
+  "terra-convencional": "levantamento-terra-barra",
+  "terra-convencional-hook": "levantamento-terra-barra",
+  "terra-duplas-de-volume": "levantamento-terra-barra",
+  "terra-single-de-ativacao": "levantamento-terra-barra",
+  "triceps-frances-no-cabo": "triceps-frances-polia"
+ }
+}

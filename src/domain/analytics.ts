@@ -1,6 +1,7 @@
 // Análises: linhas de série achatadas, agrupamentos e séries para gráficos.
 
 import { kcalTarget, sumMacros, type MealEntry, type NutritionTargets } from './nutrition';
+import { formatDate } from './format';
 import { e1rm } from './rpe';
 import type { CheckIn, LoggedSession } from './rules';
 import type { Cycle, ItemKind, Lift } from './types';
@@ -100,7 +101,7 @@ function groupKey(r: SetRow, by: GroupBy): { key: string; label: string; sortKey
     case 'week':
       return { key: `${r.cycleId}|${r.week}`, label: r.week ? `Semana ${r.week}` : 'Sem semana', sortKey: `${r.cycleId}|${String(r.week ?? 0).padStart(3, '0')}` };
     case 'session':
-      return { key: r.sessionLogId, label: `${r.date.slice(8, 10)}/${r.date.slice(5, 7)} · ${r.sessionTitle}`, sortKey: r.date };
+      return { key: r.sessionLogId, label: `${formatDate(r.date)} · ${r.sessionTitle}`, sortKey: r.date };
     case 'exercise':
       return { key: r.exerciseId, label: r.exerciseName, sortKey: r.exerciseName };
   }

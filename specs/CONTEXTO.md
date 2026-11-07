@@ -70,6 +70,15 @@ Princípios:
 - **Registro "conforme o plano" não inventa RPE.** O RPE só existe se o usuário informar; o app pede logo depois do principal.
 - **Macros das refeições ficam gravados** no registro (snapshot): editar um alimento não muda o passado.
 
+## Direção do produto (decidida em 06/11/2026)
+
+- **Todo exercício é igual:** máximo, % do máximo, e1RM, gráfico e RPE valem para qualquer exercício; "principal / variação /
+  acessório" é o papel dele no treino. Agacho, supino e terra deixam de ser casos especiais do código (spec 15).
+- **Plano = periodização:** o app comporta várias periodizações, **uma ativa**; criar e editar periodizações, semanas e treinos
+  é pela interface, sem importação (spec 16). As regras do treinador são **opcionais por periodização**.
+- **Treino em andamento é um estado de verdade** (início, fim, descartar), não um efeito de ter marcado uma série (spec 13).
+- **Live Activity:** só se couber no Apple ID gratuito (o `expo-widgets` pede App Group); senão fica a notificação local (spec 17).
+
 ## Formatos de dados
 
 - **Ciclo:** `fitapp.cycle/v1` — [docs/formato-ciclo.md](../docs/formato-ciclo.md). Gerado por `tools/import_plan.py` a partir da planilha; o mesmo formato o Claude usa.

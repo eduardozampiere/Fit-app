@@ -97,6 +97,9 @@ Princípios:
 - **Treino em andamento é um estado de verdade** (início, fim, descartar), não um efeito de ter marcado uma série (spec 13).
 - **Live Activity:** só se couber no Apple ID gratuito (o `expo-widgets` pede App Group); senão fica a notificação local (spec 17).
 
+## Recordes (decidido em 07/11/2026)
+Os recordes pessoais e as medalhas são **derivados do histórico a cada leitura** (`computeRecordBook`, `src/domain/records.ts`); nada é gravado na série nem no backup. Só os dois interruptores de Ajustes (`records-prefs`) são gravados. A lista "Recordes pessoais" usa o mesmo cálculo, então não discorda das medalhas.
+
 ## Formatos de dados
 
 - **Ciclo:** `fitapp.cycle/v1` — [docs/formato-ciclo.md](../docs/formato-ciclo.md). Gerado por `tools/import_plan.py` a partir da planilha; o mesmo formato o Claude usa.

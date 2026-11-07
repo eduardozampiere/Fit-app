@@ -14,6 +14,8 @@ const light = {
   /** Série concluída. */
   done: '#3FAE4F',
   doneBg: '#DDF6CF',
+  /** Medalha de recorde (contraste ≥ 3:1 sobre `doneBg`, `card` e `bg`). */
+  gold: '#A87700',
   warn: '#B26A00',
   warnBg: '#FFF4E0',
   danger: '#D93025',
@@ -37,6 +39,7 @@ const dark: typeof light = {
   accentText: '#FFFFFF',
   done: '#4CC262',
   doneBg: '#1D3320',
+  gold: '#F2C14E',
   warn: '#F2B04A',
   warnBg: '#33270F',
   danger: '#FF6B61',

@@ -1,17 +1,12 @@
 // Tela do exercício: histórico, gráfico e recordes a partir das séries registradas (SetRow).
 
 import type { Point, SetRow } from './analytics';
+import { computeRecordBook, countsForRecords, hasLoadAndReps, type RecordHolder, type RecordType } from './records';
+import { epley1rm } from './rpe';
 
 /** Séries de trabalho com carga e repetições (o que dá para comparar entre treinos). */
 export function exerciseRows(rows: readonly SetRow[], exerciseId: string): SetRow[] {
   return rows.filter((r) => r.exerciseId === exerciseId);
-}
-
-const counts = (r: SetRow) => !r.failed && r.loadKg !== null && r.loadKg > 0 && r.reps !== null && r.reps > 0;
-
-/** 1RM estimado pela fórmula de Epley (vale para qualquer série; sem RPE). */
-export function epley1rm(loadKg: number, reps: number): number {
-  return Math.round(reps === 1 ? loadKg : loadKg * (1 + reps / 30));
 }
 
 export type StatMetric = 'maxLoad' | 'oneRm' | 'sessionVolume';
@@ -26,7 +21,7 @@ export const STAT_METRIC_LABEL: Record<StatMetric, string> = {
 export function exerciseSeries(rows: readonly SetRow[], metric: StatMetric): Point[] {
   const bySession = new Map<string, { date: string; sets: SetRow[] }>();
   for (const r of rows) {
-    if (!counts(r)) continue;
+    if (!hasLoadAndReps(r)) continue;
     const s = bySession.get(r.sessionLogId) ?? { date: r.date, sets: [] };
     s.sets.push(r);
     bySession.set(r.sessionLogId, s);
@@ -40,28 +35,28 @@ export function exerciseSeries(rows: readonly SetRow[], metric: StatMetric): Poi
   return [...bySession.values()].map((s) => ({ x: s.date, y: value(s.sets) })).sort((a, b) => a.x.localeCompare(b.x));
 }
 
-export interface Record1 {
-  kg: number;
-  reps: number;
-  date: string;
-}
-
 export interface PersonalRecords {
-  maxLoad: Record1 | null;
-  best1rm: { kg: number; date: string } | null;
-  bestSetVolume: Record1 | null;
+  maxLoad: RecordHolder | null;
+  oneRm: RecordHolder | null;
+  oneRmRpe: RecordHolder | null;
+  setVolume: RecordHolder | null;
   bestSessionVolume: { kg: number; date: string } | null;
   /** Para cada número de repetições, a maior carga feita com pelo menos essas repetições. */
   byReps: { reps: number; kg: number; date: string }[];
 }
 
+/** Recordes do exercício (as linhas já vêm filtradas por `exerciseRows`), pela mesma regra das medalhas. */
 export function personalRecords(rows: readonly SetRow[], maxRepRows = 15): PersonalRecords {
-  const sets = rows.filter(counts);
+  const sets = rows.filter(countsForRecords);
   const pick = <T,>(items: T[], score: (x: T) => number): T | null =>
     items.reduce<T | null>((best, x) => (best === null || score(x) > score(best) ? x : best), null);
-  const asRecord = (r: SetRow | null): Record1 | null => (r ? { kg: r.loadKg!, reps: r.reps!, date: r.date } : null);
 
-  const top1rm = pick(sets, (s) => epley1rm(s.loadKg!, s.reps!));
+  const book = computeRecordBook(rows);
+  const best = (type: RecordType): RecordHolder | null => {
+    for (const entry of book.best.values()) return entry[type];
+    return null;
+  };
+
   const sessions = new Map<string, { date: string; volume: number }>();
   for (const s of sets) {
     const cur = sessions.get(s.sessionLogId) ?? { date: s.date, volume: 0 };
@@ -73,17 +68,18 @@ export function personalRecords(rows: readonly SetRow[], maxRepRows = 15): Perso
   const byReps: PersonalRecords['byReps'] = [];
   const most = sets.reduce((m, s) => Math.max(m, s.reps!), 0);
   for (let reps = 1; reps <= Math.min(most, maxRepRows); reps++) {
-    const best = pick(
+    const top = pick(
       sets.filter((s) => s.reps! >= reps),
       (s) => s.loadKg!,
     );
-    if (best) byReps.push({ reps, kg: best.loadKg!, date: best.date });
+    if (top) byReps.push({ reps, kg: top.loadKg!, date: top.date });
   }
 
   return {
-    maxLoad: asRecord(pick(sets, (s) => s.loadKg!)),
-    best1rm: top1rm ? { kg: epley1rm(top1rm.loadKg!, top1rm.reps!), date: top1rm.date } : null,
-    bestSetVolume: asRecord(pick(sets, (s) => s.loadKg! * s.reps!)),
+    maxLoad: best('maxLoad'),
+    oneRm: best('oneRm'),
+    oneRmRpe: best('oneRmRpe'),
+    setVolume: best('setVolume'),
     bestSessionVolume: topSession ? { kg: Math.round(topSession.volume), date: topSession.date } : null,
     byReps,
   };

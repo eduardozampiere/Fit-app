@@ -35,7 +35,7 @@ Legenda: ✅ feito · 🟡 feito, falta verificar no iPhone · 🔨 em andamento
 | 22 | Análises por exercício principal: uma linha por principal, seletor de até 3 (parte 4 da 15; depende da 19) | ⏳ | [22-analises-por-exercicio](22-analises-por-exercicio/pbi.md) |
 | 23 | Evolução dos máximos: gráfico e passado (estimativa dos treinos + valores lançados); a sugestão de máximo pelo e1RM está **em aberto**, a redefinir com o usuário (depende de 21 e 22; fatias 23a, 23b) | ⏳ | [23-evolucao-dos-maximos](23-evolucao-dos-maximos/pbi.md) |
 | 24 | Séries com tipo: montar e editar grupos de séries do exercício (Normal, Aquecimento, Single de ativação, Back-off, Walkout) no Plano e na tela Hoje (depende da 19; logo depois dela, antes da 16) | ⏳ | [24-series-com-tipo](24-series-com-tipo/pbi.md) |
-| 25 | Recordes com medalha: aviso na hora e medalha dourada na série que bateu maior peso, maior volume de série, maior 1RM (estimado sem RPE) ou maior 1RM com RPE (serve a qualquer usuário; 25a não depende de nada e pode sair antes da 19; 25b, resumo ao concluir o treino, depois da 24) | ⏳ | [25-recordes-com-medalha](25-recordes-com-medalha/pbi.md) |
+| 25 | Recordes com medalha: aviso na hora e medalha dourada na série que bateu maior peso, maior volume de série, maior 1RM (estimado sem RPE) ou maior 1RM com RPE (serve a qualquer usuário; 25a não depende de nada e pode sair antes da 19; 25b, resumo ao concluir o treino, depois da 24) | 🚧 25a feita; falta iPhone | [25-recordes-com-medalha](25-recordes-com-medalha/pbi.md) |
 
 ### Ordem recomendada (visão de 06/11/2026: o app também para quem só faz academia normal)
 

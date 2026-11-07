@@ -222,16 +222,20 @@ export async function listSetLogs(db: SQLiteDatabase, sessionLogId: string): Pro
   return rows.map(toSetLog);
 }
 
-export async function insertSets(db: SQLiteDatabase, sessionLogId: string, drafts: SetDraft[]): Promise<void> {
-  if (drafts.length === 0) return;
+/** Grava as séries e devolve os ids gerados, na ordem dos rascunhos. */
+export async function insertSets(db: SQLiteDatabase, sessionLogId: string, drafts: SetDraft[]): Promise<string[]> {
+  if (drafts.length === 0) return [];
   const now = new Date().toISOString();
+  const ids: string[] = [];
   await db.withTransactionAsync(async () => {
     for (const d of drafts) {
+      const id = newId();
+      ids.push(id);
       await db.runAsync(
         `INSERT INTO set_logs (id, session_log_id, item_id, exercise_id, set_index, load_kg, reps, duration_sec,
            rpe, grip, belt, failed, as_planned, warmup, set_type, note, done_at)
          VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-        newId(),
+        id,
         sessionLogId,
         d.itemId,
         d.exerciseId,
@@ -251,6 +255,7 @@ export async function insertSets(db: SQLiteDatabase, sessionLogId: string, draft
       );
     }
   });
+  return ids;
 }
 
 export async function updateSetType(db: SQLiteDatabase, id: string, setType: SetType): Promise<void> {

@@ -1,9 +1,12 @@
 # 15 — Exercício único e máximos próprios (fim do "agacho/supino/terra" fixo)
 
-> **Nota (06/11/2026): esta spec foi dividida em quatro PBIs, que passam a ser o contrato de produto.** Ordem: [19 Formato v2](../19-formato-v2/pbi.md)
-> (15a, 15b, 15d e a migração de dados do 15g) → [20 Máximos próprios](../20-maximos-proprios/pbi.md) (15c e 15f) → [21 Histórico de máximos](../21-historico-de-maximos/pbi.md)
-> (`max_history` do 15g) e [22 Análises por exercício](../22-analises-por-exercicio/pbi.md) (15e; depende só da 19). As decisões abaixo continuam valendo; o plano técnico de cada fatia
-> nasce em `tech-plan.md` na pasta do PBI.
+> **Nota (06/11/2026): esta spec foi dividida em PBIs, que passam a ser o contrato de produto.** Ordem: [19 Modelo de treino v2](../19-formato-v2/pbi.md)
+> (15a, 15b, 15d e a migração de dados do 15g; **agora também leva o "back-off e single viram tipo de série dentro do exercício; 'duplas de volume' não é tipo (vira back-off, a confirmar)"**, pedido do usuário em 06/11/2026)
+> → [24 Séries com tipo](../24-series-com-tipo/pbi.md) (montar e editar esses grupos) → [20 Máximos próprios](../20-maximos-proprios/pbi.md) (15c e 15f)
+> → [21 Histórico de máximos](../21-historico-de-maximos/pbi.md) (`max_history` do 15g) e [22 Análises por exercício](../22-analises-por-exercicio/pbi.md) (15e; depende só da 19);
+> o que estava em "Fora do escopo" (evolução dos máximos) agora é o [PBI 23](../23-evolucao-dos-maximos/pbi.md). Nome do primeiro máximo: "Agachamento" (pedido do usuário).
+> **Visão nova (06/11/2026):** o app deve servir também a quem só faz academia normal; máximos, regras e histórico passam a ser módulo avançado. Ver ordem em [PLANO.md](../PLANO.md).
+> As decisões abaixo continuam valendo; o plano técnico de cada fatia nasce em `tech-plan.md` na pasta do PBI.
 
 **Status:** ⏳ a fazer — planejada com o usuário em 06/11/2026 (entrevista de decisões) — **pré-requisito das specs 16 e 18**
 

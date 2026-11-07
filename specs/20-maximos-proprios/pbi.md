@@ -2,10 +2,16 @@
 
 > **Produto: o quê e por quê.** Dono: `product-manager` (`/pm`). O como fica em [tech-plan.md](tech-plan.md),
 > do `tech-planner` (`/planejar`).
-> Parte 2 de 4 da [spec 15](../15-exercicio-unico/spec.md). Antes: [19 Formato v2](../19-formato-v2/pbi.md).
+> Parte 2 da [spec 15](../15-exercicio-unico/spec.md). Antes: [19 Modelo de treino v2](../19-formato-v2/pbi.md) e [24 Séries com tipo](../24-series-com-tipo/pbi.md).
 
 **Status:** ⏳ a fazer
-**Depende de:** [19 — Formato v2](../19-formato-v2/pbi.md). Bloqueia a spec 16 (periodizações) e a spec 18 (regras configuráveis).
+**Depende de:** [19 — Modelo de treino v2](../19-formato-v2/pbi.md). Bloqueia a spec 18 (regras configuráveis). **Não bloqueia mais a spec 16**: criar treinos e periodizações funciona com carga fixa em kg; os máximos
+entram como recurso avançado (ver "Persona").
+
+## Persona (visão de 06/11/2026)
+O usuário mudou o público do app: além do atleta de powerlifting, **quem só faz academia normal**. "Máximo" e "% do máximo" são úteis a quem treina por porcentagem (5/3/1, powerlifting), mas não a quem escreve "Supino 3 × 10 a 60 kg".
+Por isso este PBI é um **recurso avançado**: o texto abaixo continua valendo para o atleta atual, e a pergunta P3 abaixo decide se ele fica atrás de um interruptor "Recursos avançados" para os demais usuários. Nada aqui deve ser
+obrigatório para criar ou registrar um treino.
 
 ## Objetivo
 "Não deveria ter diferença entre terra, agacho e supino e os exercícios; todos são exercícios." Hoje só esses três têm máximo e carga em %
@@ -63,7 +69,7 @@ a carga do dia calculada (24 kg), sem pedir ajuda do Claude e sem a pergunta de 
 - Linha nova no editor, perto da carga: **"Carga baseada em"** com valor atual ("Carga fixa (kg)" ou o nome do máximo). Tocar abre uma folha com:
   "Carga fixa (kg)" e a lista dos máximos, cada um com o valor ("Agachamento · 205 kg").
 - Com um máximo escolhido: aparece o campo **"% do máximo"** (ex.: 80) e, abaixo, "= 164 kg" já calculado e arredondado; o campo de kg fixo some.
-  Sem máximo: fica o campo de kg de hoje.
+  Sem máximo: fica o campo de kg de hoje. O máximo é do **exercício**; o % é de cada **grupo de séries** (PBI 19/24): o principal a 80%, o single a 92% e o back-off a 75% usam o mesmo máximo, e cada linha mostra o seu "= … kg".
 - Ao trocar de "Carga fixa" para um máximo, o % vem sugerido com o mais próximo da carga atual (arredondado para 1%), editável. Ao trocar de um
   máximo para "Carga fixa", o kg fixo vira a carga que o item tinha naquele momento (a carga não "pula").
 - O que o editor já faz (faixa de reps, RPE, descanso, pegada do terra) continua igual.
@@ -155,6 +161,8 @@ confirmação; alvo mínimo de toque de 56 pt nos controles principais; textos e
 - **Risco:** perder o vínculo ao apagar/renomear — coberto por id estável (CP4, CP7).
 - **P1 (não bloqueia):** apagar um máximo usado em 14 semanas exige desligar item por item, como você decidiu. Se isso for trabalhoso na prática, quer um atalho "Desligar em todos os
   treinos" com confirmação? Recomendação: manter como está e só adicionar o atalho se incomodar; é uma mudança pequena depois.
+- **P3 (não bloqueia este PBI, define o público):** para quem só faz academia normal, "Máximos" e "Carga baseada em" ficam escondidos atrás de um interruptor "Recursos avançados" (desligado por padrão em instalações novas)? **Recomendação: sim.** O atleta atual
+  teria o interruptor ligado ao atualizar, para não perder nada.
 - **Respondidas em 06/11/2026:** o nome inicial do primeiro máximo é "Agachamento" (decisão no PBI 19; a lista aqui já usa esse nome). O atalho "Desligar em todos os
   treinos" não foi pedido: **fica fora**, no backlog, e só entra se desligar item por item incomodar na prática.
 
@@ -162,4 +170,5 @@ confirmação; alvo mínimo de toque de 56 pt nos controles principais; textos e
 | Data | Nota |
 |---|---|
 | 06/11/2026 | PBI criado a partir da fatia "máximos próprios" da spec 15 (itens 15c e 15f). |
+| 06/11/2026 | Visão nova (app também para quem só faz academia normal): PBI vira recurso avançado; deixa de bloquear a spec 16; % por grupo de séries; pergunta P3 sobre o interruptor. |
 | 06/11/2026 | Respostas do atleta: nome inicial "Agachamento" (textos do PBI ajustados); atalho "desligar em todos" fica no backlog; sugestão de máximo pelo e1RM passa para o PBI 23. |

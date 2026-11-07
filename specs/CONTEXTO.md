@@ -5,6 +5,14 @@
 
 ## Quem usa e para quê
 
+- **Hoje o app tem um usuário: o dono.** **Visão de produto (06/11/2026, dita pelo dono): o app deve servir a várias pessoas, inclusive a quem
+  só faz academia normal.** O modelo é "exercício → séries, cada série com um tipo" (como no Hevy). Recursos de powerlifting (máximos e % do
+  máximo, histórico de máximos, regras do treinador, integração com o Claude, importação de planilha, check-in de dor lombar) tendem a ser
+  **módulos avançados, opcionais por usuário** (a confirmar, PBIs 19 a 24). Criar e registrar um treino não deve exigir nenhum deles.
+  **Pendente do dono:** distribuição (a conta paga da Apple conflita com a restrição abaixo), imagens e catálogo de terceiros, plano pessoal
+  embutido e Claude para outros usuários, idioma. Enquanto isso, nada é construído para distribuição.
+- **Tipos de série** (decisão do dono): Normal, Aquecimento, Single de ativação e Back-off (mais Falha e Drop set no registro). "Duplas de volume"
+  **não é tipo** (é Normal, Aquecimento ou Back-off); back-off e single são séries do exercício, não exercícios separados (PBI 19).
 - Atleta de powerlifting (IPF, categoria 105 kg). Meta dez/2027: agacho 220, supino 180, terra 260.
 - Treina 5x por semana num ciclo periodizado por % (volume → intensificação → pico → deload).
 - Tem histórico de **protrusões discais lombares (L3–S1)**. O app acompanha dor (lombar, joelho, punho,
@@ -21,7 +29,7 @@
 
 | Restrição | Consequência |
 |---|---|
-| Sem conta paga da Apple (não vai pagar) | Instalação com Apple ID gratuito pelo Mac: validade de 7 dias, renovação semanal. Sem HealthKit, widgets com dados compartilhados, iCloud/CloudKit nem push remoto. |
+| Sem conta paga da Apple (decisão do dono até 06/11/2026; **conflita com distribuir para outras pessoas, em aberto**) | Instalação com Apple ID gratuito pelo Mac: validade de 7 dias, renovação semanal. Sem HealthKit, widgets com dados compartilhados, iCloud/CloudKit nem push remoto. |
 | Uso na academia: normalmente com 5G, mas pode ficar sem internet (informado pelo usuário em 05/11/2026) | Offline-first: tudo que é essencial fica no aparelho (SQLite), sem backend e sem conta. Internet só para extras que têm alternativa sem ela, como as demonstrações dos exercícios (com cache e ícone de reserva). |
 | Tem Mac | O build e a instalação no iPhone rodam no Mac (`npm run iphone`). |
 | Sessões do Claude Code na nuvem rodam em Linux | Elas não compilam iOS nem alcançam o iPhone. Testes de domínio, lint, tipos e prévia web rodam lá; instalação só numa sessão local no Mac. |

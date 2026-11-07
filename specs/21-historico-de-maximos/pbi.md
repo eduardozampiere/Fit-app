@@ -6,13 +6,14 @@
 
 **Status:** ⏳ a fazer
 **Depende de:** [20 — Máximos próprios](../20-maximos-proprios/pbi.md) (e, por consequência, da [19](../19-formato-v2/pbi.md)).
-Bloqueia a spec 16 (periodização nova começa do último valor do histórico).
+Não bloqueia mais a spec 16: ela usa o "último valor do histórico" para iniciar os máximos de uma periodização nova **quando o recurso de máximos existir**; sem ele, cria só com carga fixa.
+**Recurso avançado** (visão de 06/11/2026: o app também é para quem só faz academia normal): vale a pergunta P3 do [PBI 20](../20-maximos-proprios/pbi.md) sobre o interruptor "Recursos avançados"; o registro é automático e invisível, só a lista na folha do máximo some junto com o recurso.
 
 ## Objetivo
 O máximo do atleta é o dado mais importante do powerlifting e hoje **não deixa rastro**: ao mudar o supino de 170 para 175, o 170 some. Não dá para ver
 a evolução, nem para uma periodização nova começar do ponto em que o atleta realmente está. Este PBI grava **toda mudança de máximo** (quando, quanto, por
 quê veio e em qual periodização) e mostra essa lista na própria tela do máximo. Ele vem logo depois do PBI 20 porque **o histórico só acumula daqui para a frente**:
-cada semana de atraso é um dado perdido para sempre. A tela de gráfico da evolução fica para depois (backlog) e usa estes dados.
+cada semana de atraso é um dado perdido para sempre. O gráfico da evolução é o [PBI 23](../23-evolucao-dos-maximos/pbi.md) e usa estes dados.
 
 Uso: o atleta olha o histórico de vez em quando (ao planejar um ciclo novo, ao conferir "quando eu subi o terra para 240?"); o registro em si é automático, sem
 ação dele.
@@ -116,3 +117,4 @@ Regras do produto: o registro nunca bloqueia nem atrasa a ação do atleta (muda
 |---|---|
 | 06/11/2026 | PBI criado a partir da fatia "histórico" da spec 15 (decisão 2 e parte do item 15g). |
 | 06/11/2026 | Atleta quer o gráfico de evolução, o histórico retroativo e a sugestão pelo e1RM: criado o PBI 23; as origens do histórico precisam aceitar novos valores. |
+| 06/11/2026 | Visão nova (app também para quem só faz academia normal): vira recurso avançado; deixa de bloquear a spec 16. A sugestão pelo e1RM ("Sugestão do e1RM") passou a ser escopo em aberto no PBI 23; a origem "Lançado depois" segue prevista. |

@@ -25,15 +25,29 @@ Legenda: ✅ feito · 🟡 feito, falta verificar no iPhone · 🔨 em andamento
 | 12 | Single dentro do principal, arraste livre das folhas, lixeira e tipo ao adicionar exercício | 🟡 | [12-single-na-tabela-e-arraste-livre](12-single-na-tabela-e-arraste-livre/spec.md) |
 | 13 | Treino em andamento: iniciar, não perder, cancelar; Concluir só com treino iniciado | 🟡 | [13-treino-em-andamento](13-treino-em-andamento/spec.md) |
 | 14 | Timer de descanso retangular, persistente, com notificação | 🟡 | [14-timer-de-descanso-e-notificacao](14-timer-de-descanso-e-notificacao/spec.md) |
-| 15 | Exercício único e máximos próprios (formato v2). **Detalhada nos PBIs 19 a 22**; a spec guarda as decisões | ⏳ | [15-exercicio-unico](15-exercicio-unico/spec.md) |
-| 16 | Periodizações: várias, uma ativa; criar plano e treinos pela UI (depende dos PBIs 20 e 21) | ⏳ | [16-periodizacoes](16-periodizacoes/spec.md) |
-| 17 | Live Activity do timer na Dynamic Island (começa por teste de viabilidade) | ⏳ | [17-live-activity](17-live-activity/spec.md) |
-| 18 | Regras do treinador configuráveis pela interface (depende dos PBIs 19 e 20) | ⏳ | [18-regras-configuraveis](18-regras-configuraveis/spec.md) |
-| 19 | Formato v2 do ciclo: base quase invisível (única mudança visível: "Agacho" vira "Agachamento"), cópia de segurança, regras por máximo (parte 1 da 15) | ⏳ | [19-formato-v2](19-formato-v2/pbi.md) |
-| 20 | Máximos próprios: criar máximos, "Carga baseada em" em qualquer exercício, sem pergunta de movimento (parte 2 da 15; depende da 19) | ⏳ | [20-maximos-proprios](20-maximos-proprios/pbi.md) |
+| 15 | Exercício único e máximos próprios (formato v2). **Detalhada nos PBIs 19 a 24**; a spec guarda as decisões | ⏳ | [15-exercicio-unico](15-exercicio-unico/spec.md) |
+| 16 | Periodizações: várias, uma ativa; criar plano e treinos pela UI (depende dos PBIs 19 e 24; usa os máximos 20/21 só se existirem) | ⏳ | [16-periodizacoes](16-periodizacoes/spec.md) |
+| 17 | Live Activity do timer na Dynamic Island (começa por teste de viabilidade; independente) | ⏳ | [17-live-activity](17-live-activity/spec.md) |
+| 18 | Regras do treinador configuráveis pela interface (módulo avançado; depende dos PBIs 19 e 20) | ⏳ | [18-regras-configuraveis](18-regras-configuraveis/spec.md) |
+| 19 | Modelo de treino v2: máximos com nome + séries com tipo dentro do exercício (single de ativação, back-off), cópia de segurança, regras por máximo, "Agacho" vira "Agachamento" (parte 1 da 15) | ⏳ | [19-formato-v2](19-formato-v2/pbi.md) |
+| 20 | Máximos próprios: criar máximos, "Carga baseada em" em qualquer exercício, sem pergunta de movimento (recurso avançado; parte 2 da 15; depende da 19) | ⏳ | [20-maximos-proprios](20-maximos-proprios/pbi.md) |
 | 21 | Histórico de máximos: toda mudança registrada e visível na folha do máximo (parte 3 da 15; depende da 20) | ⏳ | [21-historico-de-maximos](21-historico-de-maximos/pbi.md) |
 | 22 | Análises por exercício principal: uma linha por principal, seletor de até 3 (parte 4 da 15; depende da 19) | ⏳ | [22-analises-por-exercicio](22-analises-por-exercicio/pbi.md) |
-| 23 | Evolução dos máximos: gráfico, passado (estimativa dos treinos + valores lançados) e sugestão de máximo pelo e1RM (depende de 21 e 22; fatias 23a, 23b, 23c) | ⏳ | [23-evolucao-dos-maximos](23-evolucao-dos-maximos/pbi.md) |
+| 23 | Evolução dos máximos: gráfico e passado (estimativa dos treinos + valores lançados); a sugestão de máximo pelo e1RM está **em aberto**, a redefinir com o usuário (depende de 21 e 22; fatias 23a, 23b) | ⏳ | [23-evolucao-dos-maximos](23-evolucao-dos-maximos/pbi.md) |
+| 24 | Séries com tipo: montar e editar grupos de séries do exercício (Normal, Aquecimento, Single de ativação, Back-off) no Plano e na tela Hoje (depende da 19; logo depois dela, antes da 16) | ⏳ | [24-series-com-tipo](24-series-com-tipo/pbi.md) |
+
+### Ordem recomendada (visão de 06/11/2026: o app também para quem só faz academia normal)
+
+1. **19** Modelo de treino v2: a base (uma migração só, com cópia de segurança). Maior risco; tudo depende dela.
+2. **24** Séries com tipo: devolve a criação de grupos pela tela e é o editor que a 16 vai usar.
+3. **16** Periodizações: criar plano e treinos pela interface, sem planilha. É o maior valor para quem só faz academia normal.
+4. **22** Análises por exercício principal (serve a todos; depende só da 19) e **20** Máximos próprios (recurso avançado; pode ir antes da 22).
+5. **21** Histórico de máximos logo depois da 20 (só acumula daqui para a frente).
+6. **23** Evolução dos máximos (a, b); a sugestão pelo e1RM fica em aberto.
+7. **18** Regras configuráveis (módulo avançado, só depois de 19 e 20 e de entrevista de escopo).
+8. **17** Live Activity: independente; o teste de viabilidade pode ser feito a qualquer hora; acabamento, não essencial.
+- **Opcional por usuário (interruptor "Recursos avançados", a confirmar):** máximos e % do máximo (20, 21, 23), regras do treinador (18), integração com o Claude e importação de planilha (tela Dados), check-in de dor lombar e seus alertas.
+- **Precisa mudar para outra pessoa usar (ainda sem PBI; depende das perguntas abertas de distribuição):** o plano pessoal embutido (`ciclo_out26_jan27`) não pode ir para os outros; primeira abertura vazia/onboarding; textos específicos de powerlifting e de lombar; imagens e catálogo de terceiros; como instalar para mais de uma pessoa.
 
 Nada foi testado num iPhone de verdade ainda. Em 03/11/2026 o app rodou no simulador do iOS 27.2 (Mac,
 Xcode 27.2, `npx expo run:ios`). O que foi verificado em cada feature está no `spec.md` dela.
@@ -54,7 +68,8 @@ Xcode 27.2, `npx expo run:ios`). O que foi verificado em cada feature está no `
 | Figura do corpo com os músculos trabalhados (como no cabeçalho do Hevy) | feature 10 | Precisa do desenho do corpo e do mapa exercício → músculo; as imagens do catálogo já mostram os músculos em vermelho. |
 | Imagem para os exercícios que só têm vídeo no catálogo (222) | feature 10 | Tirar o primeiro quadro de cada mp4 (ffmpeg já instalado no Mac) e embutir no app. Exige baixar ~223 vídeos (~93 MB) do bucket de terceiros e guardar ~8 MB de imagens no repositório. Decidido em 06/11/2026: **só quando o app estiver pronto**, não agora. |
 | Linha de meta por máximo (ex.: meta de dez/2027) no gráfico de evolução | PBI 23 | Precisa guardar a meta de cada máximo; o gráfico de evolução, o passado e a sugestão pelo e1RM já estão no [PBI 23](23-evolucao-dos-maximos/pbi.md). |
-| Renomear exercícios do plano que começam com "Agacho" (ex.: "Agacho back-off") para "Agachamento" | PBI 19 | Pergunta aberta ao usuário; mexe em dados do plano e nos registros antigos. |
+| Versão para outras pessoas: primeira abertura sem plano, onboarding, plano pessoal fora do app, recursos avançados opcionais, textos genéricos | visão de 06/11/2026 | **Bloqueado por decisão do usuário** sobre distribuição (conta paga da Apple, plataformas, dados e imagens de terceiros, idioma). Ver "Decisões em aberto". |
+| Sugestão de máximo pelo e1RM | PBI 23 | Em aberto: o usuário quer decidir melhor (onde aparece, séries sem RPE, relação com a revisão do treinador). Sem aviso na aba Hoje por enquanto. |
 | Atalho "Desligar máximo em todos os treinos" ao apagar máximo em uso | PBI 20 | Só se desligar item por item incomodar. |
 | Sugerir o máximo pelo nome do exercício ao adicionar principal/variação | PBI 20 | Só se ligar "Carga baseada em" à mão incomodar. |
 | Mais de 3 linhas por vez nos gráficos por exercício (ampliar a paleta) | PBI 22 | A paleta atual tem 3 cores. |
@@ -67,6 +82,11 @@ Xcode 27.2, `npx expo run:ios`). O que foi verificado em cada feature está no `
 | Fase 2 do prompt original: CloudKit, HealthKit, widgets | prompt original | ⛔ Exigem a conta paga da Apple. |
 
 ## Decisões em aberto (o usuário pode querer revisar)
+
+**Visão de produto de 06/11/2026 (precisa de resposta do usuário; ver CONTEXTO quando atualizado):** o app, hoje só dele, deve servir a várias pessoas, inclusive quem só faz academia normal. Perguntas: como distribuir (conta paga da Apple/TestFlight, só amigos com Apple ID gratuito, Android?), para quantas pessoas,
+dados e imagens de terceiros numa versão pública, o que acontece com o plano pessoal e com a integração com o Claude, idioma (só pt-BR?), check-in de dor lombar para todos ou só para ele. Enquanto não responder, a ordem acima vale e nada é construído para distribuição.
+
+**Séries com tipo (PBIs 19 e 24):** (a) as 3 "duplas de volume" do plano atual viram Back-off com esse nome: confirmar; (b) o walkout fica como exercício à parte com série Normal por duração (proposta) ou vira Aquecimento do agachamento?
 
 1. Freio dispara com RPE **≥** alvo + 1 (com alvo 7, RPE 8 já dispara).
 2. Revisão dos máximos compara com o **meio** da faixa de RPE alvo.

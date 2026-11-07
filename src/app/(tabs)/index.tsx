@@ -36,7 +36,7 @@ import {
   setSetting,
   updateSet,
 } from '../../db/repo';
-import { addExerciseToSession, swapExercise } from '../../domain/adjustments';
+import { ADD_KINDS, addExerciseToSession, needsLift, swapExercise } from '../../domain/adjustments';
 import { toISODate } from '../../domain/dates';
 import { formatDate, formatNumber, formatRestDuration, WEEKDAY_NAMES, WEEKDAY_SHORT } from '../../domain/format';
 import type { SwapScope } from '../../domain/adjustments';
@@ -55,6 +55,9 @@ import {
 import {
   currentLoad,
   findSession,
+  KIND_LABEL,
+  LIFT_LABEL,
+  LIFTS,
   liftOf,
   nextSessionFrom,
   restOverride,
@@ -66,7 +69,7 @@ import {
   type SessionRef,
 } from '../../domain/plan';
 import { gripForSet, gripTip, hasRedFlags, sessionLocks } from '../../domain/rules';
-import type { Exercise, PrescribedItem, SessionLog, SetLog, SetType } from '../../domain/types';
+import type { Exercise, ItemKind, Lift, PrescribedItem, SessionLog, SetLog, SetType } from '../../domain/types';
 import { choiceOf, startsRest, type SetChoice } from '../../domain/setTypes';
 import { SetTypeSheet } from '../../components/SetTypeSheet';
 import { useAppData } from '../../state/AppData';
@@ -363,10 +366,29 @@ export default function TodayScreen() {
   };
 
   /** Acrescenta um exercício ao fim do treino do dia (só esta sessão do plano). */
-  const addExercise = async (exercise: Exercise) => {
+  const commitExercise = async (exercise: Exercise, kind: ItemKind, lift: Lift | null) => {
     if (!cycle || !ref) return;
+    await updateCycle(addExerciseToSession(cycle, ref.session.id, exercise, { kind, lift }).cycle);
+  };
+
+  // Escolhido o exercício: pergunta o tipo e, para principal/variação sem movimento, qual é.
+  const addExercise = (exercise: Exercise) => {
+    if (!cycle) return;
     setAdding(false);
-    await updateCycle(addExerciseToSession(cycle, ref.session.id, exercise).cycle);
+    const chooseKind = (kind: ItemKind) => {
+      if (!needsLift(cycle, exercise, kind)) {
+        void commitExercise(exercise, kind, null);
+        return;
+      }
+      setMenu({
+        title: `${KIND_LABEL[kind]}: qual movimento?`,
+        options: LIFTS.map((l) => ({ label: LIFT_LABEL[l], icon: 'barbell-outline', onPress: () => void commitExercise(exercise, kind, l) })),
+      });
+    };
+    setMenu({
+      title: `Tipo de ${exercise.name}`,
+      options: ADD_KINDS.map((k) => ({ label: KIND_LABEL[k], icon: k === 'accessory' ? 'fitness-outline' : 'barbell-outline', onPress: () => chooseKind(k) })),
+    });
   };
 
   const allAsPlanned = async (item: PrescribedItem) => {

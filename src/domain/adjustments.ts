@@ -260,19 +260,50 @@ export function validateCycle(input: unknown): { ok: boolean; errors: string[]; 
 /** Série padrão de um exercício adicionado no treino do dia; dá para mudar o número de séries na tela. */
 export const NEW_ITEM_SETS = '3x8-12';
 
+/** Tipos que dá para escolher ao adicionar um exercício no treino (o resto vem do plano ou do editor). */
+export const ADD_KINDS: readonly ItemKind[] = ['accessory', 'variation', 'main'];
+
+/** Principal e variação são levantamentos: precisam do movimento (agacho, supino ou terra). */
+export function isLiftKind(kind: ItemKind): boolean {
+  return kind === 'main' || kind === 'variation';
+}
+
+/** Movimento do exercício no ciclo (o que já está cadastrado vale sobre o do catálogo). */
+function knownLift(cycle: Cycle, exercise: Exercise): Lift | null {
+  return cycle.exercises.find((e) => e.id === exercise.id)?.lift ?? exercise.lift;
+}
+
+/** Falta perguntar o movimento? Só quando o tipo é principal/variação e o exercício ainda não tem um. */
+export function needsLift(cycle: Cycle, exercise: Exercise, kind: ItemKind): boolean {
+  return isLiftKind(kind) && knownLift(cycle, exercise) === null;
+}
+
 /**
  * Adiciona um exercício ao fim da sessão (só aquele dia). Cadastra o exercício no ciclo se for novo e
- * devolve o id do item criado.
+ * devolve o id do item criado. `as` escolhe o tipo (padrão: acessório, ou core para abdominal); para
+ * principal/variação, `lift` dá o movimento de um exercício que ainda não tem (entra nas Análises).
  */
-export function addExerciseToSession(cycle: Cycle, sessionId: string, exercise: Exercise): { cycle: Cycle; itemId: string | null } {
+export function addExerciseToSession(
+  cycle: Cycle,
+  sessionId: string,
+  exercise: Exercise,
+  as?: { kind: ItemKind; lift?: Lift | null },
+): { cycle: Cycle; itemId: string | null } {
   const session = cycle.weeks.flatMap((w) => w.sessions).find((s) => s.id === sessionId);
   if (!session) return { cycle, itemId: null };
   const known = new Set(session.items.map((i) => i.id));
-  const base = cycle.exercises.some((e) => e.id === exercise.id) ? cycle : { ...cycle, exercises: [...cycle.exercises, exercise] };
+  const kind: ItemKind = as?.kind ?? (exercise.category === 'core' ? 'core' : 'accessory');
+  const lift = isLiftKind(kind) ? (knownLift(cycle, exercise) ?? as?.lift ?? null) : null;
+  const withLift: Exercise = lift && !exercise.lift ? { ...exercise, lift, category: 'powerlifting' } : exercise;
+  const base = cycle.exercises.some((e) => e.id === exercise.id)
+    ? lift
+      ? { ...cycle, exercises: cycle.exercises.map((e) => (e.id === exercise.id && !e.lift ? { ...e, lift, category: 'powerlifting' as const } : e)) }
+      : cycle
+    : { ...cycle, exercises: [...cycle.exercises, withLift] };
   const op: AdjustmentOp = {
     op: 'add_item',
     sessionId,
-    item: { name: exercise.name, exerciseId: exercise.id, setsText: NEW_ITEM_SETS, kind: exercise.category === 'core' ? 'core' : 'accessory' },
+    item: { name: exercise.name, exerciseId: exercise.id, setsText: NEW_ITEM_SETS, kind },
   };
   const next = applyAdjustments(base, base.maxes, [op]).cycle;
   const created = next.weeks.flatMap((w) => w.sessions).find((s) => s.id === sessionId)?.items.find((i) => !known.has(i.id));

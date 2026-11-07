@@ -15,6 +15,7 @@ apagar série estava com defeito.
   - **Folhas que seguem o dedo** (`BottomSheet`): ficam onde forem soltas; só fecham se passarem de 60% da altura
     ou forem puxadas rápido para baixo; um arremesso rápido para cima volta à posição aberta.
   - **Lixeira** da linha deslizada: o ícone ficava cortado (escala em torno do meio da linha).
+- Entra também (pedido de 06/11): **escolher o tipo ao adicionar exercício** (ver abaixo).
 - Não entra: mudar o formato do ciclo (`fitapp.cycle/v1`) ou o banco; criar o tipo "single" na folha de tipo de série.
 
 ## Decisões
@@ -38,9 +39,11 @@ apagar série estava com defeito.
 - **Acessório:** sem % do máximo, descanso de 1,5 min, fora das análises dos levantamentos. **Core / mobilidade:**
   igual, mas não conta no volume. **Single de ativação** (agora linha "S") **e back-off / duplas** são séries
   especiais de um principal.
-- **Como adicionar hoje:** "Adicionar exercício" cria sempre um **acessório** (ou core, se o músculo for abdômen).
-  O tipo muda em Plano → ⋯ do exercício → editar (chips de tipo) ou pelo Claude (`edit_item` com `kind`). Ainda não
-  há escolha do tipo ao adicionar (ver PLANO.md, backlog).
+- **Como adicionar:** "Adicionar exercício" → escolhe o exercício → folha **Tipo**: Acessório, Variação ou Principal.
+  Principal/Variação de um exercício que ainda não tem movimento perguntam **qual** (agacho, supino, terra) e
+  gravam o movimento no exercício do ciclo (aí ele entra nas Análises). Um exercício que o ciclo já conhece com
+  movimento não pergunta e mantém o dele. O tipo também muda em Plano → ⋯ → editar, ou pelo Claude (`edit_item`).
+  Funções: `addExerciseToSession(…, {kind, lift})`, `needsLift`, `ADD_KINDS` em `adjustments.ts`.
 
 ## Plano de execução
 - [x] `attachSingles` + teste
@@ -68,3 +71,4 @@ apagar série estava com defeito.
 | Data | Nota |
 |---|---|
 | 06/11/2026 | Feito. Single como linha "S", folhas com arraste livre, ícone da lixeira no canto. |
+| 06/11/2026 | Tipo na hora de adicionar exercício (folha Tipo → movimento), com testes; conferido no simulador (escuro) até a folha do movimento, sem confirmar a adição. |

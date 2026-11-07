@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest';
 import { formatRestDuration, formatWorkoutTime } from '../format';
 import catalogJson from '../../../assets/catalog/exercicios.json';
 import cycleJson from '../../../assets/plan/ciclo_out26_jan27.json';
-import { NEW_ITEM_SETS, addExerciseToSession, swapExercise, validateAdjustments } from '../adjustments';
+import { NEW_ITEM_SETS, addExerciseToSession, needsLift, swapExercise, validateAdjustments } from '../adjustments';
 import {
   EQUIPMENT_LABEL,
   MUSCLE_LABEL,
@@ -168,6 +168,36 @@ describe('adicionar exercício ao treino', () => {
     expect(find(out.cycle, out.itemId!)).toMatchObject({ kind: 'core' });
     expect(out.cycle.exercises.find((e) => e.id === abs.id)?.category).toBe('core');
     expect(addExerciseToSession(cycle, 'nada', ex)).toEqual({ cycle, itemId: null });
+  });
+});
+
+describe('adicionar exercício escolhendo o tipo', () => {
+  const row = catalog.exercises.find((e) => e.name === 'Remada curvada (Barra)')!;
+  const ex = exerciseFromCatalog(cycle.exercises, row);
+
+  it('principal sem movimento pede o movimento e o grava no exercício do ciclo', () => {
+    expect(needsLift(cycle, ex, 'accessory')).toBe(false);
+    expect(needsLift(cycle, ex, 'main')).toBe(true);
+    const out = addExerciseToSession(cycle, 'w2-d2', ex, { kind: 'main', lift: 'deadlift' });
+    expect(find(out.cycle, out.itemId!)).toMatchObject({ kind: 'main', exerciseId: ex.id });
+    expect(out.cycle.exercises.find((e) => e.id === ex.id)).toMatchObject({ lift: 'deadlift', category: 'powerlifting' });
+  });
+
+  it('exercício do ciclo que já tem movimento não pergunta e não troca o movimento', () => {
+    const bench = cycle.exercises.find((e) => e.lift === 'bench')!;
+    expect(needsLift(cycle, bench, 'variation')).toBe(false);
+    const out = addExerciseToSession(cycle, 'w2-d2', bench, { kind: 'variation', lift: 'squat' });
+    expect(find(out.cycle, out.itemId!)).toMatchObject({ kind: 'variation' });
+    expect(out.cycle.exercises.find((e) => e.id === bench.id)?.lift).toBe('bench');
+  });
+
+  it('exercício já cadastrado sem movimento ganha o movimento ao virar principal; acessório não mexe', () => {
+    const acc = cycle.exercises.find((e) => e.id === 'puxada-aberta')!;
+    expect(acc.lift).toBeNull();
+    const asMain = addExerciseToSession(cycle, 'w2-d2', acc, { kind: 'main', lift: 'bench' });
+    expect(asMain.cycle.exercises.find((e) => e.id === acc.id)?.lift).toBe('bench');
+    const asAcc = addExerciseToSession(cycle, 'w2-d2', acc, { kind: 'accessory', lift: 'bench' });
+    expect(asAcc.cycle.exercises.find((e) => e.id === acc.id)?.lift).toBeNull();
   });
 });
 

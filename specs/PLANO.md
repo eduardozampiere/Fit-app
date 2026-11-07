@@ -40,8 +40,7 @@ Xcode 27.2, `npx expo run:ios`). O que foi verificado em cada feature está no `
 | "Desfazer" para sugestão aceita | revisão do incremento 2 | Hoje aceitar aplica direto no plano, sem volta. |
 | Escolher do catálogo também no editor da aba Plano | feature 09 | O `ItemEditor` ainda tem só campo de texto para o nome. |
 | Figura do corpo com os músculos trabalhados (como no cabeçalho do Hevy) | feature 10 | Precisa do desenho do corpo e do mapa exercício → músculo; as imagens do catálogo já mostram os músculos em vermelho. |
-| Imagem para os exercícios que só têm vídeo no catálogo (222) | feature 10 | Tirar o primeiro quadro de cada mp4 (ffmpeg já instalado no Mac) e embutir no app. Exige baixar ~223 vídeos (~93 MB) do bucket de terceiros e guardar ~8 MB de imagens no repositório; precisa de OK do usuário. |
-| Escolher o tipo (acessório, variação, principal) ao adicionar exercício | feature 12 | Hoje "Adicionar exercício" cria sempre acessório; principal/variação exigem também o movimento (`lift`) para entrar nas Análises. |
+| Imagem para os exercícios que só têm vídeo no catálogo (222) | feature 10 | Tirar o primeiro quadro de cada mp4 (ffmpeg já instalado no Mac) e embutir no app. Exige baixar ~223 vídeos (~93 MB) do bucket de terceiros e guardar ~8 MB de imagens no repositório. Decidido em 06/11/2026: **só quando o app estiver pronto**, não agora. |
 | Recolocar o single removido pela lixeira | feature 12 | A linha "S" não tem botão de adicionar; hoje só pelo Plano/Claude. |
 | Volume por grupo muscular nas Análises | feature 09 | O catálogo já traz músculo principal e secundário; falta ligar o exercício do ciclo ao catálogo pelo nome. |
 | Validar com um export real do Hevy | feature 07 | O parser segue o formato documentado; ajustar se o arquivo real for diferente. |

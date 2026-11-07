@@ -1,4 +1,5 @@
 import Ionicons from '@expo/vector-icons/Ionicons';
+import type { ReactNode } from 'react';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 import { formatRange, formatRestDuration } from '../domain/format';
 import { KIND_LABEL } from '../domain/plan';
@@ -63,6 +64,8 @@ export function ExerciseCard({
   onSetDrag,
   handle,
   collapsed,
+  rowsOnly = false,
+  before,
 }: {
   item: PrescribedItem;
   load: Range | null;
@@ -102,6 +105,10 @@ export function ExerciseCard({
   handle?: DragHandleProps;
   /** Durante o arraste de exercícios, só o cabeçalho aparece. */
   collapsed?: boolean;
+  /** Só a linha do single (sem cabeçalho nem botões): vai dentro da tabela do principal (`before`). */
+  rowsOnly?: boolean;
+  /** Linhas do single de ativação, entre o aquecimento e as séries de trabalho. */
+  before?: ReactNode;
 }) {
   const t = useTheme();
   const prescription = prescriptionLine(item, load);
@@ -110,6 +117,36 @@ export function ExerciseCard({
     : item.restText && item.restText !== '—'
       ? item.restText
       : formatRestDuration(restSec);
+
+  const table = (
+    <SetTable
+      item={item}
+      plannedLoad={load?.min ?? null}
+      logs={logs}
+      rows={rows}
+      plannedCount={plannedCount}
+      warmups={warmups}
+      warmupDrafts={warmupDrafts}
+      lock={lock}
+      showRpe={showRpe}
+      pendingRpeIndex={pendingRpeIndex}
+      onCheck={onCheck}
+      onUncheck={onUncheck}
+      onEdit={onEdit}
+      onRemove={onRemove}
+      onSetMenu={onSetMenu}
+      onRpe={onRpe}
+      onAdd={onAdd}
+      onAddWarmup={onAddWarmup}
+      pendingTypes={pendingTypes}
+      onMoveSet={onMoveSet}
+      onDragChange={onSetDrag}
+      single={rowsOnly}
+      beforeWork={before}
+    />
+  );
+
+  if (rowsOnly) return table;
 
   return (
     <View style={[styles.block, collapsed && styles.blockCollapsed, isChild && { paddingLeft: space.md, borderLeftWidth: 2, borderLeftColor: t.separator }]}>
@@ -173,29 +210,7 @@ export function ExerciseCard({
             </View>
           ) : null}
 
-          <SetTable
-            item={item}
-            plannedLoad={load?.min ?? null}
-            logs={logs}
-            rows={rows}
-            plannedCount={plannedCount}
-            warmups={warmups}
-            warmupDrafts={warmupDrafts}
-            lock={lock}
-            showRpe={showRpe}
-            pendingRpeIndex={pendingRpeIndex}
-            onCheck={onCheck}
-            onUncheck={onUncheck}
-            onEdit={onEdit}
-            onRemove={onRemove}
-            onSetMenu={onSetMenu}
-            onRpe={onRpe}
-            onAdd={onAdd}
-            onAddWarmup={onAddWarmup}
-            pendingTypes={pendingTypes}
-            onMoveSet={onMoveSet}
-            onDragChange={onSetDrag}
-          />
+          {table}
         </>
       )}
     </View>

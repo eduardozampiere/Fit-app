@@ -15,7 +15,7 @@ import {
 } from '../logging';
 import { barChoices, platesFor } from '../plates';
 import { SET_CHOICES, choiceOf, setRowLabel, startsRest } from '../setTypes';
-import { dragShift, dropIndex, itemBlocks, moveItem, orderBlocks, settleOffset, slotSize } from '../reorder';
+import { attachSingles, dragShift, dropIndex, itemBlocks, moveItem, orderBlocks, settleOffset, slotSize } from '../reorder';
 import type { Cycle } from '../types';
 
 const cycle = cycleJson as unknown as Cycle;
@@ -159,6 +159,19 @@ describe('reordenar', () => {
     expect(orderBlocks(blocks, ['q', 'p']).map((b) => b[0].id)).toEqual(['q', 'p', 'r']);
     expect(orderBlocks(blocks, undefined)).toBe(blocks);
     expect(moveItem(['a', 'b', 'c'], 2, 0)).toEqual(['c', 'a', 'b']);
+  });
+
+  it('o single de ativação vira série do principal do mesmo movimento', () => {
+    const lifts: Record<string, string> = { ss: 'squat', sm: 'squat', bs: 'bench', bm: 'bench', x: 'squat' };
+    const liftOf = (i: { id: string }) => lifts[i.id] ?? null;
+    const it = (id: string, kind: string) => ({ id, kind, parentId: null });
+    const items = [it('ss', 'activation_single'), it('sm', 'main'), it('bs', 'activation_single'), it('v', 'variation'), it('bm', 'main')];
+    const ids = (bs: { id: string }[][]) => bs.map((b) => b.map((i) => i.id));
+    // cada single entra na frente do principal do seu movimento; a variação no meio não atrapalha
+    expect(ids(attachSingles(itemBlocks(items), liftOf))).toEqual([['ss', 'sm'], ['v'], ['bs', 'bm']]);
+    // sem principal depois dele, ou de outro movimento, o single fica sozinho
+    expect(ids(attachSingles([[it('ss', 'activation_single')], [it('bm', 'main')]], liftOf))).toEqual([['ss'], ['bm']]);
+    expect(ids(attachSingles([[it('sm', 'main')], [it('ss', 'activation_single')]], liftOf))).toEqual([['sm'], ['ss']]);
   });
 
   it('geometria: onde o item cai e quanto os outros abrem espaço', () => {

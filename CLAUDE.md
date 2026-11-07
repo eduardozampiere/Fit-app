@@ -53,7 +53,7 @@ generalize o que existe em vez de copiar. Ao precisar da mesma coisa em um segun
 | Editar o plano (qualquer origem: tela, Claude, regra) | `applyAdjustments` / `patchItem` em `src/domain/adjustments.ts` |
 | Cores, alvo de toque, tipografia, espaçamento, raios | `src/ui/theme.ts` (`useTheme`, `TOUCH`, `font`, `space`, `radius`) |
 | Botão, pílula, cartão, stepper, campo de texto, seção, linha de lista, resumo em colunas, ícone, menu de ações, cabeçalho de modal | `src/components/ui.tsx` (`BigButton`, `Chip`, `Card`, `Stepper`, `TextField`, `Section`, `ListRow`, `StatRow`, `IconButton`, `ActionMenu`, `SheetHeader`) |
-| Tabela de séries do treino | `src/components/SetTable.tsx` |
+| Tabela de séries do treino (inclui a linha "S" do single, `attachSingles` em `reorder.ts`) | `src/components/SetTable.tsx` |
 | Recordes, série por treino e histórico de um exercício | `src/domain/exerciseStats.ts` |
 | Folha de tipo de série (aquecimento, normal, falha, drop set) | `src/domain/setTypes.ts` + `src/components/SetTypeSheet.tsx` |
 | Botão em Liquid Glass (com reserva sem iOS 26) | `src/components/GlassButton.tsx` |

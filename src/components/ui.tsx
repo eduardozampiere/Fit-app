@@ -407,6 +407,8 @@ export interface MenuOption {
 }
 
 const SHEET_OFFSCREEN = 700;
+/** Fração da altura da folha abaixo da qual ela fecha ao soltar. */
+const SHEET_CLOSE_AT = 0.6;
 
 /**
  * Folha de baixo para cima com altura do conteúdo (não ocupa a tela toda). Fecha arrastando para baixo
@@ -422,25 +424,41 @@ export function BottomSheet({ onClose, dragAnywhere = false, children }: { onClo
   const close = useCallback(() => {
     Animated.timing(y, { toValue: SHEET_OFFSCREEN, duration: 160, useNativeDriver: true }).start(() => onClose());
   }, [y, onClose]);
-  const pan = useMemo(
-    () =>
-      PanResponder.create({
-        onMoveShouldSetPanResponder: (_, g) => g.dy > 4 && Math.abs(g.dy) > Math.abs(g.dx),
-        onPanResponderMove: (_, g) => y.setValue(Math.max(0, g.dy)),
-        onPanResponderRelease: (_, g) => {
-          if (g.dy > 60 || g.vy > 0.5) close();
-          else Animated.spring(y, { toValue: 0, useNativeDriver: true }).start();
-        },
-        onPanResponderTerminate: () => Animated.spring(y, { toValue: 0, useNativeDriver: true }).start(),
-      }),
-    [y, close],
-  );
+  // A folha acompanha o dedo e fica onde for solta; só fecha se passar de SHEET_CLOSE_AT da altura
+  // ou for arrastada rápido para baixo. Um arremesso rápido para cima traz de volta à posição aberta.
+  const sheet = useMemo(() => {
+    const g = { rest: 0, height: SHEET_OFFSCREEN }; // rest: pt abaixo da posição aberta
+    const clamp = (v: number) => Math.max(0, Math.min(g.height, v));
+    const pan = PanResponder.create({
+      onMoveShouldSetPanResponder: (_, p) => Math.abs(p.dy) > 4 && Math.abs(p.dy) > Math.abs(p.dx),
+      onPanResponderMove: (_, p) => y.setValue(clamp(g.rest + p.dy)),
+      onPanResponderRelease: (_, p) => {
+        const to = clamp(g.rest + p.dy);
+        if (p.vy > 1 || to > g.height * SHEET_CLOSE_AT) {
+          close();
+        } else if (p.vy < -1) {
+          g.rest = 0;
+          Animated.spring(y, { toValue: 0, useNativeDriver: true }).start();
+        } else {
+          g.rest = to;
+        }
+      },
+      onPanResponderTerminate: (_, p) => {
+        g.rest = clamp(g.rest + p.dy);
+      },
+    });
+    return { pan, setHeight: (h: number) => void (g.height = h) };
+  }, [y, close]);
+  const pan = sheet.pan;
   return (
     <Modal visible transparent animationType="fade" onRequestClose={close}>
       <KeyboardAvoidingView style={{ flex: 1 }} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
         <Pressable style={styles.menuBackdrop} onPress={close} accessibilityLabel="Fechar">
           <Animated.View
             style={[styles.menuSheet, { backgroundColor: t.card, transform: [{ translateY: y }] }]}
+            onLayout={(e) => {
+              sheet.setHeight(e.nativeEvent.layout.height);
+            }}
             {...(dragAnywhere ? pan.panHandlers : {})}
           >
             <Pressable onPress={() => {}} style={{ gap: space.sm }}>

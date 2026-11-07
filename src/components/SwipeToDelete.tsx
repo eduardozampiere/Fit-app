@@ -62,5 +62,6 @@ export function SwipeToDelete({ onDelete, label, children }: { onDelete: () => v
 }
 
 const styles = StyleSheet.create({
-  under: { borderRadius: radius.cell, justifyContent: 'center', paddingLeft: space.lg },
+  // alignItems: o ícone fica no canto; esticado, a escala girava em torno do meio da linha e ele saía cortado.
+  under: { borderRadius: radius.cell, justifyContent: 'center', alignItems: 'flex-start', paddingLeft: space.lg },
 });

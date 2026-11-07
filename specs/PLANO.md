@@ -21,6 +21,7 @@ Legenda: ✅ feito · 🟡 feito, falta verificar no iPhone · 🔨 em andamento
 | 09 | Descanso editável e troca de exercício (catálogo do hevy-ia) | 🟡 | [09-descanso-e-catalogo](09-descanso-e-catalogo/spec.md) |
 | 10 | Cabeçalho do treino, adicionar exercício e tela do exercício | 🟡 | [10-cabecalho-e-adicionar-exercicio](10-cabecalho-e-adicionar-exercicio/spec.md) |
 | 11 | Tipo de série, datas "05 nov" e folhas que fecham arrastando | 🟡 | [11-tipo-de-serie-datas-folhas](11-tipo-de-serie-datas-folhas/spec.md) |
+| 12 | Single dentro do principal, arraste livre das folhas e lixeira | 🟡 | [12-single-na-tabela-e-arraste-livre](12-single-na-tabela-e-arraste-livre/spec.md) |
 
 Nada foi testado num iPhone de verdade ainda. Em 03/11/2026 o app rodou no simulador do iOS 27.2 (Mac,
 Xcode 27.2, `npx expo run:ios`). O que foi verificado em cada feature está no `spec.md` dela.
@@ -40,6 +41,8 @@ Xcode 27.2, `npx expo run:ios`). O que foi verificado em cada feature está no `
 | Escolher do catálogo também no editor da aba Plano | feature 09 | O `ItemEditor` ainda tem só campo de texto para o nome. |
 | Figura do corpo com os músculos trabalhados (como no cabeçalho do Hevy) | feature 10 | Precisa do desenho do corpo e do mapa exercício → músculo; as imagens do catálogo já mostram os músculos em vermelho. |
 | Imagem para os exercícios que só têm vídeo no catálogo (222) | feature 10 | Tirar o primeiro quadro de cada mp4 (ffmpeg já instalado no Mac) e embutir no app. Exige baixar ~223 vídeos (~93 MB) do bucket de terceiros e guardar ~8 MB de imagens no repositório; precisa de OK do usuário. |
+| Escolher o tipo (acessório, variação, principal) ao adicionar exercício | feature 12 | Hoje "Adicionar exercício" cria sempre acessório; principal/variação exigem também o movimento (`lift`) para entrar nas Análises. |
+| Recolocar o single removido pela lixeira | feature 12 | A linha "S" não tem botão de adicionar; hoje só pelo Plano/Claude. |
 | Volume por grupo muscular nas Análises | feature 09 | O catálogo já traz músculo principal e secundário; falta ligar o exercício do ciclo ao catálogo pelo nome. |
 | Validar com um export real do Hevy | feature 07 | O parser segue o formato documentado; ajustar se o arquivo real for diferente. |
 | Live Activity do descanso (tela bloqueada / Dynamic Island) | conversa sobre Swift | Exige módulo nativo; possível com instalação pelo Mac. Verificar se o Apple ID gratuito permite. |
@@ -80,4 +83,6 @@ Xcode 27.2, `npx expo run:ios`). O que foi verificado em cada feature está no `
 | 05/11/2026 | Tela do exercício (resumo, recordes, histórico); imagem só nela e na busca | `3a4b520` |
 | 05/11/2026 | Apelidos plano → catálogo; cabeçalho próprio na tela do exercício (modo escuro) | `7cd2056` |
 | 05/11/2026 | Ajustes visuais: pílulas, gráfico, botões de vidro, tabela | `e9f0e1d` |
-| 05/11/2026 | Tipo de série, datas, folhas sem Cancelar, cabeçalho enxuto | este commit |
+| 05/11/2026 | Tipo de série, datas, folhas sem Cancelar, cabeçalho enxuto, pílulas finas | `eb9dc3c` |
+| 05/11/2026 | Gráficos com a mesma moldura; tela Hoje em semana → dia → números | `1c67f4c` |
+| 06/11/2026 | Single dentro do principal, arraste livre das folhas, lixeira | este commit |

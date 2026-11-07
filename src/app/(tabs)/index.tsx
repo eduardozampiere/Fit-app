@@ -72,7 +72,7 @@ import { SetTypeSheet } from '../../components/SetTypeSheet';
 import { useAppData } from '../../state/AppData';
 import { useRestTimer } from '../../state/RestTimer';
 import { useCoach } from '../../state/useCoach';
-import { itemBlocks, moveItem, orderBlocks } from '../../domain/reorder';
+import { attachSingles, itemBlocks, moveItem, orderBlocks } from '../../domain/reorder';
 import { RPE_CHOICES } from '../../domain/rpe';
 import { font, space, useTheme } from '../../ui/theme';
 
@@ -162,9 +162,13 @@ export default function TodayScreen() {
   }, [db, cycle, ref, version]);
 
   // Blocos = exercício + filhos (andam juntos no arraste), na ordem do dia.
+  // O single de ativação entra no bloco do principal do mesmo movimento (é uma série dele).
   const blocks = useMemo(
-    () => (ref ? orderBlocks(itemBlocks(sessionItems(ref.week, ref.session)), exerciseOrder) : []),
-    [ref, exerciseOrder],
+    () =>
+      ref && cycle
+        ? orderBlocks(attachSingles(itemBlocks(sessionItems(ref.week, ref.session)), (i) => liftOf(cycle, i)), exerciseOrder)
+        : [],
+    [ref, cycle, exerciseOrder],
   );
   const items = useMemo(() => blocks.flat(), [blocks]);
   const loadOf = useCallback((item: PrescribedItem) => (cycle && maxes ? currentLoad(cycle, item, maxes) : item.load), [cycle, maxes]);
@@ -479,6 +483,49 @@ export default function TodayScreen() {
   const stats = sessionStats(workLogs);
   const plannedSets = items.reduce((acc, it) => acc + plannedCountOf(it), 0);
 
+  // Tudo o que um cartão de exercício precisa, menos o arraste do bloco (alça, recolher) e o single.
+  const cardProps = (item: PrescribedItem) => {
+    const logs = logsOf(item);
+    const lock = locks.get(item.id);
+    const plannedCount = plannedCountOf(item);
+    const effective = lock ? Math.min(plannedCount, lock.fromSet - 1) : plannedCount;
+    const showRpe = RPE_KINDS.has(item.kind);
+    const last = logs.length ? logs.reduce((a, b) => (b.setIndex > a.setIndex ? b : a)) : null;
+    return {
+      item,
+      load: loadOf(item),
+      logs,
+      isChild: !!item.parentId,
+      isLift: liftOf(cycle, item) !== null,
+      rows: rowsOf(item),
+      plannedCount,
+      warmups: warmupsOf(item),
+      warmupDrafts: warmupDraftsOf(item),
+      complete: logs.length >= effective && (logs.length > 0 || effective === 0),
+      restSec: restOf(item),
+      restOverridden: restOverride(restOverrides, item.exerciseId) !== null,
+      onRest: () => setRestEditing(item),
+      onOpen: () => router.push({ pathname: '/exercicio', params: { id: item.exerciseId, name: item.name } }),
+      showRpe,
+      pendingRpeIndex: showRpe && last && last.rpe === null ? last.setIndex : null,
+      lock,
+      onUnlock: () => toggleFailLock(true),
+      tip: gripTip(cycle, ref.week, item),
+      onMenu: () => openExerciseMenu(item),
+      onCheck: (kind: SetKind, idx: number, input: SetInput) => checkSet(kind, item, idx, input),
+      onUncheck: uncheckSet,
+      onEdit: editSet,
+      onRemove: (kind: SetKind, idx: number, log: SetLog | null) => removeSet(kind, item, idx, log),
+      onSetMenu: (kind: SetKind, idx: number, log: SetLog | null) => openSetMenu(kind, item, idx, log),
+      onRpe: openRpeMenu,
+      onAdd: () => addSet(item),
+      onAddWarmup: () => addSet(item, 'warmup'),
+      pendingTypes: pendingOf(item),
+      onMoveSet: (kind: SetKind, from: number, to: number) => moveSet(kind, item, from, to),
+      onSetDrag: (on: boolean) => setDragging(on ? 'set' : null),
+    };
+  };
+
   return (
     <SafeAreaView edges={['top']} style={{ flex: 1, backgroundColor: t.bg }}>
       <WorkoutHeader
@@ -575,51 +622,18 @@ export default function TodayScreen() {
             <View>
               {i > 0 ? <Divider /> : null}
               {block.map((item, j) => {
-                const logs = logsOf(item);
-                const lock = locks.get(item.id);
-                const plannedCount = plannedCountOf(item);
-                const effective = lock ? Math.min(plannedCount, lock.fromSet - 1) : plannedCount;
-                const showRpe = RPE_KINDS.has(item.kind);
-                const last = logs.length ? logs.reduce((a, b) => (b.setIndex > a.setIndex ? b : a)) : null;
+                // O single de ativação aparece como a linha "S" dentro do cartão do principal.
+                const attached = block.some((x) => x.kind === 'main') && item.kind === 'activation_single';
+                if (attached) return null;
+                const single = block.find((x) => x.kind === 'activation_single');
+                const singleRows =
+                  item.kind === 'main' && single ? (
+                    <ExerciseCard {...cardProps(single)} rowsOnly handle={undefined} collapsed={false} />
+                  ) : undefined;
                 return (
                   <View key={item.id}>
-                    {j > 0 ? <Divider /> : null}
-                    <ExerciseCard
-                      item={item}
-                      load={loadOf(item)}
-                      logs={logs}
-                      isChild={!!item.parentId}
-                      isLift={liftOf(cycle, item) !== null}
-                      rows={rowsOf(item)}
-                      plannedCount={plannedCount}
-                      warmups={warmupsOf(item)}
-                      warmupDrafts={warmupDraftsOf(item)}
-                      complete={logs.length >= effective && (logs.length > 0 || effective === 0)}
-                      restSec={restOf(item)}
-                      restOverridden={restOverride(restOverrides, item.exerciseId) !== null}
-                      onRest={() => setRestEditing(item)}
-                      onOpen={() => router.push({ pathname: '/exercicio', params: { id: item.exerciseId, name: item.name } })}
-                      showRpe={showRpe}
-                      pendingRpeIndex={showRpe && last && last.rpe === null ? last.setIndex : null}
-                      lock={lock}
-                      onUnlock={() => toggleFailLock(true)}
-                      tip={gripTip(cycle, ref.week, item)}
-                      onMenu={() => openExerciseMenu(item)}
-                      onCheck={(kind, idx, input) => checkSet(kind, item, idx, input)}
-                      onUncheck={uncheckSet}
-                      onEdit={editSet}
-                      onRemove={(kind, idx, log) => removeSet(kind, item, idx, log)}
-                      onSetMenu={(kind, idx, log) => openSetMenu(kind, item, idx, log)}
-                      onRpe={openRpeMenu}
-                      onAdd={() => addSet(item)}
-                      onAddWarmup={() => addSet(item, 'warmup')}
-                      pendingTypes={pendingOf(item)}
-                      onMoveSet={(kind, from, to) => moveSet(kind, item, from, to)}
-                      onSetDrag={(on) => setDragging(on ? 'set' : null)}
-                      // O bloco inteiro (exercício + filhos) se arrasta pelo cabeçalho de qualquer um.
-                      handle={handle}
-                      collapsed={dragging === 'exercise'}
-                    />
+                    {j > 0 && !(j === 1 && block[0] === single && single !== item && block.some((x) => x.kind === 'main')) ? <Divider /> : null}
+                    <ExerciseCard {...cardProps(item)} handle={handle} collapsed={dragging === 'exercise'} before={singleRows} />
                   </View>
                 );
               })}

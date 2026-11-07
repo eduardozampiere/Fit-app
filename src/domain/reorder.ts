@@ -33,6 +33,27 @@ export function itemBlocks<T extends { id: string; parentId: string | null }>(it
 }
 
 /**
+ * O single de ativação anda junto com o exercício principal do mesmo movimento (é uma série dele, não
+ * um exercício à parte): o bloco do single é fundido ao do próximo principal, com o single na frente.
+ * Sem principal do mesmo movimento depois dele, o single continua sozinho.
+ */
+export function attachSingles<T extends { id: string; kind: string }>(blocks: readonly T[][], liftOf: (item: T) => string | null): T[][] {
+  const out = blocks.map((b) => [...b]);
+  for (let i = 0; i < out.length; i++) {
+    const [first] = out[i];
+    if (out[i].length !== 1 || first.kind !== 'activation_single') continue;
+    const lift = liftOf(first);
+    if (!lift) continue;
+    const j = out.findIndex((b, k) => k > i && b[0].kind === 'main' && liftOf(b[0]) === lift);
+    if (j < 0) continue;
+    out[j] = [first, ...out[j]];
+    out.splice(i, 1);
+    i--;
+  }
+  return out;
+}
+
+/**
  * Blocos na ordem salva do dia (ids dos primeiros itens). Os que não estão na ordem salva (item
  * novo no plano) vão para o fim, na ordem do plano.
  */

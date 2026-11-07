@@ -1,5 +1,5 @@
 import Ionicons from '@expo/vector-icons/Ionicons';
-import { useState } from 'react';
+import { useState, type ReactNode } from 'react';
 import { Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
 import { formatNumber, formatRange } from '../domain/format';
 import type { SetDraft } from '../domain/logging';
@@ -52,6 +52,8 @@ export function SetTable({
   pendingTypes,
   onMoveSet,
   onDragChange,
+  single = false,
+  beforeWork,
 }: {
   item: PrescribedItem;
   plannedLoad: number | null;
@@ -78,6 +80,10 @@ export function SetTable({
   /** Arrastou a série de `from` para `to` (posições 1…n dentro do mesmo tipo). */
   onMoveSet: (kind: SetKind, from: number, to: number) => void;
   onDragChange: (dragging: boolean) => void;
+  /** Linha do single de ativação dentro da tabela do principal: rótulo "S", sem cabeçalho nem botões. */
+  single?: boolean;
+  /** Linhas extras entre o aquecimento e as séries de trabalho (o single do principal). */
+  beforeWork?: ReactNode;
 }) {
   const t = useTheme();
   const isDuration = !!item.durationSec && !item.reps;
@@ -91,16 +97,18 @@ export function SetTable({
 
   return (
     <View style={{ gap: 2 }}>
-      <View style={styles.headRow} accessibilityElementsHidden importantForAccessibility="no-hide-descendants">
-        <Text style={[styles.head, { width: COL.set, color: t.muted }]}>SÉRIE</Text>
-        <Text style={[styles.head, styles.flex, { color: t.muted }]}>PLANO</Text>
-        <Text style={[styles.head, styles.center, { width: COL.num, color: t.muted }]}>KG</Text>
-        <Text style={[styles.head, styles.center, { width: COL.num, color: t.muted }]}>{isDuration ? 'SEG' : 'REPS'}</Text>
-        {showRpe ? <Text style={[styles.head, styles.center, { width: COL.num, color: t.muted }]}>RPE</Text> : null}
-        <View style={{ width: COL.check, alignItems: 'center' }}>
-          <Ionicons name="checkmark" size={16} color={t.muted} />
+      {single ? null : (
+        <View style={styles.headRow} accessibilityElementsHidden importantForAccessibility="no-hide-descendants">
+          <Text style={[styles.head, { width: COL.set, color: t.muted }]}>SÉRIE</Text>
+          <Text style={[styles.head, styles.flex, { color: t.muted }]}>PLANO</Text>
+          <Text style={[styles.head, styles.center, { width: COL.num, color: t.muted }]}>KG</Text>
+          <Text style={[styles.head, styles.center, { width: COL.num, color: t.muted }]}>{isDuration ? 'SEG' : 'REPS'}</Text>
+          {showRpe ? <Text style={[styles.head, styles.center, { width: COL.num, color: t.muted }]}>RPE</Text> : null}
+          <View style={{ width: COL.check, alignItems: 'center' }}>
+            <Ionicons name="checkmark" size={16} color={t.muted} />
+          </View>
         </View>
-      </View>
+      )}
 
       <DragList
         items={warmupDrafts}
@@ -137,6 +145,8 @@ export function SetTable({
         }}
       />
 
+      {beforeWork}
+
       <DragList
         items={workRows}
         keyOf={(idx) => `${idx}-${logs.find((l) => l.setIndex === idx)?.id ?? 'new'}`}
@@ -148,12 +158,12 @@ export function SetTable({
           const optional = idx > plannedCount;
           const choice = log ? choiceOf(log) : (pendingTypes[idx] ?? 'normal');
           return (
-            <SwipeToDelete label={`série ${idx}`} onDelete={() => onRemove('work', idx, log)}>
+            <SwipeToDelete label={single ? 'single' : `série ${idx}`} onDelete={() => onRemove('work', idx, log)}>
               <SetRow
                 key={`${idx}-${log?.id ?? 'new'}-${log?.loadKg}-${log?.reps}-${log?.durationSec}`}
-                label={setRowLabel(choice, idx)}
-                labelColor={choice !== 'normal' ? setChoiceColor(t, choice) : optional && !log ? t.muted : t.text}
-                a11yName={`Série ${idx}${optional ? ', opcional' : ''}`}
+                label={single ? 'S' : setRowLabel(choice, idx)}
+                labelColor={single ? t.accent : choice !== 'normal' ? setChoiceColor(t, choice) : optional && !log ? t.muted : t.text}
+                a11yName={single ? 'Single de ativação' : `Série ${idx}${optional ? ', opcional' : ''}`}
                 log={log}
                 plannedText={log?.failed ? 'falhou' : optional && !log ? `${plannedText} opc.` : plannedText}
                 loadPlaceholder={plannedLoad !== null ? formatNumber(plannedLoad, 2) : '—'}
@@ -186,14 +196,16 @@ export function SetTable({
         </View>
       ))}
 
-      <View style={styles.addRow}>
-        <View style={{ flex: 1 }}>
-          <BigButton label="Adicionar série" icon="add" variant="neutral" compact onPress={onAdd} />
+      {single ? null : (
+        <View style={styles.addRow}>
+          <View style={{ flex: 1 }}>
+            <BigButton label="Adicionar série" icon="add" variant="neutral" compact onPress={onAdd} />
+          </View>
+          <View style={{ flex: 1 }}>
+            <BigButton label="Aquecimento" icon="flame-outline" variant="neutral" compact onPress={onAddWarmup} />
+          </View>
         </View>
-        <View style={{ flex: 1 }}>
-          <BigButton label="Aquecimento" icon="flame-outline" variant="neutral" compact onPress={onAddWarmup} />
-        </View>
-      </View>
+      )}
     </View>
   );
 }

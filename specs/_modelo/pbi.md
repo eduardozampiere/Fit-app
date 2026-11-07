@@ -5,6 +5,8 @@
 > Copie esta pasta para `specs/NN-nome-curto/` (NN = próximo número) e adicione uma linha na tabela do
 > [PLANO.md](../PLANO.md) apontando para a pasta.
 
+> **Resumo:** uma frase, até ~20 palavras, dizendo o que vai ser feito.
+
 **Status:** ⏳ a fazer · 🔨 em andamento · 🟡 feito, falta verificar no iPhone · ✅ feito · ⛔ bloqueado
 **Depende de:** — (outras features, se houver)
 

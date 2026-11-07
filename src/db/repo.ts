@@ -123,6 +123,15 @@ export async function listSessionLogs(db: SQLiteDatabase, cycleId: string): Prom
   return rows.map(toSessionLog);
 }
 
+/** Treinos (`session_id`) do ciclo que têm pelo menos uma série registrada. */
+export async function listSessionsWithSets(db: SQLiteDatabase, cycleId: string): Promise<Set<string>> {
+  const rows = await db.getAllAsync<{ session_id: string }>(
+    'SELECT DISTINCT l.session_id FROM session_logs l JOIN set_logs s ON s.session_log_id = l.id WHERE l.cycle_id = ?',
+    cycleId,
+  );
+  return new Set(rows.map((r) => r.session_id));
+}
+
 export async function getSessionLog(db: SQLiteDatabase, cycleId: string, sessionId: string): Promise<SessionLog | null> {
   const row = await db.getFirstAsync<SessionLogRow>(
     'SELECT * FROM session_logs WHERE cycle_id = ? AND session_id = ? ORDER BY created_at LIMIT 1',

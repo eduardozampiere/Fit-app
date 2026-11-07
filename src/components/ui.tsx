@@ -81,11 +81,13 @@ export function Chip({
   selected?: boolean;
   onPress?: () => void;
   accessibilityLabel?: string;
-  tone?: 'success' | 'warn';
+  /** success = concluído, warn = em andamento, partial = tem séries mas não foi concluído */
+  tone?: 'success' | 'warn' | 'partial';
 }) {
   const t = useTheme();
   const bg = selected ? t.accent : tone === 'success' ? t.doneBg : tone === 'warn' ? t.warnBg : t.surface;
-  const fg = selected ? t.accentText : tone === 'success' ? t.done : tone === 'warn' ? t.warn : t.text;
+  const fg = selected ? t.accentText : tone === 'success' ? t.done : tone === 'warn' || tone === 'partial' ? t.warn : t.text;
+  const outline = !selected && tone === 'partial' ? { borderWidth: 1.5, borderColor: t.warn } : null;
   return (
     <Pressable
       accessibilityRole="button"
@@ -93,7 +95,7 @@ export function Chip({
       accessibilityState={{ selected: !!selected }}
       onPress={onPress}
       hitSlop={{ top: 7, bottom: 7 }}
-      style={({ pressed }) => [styles.chip, { backgroundColor: bg, opacity: pressed ? 0.75 : 1 }]}
+      style={({ pressed }) => [styles.chip, { backgroundColor: bg, opacity: pressed ? 0.75 : 1 }, outline]}
     >
       <Text style={[styles.chipText, { color: fg }]} maxFontSizeMultiplier={1.6}>
         {label}

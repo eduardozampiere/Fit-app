@@ -27,6 +27,7 @@ import {
   getSetting,
   insertSets,
   listSessionLogs,
+  listSessionsWithSets,
   listSetLogs,
   restOverridesKey,
   retagSetLogs,
@@ -118,6 +119,8 @@ export default function TodayScreen() {
   }, [cycle, selectedId, defaultRef]);
 
   const [sessionLogs, setSessionLogs] = useState<SessionLog[]>([]);
+  // Treinos da periodização com alguma série registrada (para a cor dos dias).
+  const [withSets, setWithSets] = useState<Set<string>>(new Set());
   const [setLogs, setSetLogs] = useState<SetLog[]>([]);
   const [editor, setEditor] = useState<{ item: PrescribedItem; draft: EditableSet; key: string } | null>(null);
   const [plates, setPlates] = useState<{ kg: number | null; exerciseId: string } | null>(null);
@@ -156,6 +159,7 @@ export default function TodayScreen() {
       if (!alive) return;
       setRestOverrides(rests);
       setSessionLogs(logs);
+      setWithSets(await listSessionsWithSets(db, cycle.id));
       const current = ref ? logs.find((l) => l.sessionId === ref.session.id) : undefined;
       setSetLogs(current ? await listSetLogs(db, current.id) : []);
       setFailUnlocked(current ? await getSetting(db, `unlock-fail:${current.id}`, false) : false);
@@ -546,7 +550,16 @@ export default function TodayScreen() {
   const weekIdx = cycle.weeks.findIndex((w) => w.number === ref.week.number);
   const weekNotes = [ref.week.note, ...ref.week.notes.filter((n) => !GENERIC_NOTE.test(n))].filter(Boolean) as string[];
   const doneSessions = new Set(sessionLogs.filter((l) => l.status === 'done').map((l) => l.sessionId));
-  const startedSessions = new Set(sessionLogs.map((l) => l.sessionId));
+  // Cor do dia: verde = concluído, laranja cheio = o treino em andamento (só um), contorno laranja = tem séries mas
+  // não foi concluído, cinza = sem séries.
+  const dayTone = (sessionId: string): 'success' | 'warn' | 'partial' | undefined =>
+    doneSessions.has(sessionId)
+      ? 'success'
+      : activeWorkout?.cycleId === cycle.id && activeWorkout.sessionId === sessionId
+        ? 'warn'
+        : withSets.has(sessionId)
+          ? 'partial'
+          : undefined;
   // Alertas desta semana e da anterior (portões aparecem na semana seguinte) + regra das 24 h de hoje.
   const sessionAlerts = coach.pending.filter((a) =>
     a.rule === 'pain_24h' ? isToday : a.week === ref.week.number || a.week === ref.week.number - 1,
@@ -645,9 +658,9 @@ export default function TodayScreen() {
               key={s.id}
               label={`${WEEKDAY_SHORT[s.weekday]}${doneSessions.has(s.id) ? ' ✓' : ''}`}
               selected={s.id === ref.session.id}
-              tone={doneSessions.has(s.id) ? 'success' : startedSessions.has(s.id) ? 'warn' : undefined}
+              tone={dayTone(s.id)}
               onPress={() => setSelectedId(s.id)}
-              accessibilityLabel={`${WEEKDAY_NAMES[s.weekday]}: ${s.title}${doneSessions.has(s.id) ? ', feito' : ''}`}
+              accessibilityLabel={`${WEEKDAY_NAMES[s.weekday]}: ${s.title}${doneSessions.has(s.id) ? ', feito' : dayTone(s.id) === 'warn' ? ', em andamento' : dayTone(s.id) === 'partial' ? ', parcial' : ''}`}
             />
           ))}
         </View>

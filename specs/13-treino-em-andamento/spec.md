@@ -44,6 +44,9 @@ fechar o app e **poder cancelar** um treino no meio.
   `countSets`, `lastSetAt`. `AppData.activeWorkout`.
 - Cabeçalho da Hoje: **Iniciar** → **Concluir** (+ lixeira) → **Reabrir**. Concluir sem série pergunta se descarta. O primeiro
   registro de série inicia o treino sozinho. Duração = fim − início; não cresce depois de concluir; "—" antes de iniciar.
+- **Cores dos dias** (pedido do usuário): verde com ✓ = concluído; laranja cheio = o treino em andamento (só um); contorno
+  laranja = tem séries mas não foi concluído (parcial); cinza = sem séries (um treino iniciado e vazio não conta). Selecionado
+  continua azul. `Chip tone` = `success | warn | partial`; `listSessionsWithSets` em `repo.ts`.
 - Treino esquecido (> 6 h): a barra mostra "Ainda treinando?" (Continuar, Concluir com a hora da última série, Descartar).
 
 ## Plano de execução

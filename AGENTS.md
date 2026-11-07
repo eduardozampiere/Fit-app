@@ -1,6 +1,6 @@
 This is an Expo/React Native mobile application. Prioritize mobile-first patterns, performance, and cross-platform compatibility.
 
-**Project tracking:** read `specs/CONTEXTO.md` and `specs/PLANO.md` first. Each feature lives in `specs/NN-name/spec.md` (template in `specs/_modelo/`); update the spec and PLANO.md in the same commit as the code.
+**Project tracking:** read `specs/CONTEXTO.md` and `specs/PLANO.md` first. Each feature lives in `specs/NN-name/` with two documents (templates in `specs/_modelo/`): `pbi.md` (product: what and why, owned by the `product-manager` agent / `/pm`) and `tech-plan.md` (technical: how, owned by the `tech-planner` agent / `/planejar`). Features 01–18 predate this split and keep a single `spec.md`. Update the feature docs and PLANO.md in the same commit as the code.
 
 ## Expo has changed — do not trust your training data
 

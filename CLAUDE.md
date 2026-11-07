@@ -8,8 +8,14 @@ português; nomes de variáveis, funções e tipos em inglês (como já está no
 ## 1. Antes de começar
 
 1. Leia `specs/CONTEXTO.md` (contexto, restrições, decisões) e `specs/PLANO.md` (status e próximo passo).
-2. Feature nova: copie `specs/_modelo/` para `specs/NN-nome/`, preencha o `spec.md` e adicione a linha
-   na tabela do `PLANO.md` **antes** de codar.
+2. Feature nova: copie `specs/_modelo/` para `specs/NN-nome/` e adicione a linha na tabela do `PLANO.md`
+   **antes** de codar. A pasta tem dois documentos, cada um com um dono:
+   - `pbi.md`: produto, o quê e por quê (objetivo, escopo, comportamento, critérios de pronto CP1…,
+     verificação). Escrito pelo agente `product-manager` (`/pm`).
+   - `tech-plan.md`: técnico, o como (passos por camada, arquivos, dados, testes, rastreabilidade com os
+     CPs). Escrito pelo agente `tech-planner` (`/planejar`) a partir do PBI aprovado.
+   Fluxo: `/pm` → `/planejar` → `/dev` → `/revisar`. Mudança de escopo volta ao PBI; o plano não muda o
+   escopo. As features 01–18 são anteriores a essa divisão e mantêm um único `spec.md`.
 3. Decisões já tomadas e caminhos descartados estão no CONTEXTO.md. Não reabra sem um motivo novo; se
    reabrir, registre a mudança lá.
 
@@ -122,7 +128,8 @@ npm test && npm run test:import && npm run typecheck && npx expo lint
 ```
 
 - Mudou tela: confira na prévia web (`CONTEXTO.md` explica como) e diga o que falta ver no iPhone.
-- Atualize o `spec.md` da feature (andamento, verificação) e o `specs/PLANO.md` **no mesmo commit**.
+- Atualize os documentos da feature (`pbi.md` e `tech-plan.md`: passos marcados, status, andamento,
+  verificação; ou o `spec.md` nas features 01–18) e o `specs/PLANO.md` **no mesmo commit**.
 - Um commit por feature/incremento, mensagem em português, no branch `claude/chat-conversations-access-x7i6nh`.
   Sem PR, salvo pedido.
 - Seja honesto sobre o que não foi testado (o iPhone só é testado numa sessão local no Mac).

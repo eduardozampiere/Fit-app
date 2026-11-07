@@ -1,8 +1,9 @@
 # Plano de execução
 
-> Painel do andamento. Cada feature tem uma subpasta em `specs/` com o seu `spec.md`
-> (modelo em [_modelo/spec.md](_modelo/spec.md)). Atualize a tabela e o `spec.md` da feature no mesmo
-> commit em que mudar o código.
+> Painel do andamento. Cada feature tem uma subpasta em `specs/` com dois documentos: `pbi.md` (produto,
+> do `/pm`) e `tech-plan.md` (técnico, do `/planejar`); modelos em [_modelo/](_modelo/). As features 01–18
+> são anteriores a essa divisão e têm um único `spec.md`. Atualize a tabela e os documentos da feature no
+> mesmo commit em que mudar o código. Features novas: a coluna Spec aponta para a pasta.
 
 ## Status das features
 

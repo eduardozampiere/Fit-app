@@ -1,116 +1,88 @@
 # 24 — Séries com tipo: montar single, back-off e aquecimento dentro do exercício · PBI
 
-> **Produto: o quê e por quê.** Dono: `product-manager` (`/pm`). O como fica em [tech-plan.md](tech-plan.md),
-> do `tech-planner` (`/planejar`).
-> Continua o [PBI 19](../19-formato-v2/pbi.md), que muda o modelo (séries com tipo dentro do exercício) sem telas novas de criação. Pedido do usuário em 06/11/2026:
-> "back-off deve ser um tipo de série, não um exercício novo, igual o single de ativação".
+> **Produto: o quê e por quê.** Dono: `product-manager` (`/pm`). O como fica em [tech-plan.md](tech-plan.md), do `tech-planner` (`/planejar`).
+
+> **Resumo:** Editor para adicionar, remover, reordenar e trocar o tipo dos grupos de séries de um exercício, no Plano e em Hoje.
 
 **Status:** ⏳ a fazer
-**Depende de:** [19 — Modelo de treino v2](../19-formato-v2/pbi.md). Deve vir **logo depois do 19** e antes da [spec 16](../16-periodizacoes/spec.md) (criar treinos pela interface usa este editor).
+**Depende de:** [19 — Modelo v2](../19-formato-v2/pbi.md) (logo depois dele) e antes da [spec 16](../16-periodizacoes/spec.md), que usa este editor.
 
 ## Objetivo
-Depois do PBI 19, single de ativação e back-off (inclusive as antigas "duplas de volume", que viraram back-off) são **grupos de séries com tipo dentro do exercício**, mas só dá para editar os valores dos grupos que já existem. Antes, o atleta
-podia acrescentar um back-off ao plano como "exercício novo"; agora isso precisa ser possível como o que realmente é: **mais um grupo de séries do mesmo exercício**. Este PBI dá ao usuário o editor para
-**adicionar, remover, reordenar e trocar o tipo dos grupos de séries** de um exercício, no Plano e na tela Hoje, e é a base para quem cria treinos do zero (spec 16), seja o atleta de powerlifting ou
-quem só faz academia normal (ex.: 3 séries normais + 1 drop set).
-
-Momento de uso: planejando (aba Plano) e, às vezes, no meio do treino, quando decide acrescentar um back-off. Com uma mão, entre séries: alvo de toque de 56 pt e no máximo 3 toques para acrescentar um grupo.
-Como saberemos que deu certo: o atleta acrescenta "Back-off 2×3 a 150 kg" a um exercício em até 3 toques e ele aparece como linhas "B" no cartão da tela Hoje; quem treina sem periodização monta "Supino: 3×10" e
-acrescenta um single sem nunca ver a palavra "movimento".
+- Pós-19, single e back-off são grupos de séries com tipo, mas só se editam os existentes; falta criar mais um grupo do mesmo exercício.
+- Serve ao powerlifter e a quem faz academia comum (3 séries normais + 1 drop set).
+- Uso: planejando (aba Plano) e, às vezes, no treino; uma mão, alvo de 56 pt, até 3 toques para adicionar um grupo.
+- Sucesso: "Back-off 2×3 a 150 kg" em até 3 toques, aparecendo como linhas "B" em Hoje.
 
 ## Escopo
-- **Entra:**
-  - Seção **"Séries"** no editor do exercício (Plano e Hoje) com a lista dos grupos de séries e o botão "Adicionar grupo de séries".
-  - Editar um grupo: tipo, número de séries, repetições, carga (kg fixo ou % do máximo quando o exercício tem "Carga baseada em"), RPE alvo (opcional), descanso (opcional) e **nome** (opcional, só uma anotação como "Duplas de volume" ou "Rampa"; não é tipo).
-  - Remover um grupo, reordenar grupos arrastando, trocar o tipo de um grupo.
-  - Tipos que o plano prescreve (os do usuário): **Normal**, **Aquecimento**, **Single de ativação**, **Back-off** e **Walkout** (decisão do usuário em 07/11/2026; série por duração, sem repetições). O que cada tipo conta (tonelagem, recordes, top set, e1RM) está na tabela do [PBI 19](../19-formato-v2/pbi.md) e vale também para grupos criados aqui. **Duplas de volume não é tipo** (correção do usuário em 06/11/2026): quem quer "3 × 2 para somar volume" usa Normal, Aquecimento ou Back-off e, se quiser, escreve o nome do grupo.
-    Falha e Drop set continuam só no registro. No máximo **um** grupo **Single de ativação** e **um** grupo **Walkout** por exercício (as regras leem "o" single; o walkout é uma sustentação única); Normal, Aquecimento e Back-off podem ter mais de um grupo.
-  - Na tela Hoje, durante o treino, "Adicionar série" no cartão oferece o tipo da série (a folha de tipo de hoje passa a listar também Single de ativação, Back-off e Walkout) e grava a série registrada com esse tipo, sem alterar o plano.
-  - O grupo Walkout usa **duração** (segundos, ex.: 5–8) no lugar das repetições.
-  - Resolve o item do backlog "Recolocar o single removido pela lixeira": basta acrescentar o grupo Single (ou Walkout) de novo.
-- **Não entra:**
-  - Prescrever falha ou drop set no plano (continuam rótulos de registro, como hoje). "Duplas de volume" não é tipo e não entra na lista de tipos.
-  - O app sugerir "este single bateu o recorde; trocar para Normal?" (ideia no backlog do PLANO; a troca manual já existe e é o CP9b).
-  - Tipos personalizados criados pelo usuário; séries em bloco (cluster, rest-pause), supersets.
-  - Criar exercícios ou treinos novos (spec 16) e escolher o máximo do exercício (PBI 20); este PBI apenas usa o que existir.
-  - Regras novas: a fadiga do single continua lendo o grupo Single, sem mudança.
+- Entra:
+  - Seção "Séries" no editor do exercício (Plano e Hoje): lista de grupos + botão "Adicionar grupo de séries".
+  - Campos do grupo: tipo, séries, repetições (ou duração no Walkout), carga (kg ou % do máximo), RPE alvo, descanso e nome (opcionais).
+  - Remover, reordenar (arrastar) e trocar o tipo do grupo.
+  - Tipos do plano: Normal, Aquecimento, Single de ativação, Back-off, Walkout (contagem de cada um na tabela do PBI 19). Máximo de um Single e um Walkout por exercício.
+  - Hoje: "Adicionar série" oferece também S, B e W (sem mudar o plano); trocar tipo de série registrada oferece os sete tipos.
+  - Resolve o backlog "Recolocar o single removido pela lixeira".
+- Não entra:
+  - Prescrever falha/drop set no plano; "Duplas de volume" como tipo.
+  - Sugestão automática "single bateu recorde, trocar para Normal?" (backlog).
+  - Tipos personalizados, cluster/rest-pause, supersets.
+  - Criar exercícios/treinos (spec 16) e escolher o máximo (PBI 20).
+  - Regras novas (fadiga do single segue lendo o grupo Single).
 
 ## Comportamento
-**Editor do exercício → seção "Séries"**
-- Lista, uma linha por grupo, na ordem em que aparecem no treino. Cada linha mostra o tipo, "séries × repetições", a carga e o RPE alvo, por exemplo "Normal · 4 × 4 · 164 kg · RPE 7–8" ou "Back-off · 2 × 3 · 150 kg · RPE 7–8".
-  Exercício com carga em % do máximo mostra "80% · 164 kg".
-- Botão **"Adicionar grupo de séries"** (alvo de 56 pt) abre a folha de tipo (sem botão Cancelar; fecha arrastando) com os cinco tipos e uma linha de ajuda cada: "Normal: séries de trabalho.", "Aquecimento: série leve para preparar o corpo; não conta no volume, nas regras nem nas análises.", "Single de ativação: uma repetição pesada para ativar antes das séries de trabalho.",
-  "Back-off: séries mais leves depois das de trabalho; contam como séries normais.", "Walkout: tirar a barra do suporte e sustentar a carga por alguns segundos; não conta no volume nem nos recordes." Se o exercício já tem Single de ativação (ou Walkout), esse tipo aparece desabilitado com o texto "Já existe neste exercício".
-  Escolhido o tipo, abre a folha do grupo já com valores sugeridos: Normal 3 × 10; Aquecimento 2 × 8; Single 1 × 1; Back-off 2 × 5; Walkout 1 × 5–8 s; carga sugerida: a do grupo Normal do exercício (ou em branco se não houver).
-- Folha do grupo: campos "Séries", "Repetições" (um número ou faixa, ex.: 4 ou 8–12; no Walkout vira "Duração (s)", ex.: 5–8), "Carga" (kg fixo; se o exercício tem "Carga baseada em", mostra "% do máximo" e "= 164 kg"), "RPE alvo" (opcional), "Descanso" (opcional; vazio usa o padrão do tipo), "Nome do grupo" (opcional, ex.: "Duplas de volume")
-  e "Salvar". Mensagens: "Informe o número de séries (1 a 20).", "Informe as repetições.", "Este exercício já tem um grupo de Single de ativação."
-- **Remover:** ícone de lixeira na folha do grupo (ou deslizar a linha) com confirmação "Remover o grupo de Back-off deste exercício?". O exercício precisa ter pelo menos um grupo: no último, a lixeira fica desabilitada com "O exercício precisa ter pelo menos um grupo de séries."
-  Séries já registradas daquele tipo não são apagadas (o registro fica no histórico).
-- **Reordenar:** segurar e arrastar a linha do grupo (mesmo componente de arraste das outras listas). A ordem do plano é a ordem das linhas na tela Hoje.
-- **Trocar o tipo:** na folha do grupo, o campo "Tipo" abre a mesma folha de tipos; respeita "no máximo um Single de ativação e um Walkout".
-- **Alcance da mudança:** o mesmo que o editor do exercício já oferece hoje (só este treino ou também os das próximas semanas); a confirmação mostra quantos treinos serão alterados.
-
-**Tela Hoje durante o treino**
-- No cartão, "Adicionar série" abre a folha de tipo de série (a de hoje, com as letras A, F, D) agora também com **S** Single de ativação, **B** Back-off e **W** Walkout. Escolher o tipo registra uma série extra com esse tipo (carga e repetições da série anterior ou do grupo), sem mudar o plano. Se o usuário quiser mudar o plano para as próximas vezes, usa o editor do exercício.
-- Trocar o tipo de uma série já registrada (tocando na letra) funciona como hoje e agora oferece os sete tipos (Aquecimento, Normal, Falha, Drop set, Single de ativação, Back-off, Walkout).
-
-**Claude**
-- `add_item`/`remove_item` com tipo single, back-off, walkout ou duplas de volume (PBI 19; "duplas" entra como Back-off com esse nome) continuam funcionando; para Single e Walkout, que só podem ter um por exercício, se já houver, a prévia diz "Este exercício já tem Single de ativação; será editado" em vez de duplicar.
-
-Regras do produto: nunca alterar o plano sem o usuário confirmar; alvo de toque de 56 pt; uma mão; texto em pt-BR com vírgula decimal (formatação de `format.ts`).
+- Linha do grupo: "Back-off · 2 × 3 · 150 kg · RPE 7–8"; com % do máximo: "80% · 164 kg".
+- "Adicionar grupo de séries" abre folha de tipos (sem Cancelar) com ajuda por tipo; Single/Walkout já existente aparece desabilitado: "Já existe neste exercício".
+- Valores sugeridos: Normal 3×10, Aquecimento 2×8, Single 1×1, Back-off 2×5, Walkout 1×5–8 s; carga do grupo Normal.
+- Folha do grupo: Séries, Repetições (número ou faixa) / "Duração (s)", Carga, RPE alvo, Descanso, Nome, Salvar. Erros: "Informe o número de séries (1 a 20).", "Informe as repetições.", "Este exercício já tem um grupo de Single de ativação."
+- Remover: lixeira com confirmação "Remover o grupo de Back-off deste exercício?"; no último grupo fica desabilitada ("O exercício precisa ter pelo menos um grupo de séries."). Séries registradas não são apagadas.
+- Ordem do plano = ordem em Hoje. Alcance: o do editor atual (só este treino ou próximas semanas), mostrando quantos treinos mudam.
+- Claude: `add_item` de single/back-off/walkout/duplas continua; Single/Walkout já existente: prévia "Este exercício já tem Single de ativação; será editado".
+- Regras: plano só muda com confirmação; pt-BR com vírgula decimal.
 
 ## Decisões
-- **Editor único de grupos para todos os caminhos de criar treino** (Plano, Hoje, e depois a spec 16). Alternativa descartada: um botão por tipo ("Adicionar back-off", "Adicionar single"), que cresceria com cada tipo novo e esconderia o conceito comum.
-- **Tipos do plano = os do usuário: Normal, Aquecimento, Single de ativação, Back-off, Walkout. "Duplas de volume" não é tipo** (correção do usuário em 06/11/2026: "ou é normal, ou é aquecimento, ou é back-off"). O nome do grupo é livre e opcional, para quem quiser anotar "Duplas de volume".
-  Alternativa descartada: ter "Duplas de volume" na lista de tipos.
-- **No máximo um grupo Single de ativação e um Walkout por exercício; os demais tipos podem repetir.** Motivo: as regras leem "o" single (fadiga do single) e o walkout é uma sustentação única; já Back-off, Normal e Aquecimento aceitam mais de um bloco (por exemplo, duas ex-back-offs de cargas diferentes, ou uma rampa de aquecimento). Alternativa descartada: um de cada
-  tipo (obrigaria a fundir, na conversão do PBI 19, back-off e duplas de volume de uma mesma sessão).
-- **Valores sugeridos ao adicionar** (Normal 3 × 10, Aquecimento 2 × 8, Single 1 × 1, Back-off 2 × 5, Walkout 1 × 5–8 s): o usuário só ajusta, em vez de partir de campos vazios (menos toques).
-- **Não prescrever falha/drop set** (decisão do PBI 19; seguem só no registro).
-- **Trocar o tipo de uma série registrada é o caminho para "promover" um single:** se um single bate recorde, ele deixou de ser de ativação e vira Normal (decisão do usuário, 07/11/2026); a troca recalcula recordes, e1RM, top set, gráficos e tonelagem na hora (tabela e CP12b do PBI 19). Ideia **fora do escopo** (backlog): o app sugerir a troca quando um single supera o recorde do exercício; nada muda sozinho.
-- **Tipos extra no registro durante o treino (S, B, W):** deixa o usuário marcar uma série do jeito que fez sem editar o plano; mantém o plano como contrato.
-- **Entrega logo depois do 19:** a janela sem criar grupo pela tela deve ser a menor possível.
-- Respostas do usuário (06/11/2026): "back-off deve ser um tipo de série, não um exercício novo, igual o single de ativação"; quer o app também para quem só faz academia normal.
+- Editor único para todos os caminhos de criar treino — evita um botão por tipo (descartado: cresce a cada tipo).
+- Tipos = Normal, Aquecimento, Single, Back-off, Walkout; "Duplas de volume" não é tipo (usuário, 06/11); vira nome livre do grupo. Walkout é tipo por decisão do usuário (07/11).
+- Um Single e um Walkout por exercício — regras leem "o" single; demais tipos repetem (descartado: um de cada, forçaria fundir back-off e duplas no PBI 19).
+- Valores sugeridos — menos toques que campos vazios.
+- Falha/drop set só no registro (decisão do PBI 19).
+- Promover single = trocar tipo da série registrada para Normal (usuário, 07/11); recalcula recordes, e1RM, top set, gráficos e tonelagem.
+- S, B, W no registro de Hoje — marca a série sem editar o plano (contrato).
+- Entrega logo após o 19 — menor janela sem criar grupo pela tela.
+- Usuário (06/11): "back-off deve ser um tipo de série, não um exercício novo"; app também para academia comum.
 
 ## Critérios de pronto
-- **CP1 — Lista de séries.** O editor de qualquer exercício mostra a seção "Séries" com um grupo por linha, na ordem do treino, com tipo, séries × repetições, carga e RPE.
-- **CP2 — Adicionar em até 3 toques.** A partir do cartão do exercício: abrir editor → "Adicionar grupo de séries" → tipo; o grupo entra com valores sugeridos, e depois de "Salvar" aparece no Plano e no cartão da tela Hoje como linhas com a letra do tipo.
-- **CP3 — Editar.** Alterar séries, repetições, carga (kg ou %), RPE e descanso de um grupo muda só aquele grupo e, quando há % do máximo, mostra a carga calculada; valores inválidos mostram a mensagem e não salvam.
-- **CP4 — Um Single e um Walkout por exercício.** Tentar adicionar um segundo Single de ativação (ou segundo Walkout) mostra o tipo desabilitado com "Já existe neste exercício"; trocar o tipo de um grupo para Single ou Walkout quando já existe outro é recusado com a mensagem; Normal, Aquecimento e Back-off aceitam mais de um grupo.
-  O grupo Walkout pede duração em segundos (não repetições), aparece como linha "W" e, depois de registrado, soma 0 kg na tonelagem e não entra em recordes, top set nem e1RM (tabela do PBI 19); um grupo Back-off registrado conta como série normal.
-  A lista de tipos não contém "Duplas de volume"; o nome do grupo aceita esse texto livremente.
-- **CP5 — Remover.** Remover um grupo pede confirmação, tira o grupo do plano e não apaga séries já registradas; o último grupo do exercício não pode ser removido.
-- **CP6 — Reordenar.** Arrastar grupos muda a ordem no Plano e na tela Hoje; a ordem persiste ao reabrir o app.
-- **CP7 — Alcance.** Salvar uma alteração com alcance "próximas semanas" mostra quantos treinos serão alterados e só então aplica; "só este treino" não altera outros.
-- **CP8 — Single de volta.** Depois de tirar o single pela lixeira da linha "S", é possível acrescentá-lo de novo pelo editor (resolve o backlog "Recolocar o single").
-- **CP9 — Hoje.** "Adicionar série" no cartão oferece Single, Back-off e Walkout além de A, F e D; a série registrada leva o tipo escolhido sem mudar o plano; trocar o tipo de uma série registrada oferece os sete tipos.
-- **CP9b — Promover o single.** Em Hoje, trocar o tipo de uma série registrada de Single para Normal (folha de tipo) faz a carga dela passar a contar em recordes, e1RM, top set e gráfico "Carga dos principais"; trocar de volta desfaz; o mesmo vale entre Normal e Back-off/Walkout (conforme a tabela do PBI 19). O plano não muda.
-- **CP10 — Regras.** A fadiga do single lê o grupo Single acrescentado pelo editor; os alertas do plano atual (teste dourado do PBI 19) continuam iguais.
-- **CP11 — Claude.** `add_item` de single em exercício que já tem Single edita o grupo existente (prévia mostra o aviso); sem Single, adiciona; `add_item` de back-off ou duplas de volume adiciona um grupo Back-off (duplas com esse nome).
-- **CP12 — Acessibilidade e formato.** Botões com alvo de 56 pt e rótulo de acessibilidade, texto com Dynamic Type, números em pt-BR.
-- **CP13 — Sem regressão.** `npm test`, `npm run test:import`, `npm run typecheck` e `npx expo lint` passam.
+- **CP1** — Seção "Séries" lista grupos na ordem do treino, com tipo, séries × reps, carga e RPE.
+- **CP2** — Editor → "Adicionar grupo de séries" → tipo (até 3 toques); entra com sugeridos e, após Salvar, aparece no Plano e em Hoje com a letra do tipo.
+- **CP3** — Editar séries, reps, carga (kg/%), RPE e descanso muda só aquele grupo; mostra carga calculada; inválido mostra mensagem e não salva.
+- **CP4** — Segundo Single/Walkout: tipo desabilitado e troca de tipo recusada com mensagem; Normal/Aquecimento/Back-off repetem; Walkout pede duração, aparece como "W", soma 0 kg e fica fora de recordes/top set/e1RM; Back-off conta como normal; lista sem "Duplas de volume", nome aceita o texto.
+- **CP5** — Remover pede confirmação, mantém séries registradas; último grupo não removível.
+- **CP6** — Arrastar muda a ordem no Plano e em Hoje; persiste ao reabrir.
+- **CP7** — Alcance "próximas semanas" mostra a contagem antes de aplicar; "só este treino" não altera outros.
+- **CP8** — Single removido pela lixeira "S" pode ser acrescentado de novo.
+- **CP9** — Hoje: "Adicionar série" oferece S, B, W além de A, F, D, sem mudar o plano; trocar tipo registrado oferece sete tipos.
+- **CP9b** — Single → Normal em série registrada passa a contar em recordes, e1RM, top set e gráfico; voltar desfaz; vale entre Normal e Back-off/Walkout; plano intacto.
+- **CP10** — Fadiga do single lê o Single criado pelo editor; alertas atuais iguais (teste dourado do PBI 19).
+- **CP11** — Claude: `add_item` de single com Single existente edita (com aviso); sem, adiciona; back-off/duplas adiciona Back-off (duplas com esse nome).
+- **CP12** — Alvo de 56 pt, rótulo de acessibilidade, Dynamic Type, números em pt-BR.
+- **CP13** — `npm test`, `npm run test:import`, `npm run typecheck`, `npx expo lint` passam.
 
 ## Verificação
-- **Na nuvem / testes automáticos:** operações sobre grupos (adicionar, remover, reordenar, trocar tipo, um Single por exercício, mínimo de um grupo), valores sugeridos, alcance, tradução de `add_item` do Claude, regras com o single novo (CP2 a CP5, CP7, CP10, CP11, CP13).
-- **Prévia web:** conferir a seção "Séries", as folhas de tipo e do grupo e o arraste (CP1, CP2, CP3, CP6).
-- **No simulador / iPhone (roteiro):**
-  1. Plano → um treino → um exercício → editor: ver a seção "Séries" (CP1).
-  2. "Adicionar grupo de séries" → Back-off → deixar os valores sugeridos → Salvar. Conferir em Hoje o cartão com as linhas B (CP2).
-  3. Tentar adicionar um segundo Single de ativação: opção desabilitada; conferir que a lista de tipos não tem "Duplas de volume" e que o nome do grupo aceita esse texto (CP4). Remover o grupo e ver a confirmação; tentar remover o único grupo restante (CP5).
-  4. Arrastar o single para antes e depois do principal; reabrir o app (CP6).
-  5. Tirar o single pela lixeira da linha "S" e acrescentá-lo pelo editor (CP8). Alterar a carga do back-off com alcance "próximas semanas" e conferir a contagem (CP7).
-  6. Em Hoje, durante o treino, "Adicionar série" → Back-off; trocar o tipo de uma série registrada (CP9).
-  7. Colar no campo do Claude um `add_item` de single em exercício que já tem single, e outro de duplas de volume (CP11).
-  - **Só no iPhone:** conforto de toque com uma mão e texto grande; arraste de linhas (CP12).
+- Testes/nuvem: operações de grupos, sugeridos, alcance, `add_item`, regras (CP2–5, 7, 10, 11, 13). Prévia web: seção, folhas, arraste (CP1–3, 6).
+- iPhone:
+  1. Plano → exercício → editor: ver "Séries" (CP1).
+  2. Adicionar Back-off com sugeridos → Salvar; ver linhas B em Hoje (CP2).
+  3. Segundo Single desabilitado; lista sem "Duplas de volume"; remover com confirmação; último grupo (CP4, CP5).
+  4. Arrastar o single; reabrir o app (CP6).
+  5. Tirar o single pela lixeira "S" e recolocar (CP8); alterar back-off com "próximas semanas" e ver a contagem (CP7).
+  6. Em Hoje: "Adicionar série" → Back-off; trocar tipo de série registrada (CP9, CP9b).
+  7. Colar `add_item` de single (com single existente) e de duplas no Claude (CP11).
+  - Só no iPhone: toque com uma mão, texto grande, arraste (CP12).
 
 ## Riscos e perguntas abertas
-- **Risco de UX:** muitos campos numa folha só; mitigado com valores sugeridos e campos opcionais recolhidos (RPE e descanso) — se ficar pesado na prática, mover RPE e descanso para "Mais opções".
-- **Risco:** duas formas de acrescentar série na tela Hoje (extra do registro × grupo no plano) podem confundir; o texto da folha explica "só hoje" × editor "para as próximas vezes".
-- **P1 (não bloqueia):** Single de ativação e Back-off devem aparecer para todos ou só no módulo avançado (powerlifting)? Back-off serve a qualquer um; "single de ativação" é mais específico. Recomendação: aparecer para todos por enquanto; esconder só se atrapalhar quem usa o app para academia comum.
+- Risco UX: muitos campos numa folha; se pesar, mover RPE e descanso para "Mais opções".
+- Risco: duas formas de acrescentar série em Hoje (extra do registro × grupo no plano); texto da folha explica "só hoje" × editor.
+- P1 (não bloqueia): Single e Back-off para todos ou só no módulo avançado? Recomendação: todos, esconder só se atrapalhar.
 
 ## Andamento
 | Data | Nota |
 |---|---|
-| 06/11/2026 | PBI criado a partir do pedido "back-off deve ser um tipo de série, não um exercício novo" e da visão de app para qualquer pessoa de academia. |
-| 07/11/2026 | Walkout passa a ser tipo de série do plano (decisão do usuário): letra W, duração no lugar das repetições, no máximo um por exercício. Back-off conta como série normal; walkout não conta em volume/recordes/top set/e1RM (tabela no PBI 19). |
-| 06/11/2026 | Correção do usuário: tipos do plano são Normal, Aquecimento, Single de ativação e Back-off; "Duplas de volume" saiu da lista de tipos (vira nome de grupo opcional); só o Single é limitado a um por exercício; letra V removida. |
+| 06–07/11/2026 | PBI criado; tipos = Normal, Aquecimento, Single, Back-off, Walkout (duplas viraram nome de grupo; só Single e Walkout limitados a um por exercício). |

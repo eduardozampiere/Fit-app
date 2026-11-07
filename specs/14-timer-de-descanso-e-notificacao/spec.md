@@ -1,6 +1,6 @@
 # 14 — Timer de descanso: janela retangular, que sobrevive ao app e avisa
 
-**Status:** ⏳ a fazer (planejada em 06/11/2026)
+**Status:** 🔨 em andamento — cartão retangular e arraste do modal feitos em 06/11/2026; falta persistir e notificar
 
 ## Objetivo
 (1) A janela do timer deve ser **retangular como a do Hevy**, não oval. (2) O timer não pode morrer ao trocar de app ou
@@ -22,9 +22,16 @@ fechá-lo. (3) Avisar quando o descanso acaba, com o app em segundo plano.
   parar/pular; reagendada em +/−. Pede permissão na primeira vez. Funciona com Apple ID gratuito (é local).
 - Com o app em primeiro plano continua o alarme atual (som/vibração).
 
+## Feito em 06/11/2026
+- **Cartão retangular** (raio 16, borda fina, barra de progresso, −30/+30/✕) no lugar da cápsula do sistema, em `FloatingBars`
+  acima da barra de abas e do cartão de treino em andamento. `RestTimerAccessory` e o `BottomAccessory` foram removidos.
+- **Arraste do modal do cronômetro** (`RestEditor`): a folha não respondia ao arraste porque a alça ficava *dentro* do
+  `Pressable` que já respondia ao toque (um filho nunca assume o gesto de quem está respondendo). Agora a alça e o título
+  respondem logo no toque (`BottomSheet` com `header`), e a roda de tempos continua rolando sozinha.
+
 ## Plano de execução
 - [ ] Domínio: cálculo de `endAt`/restante já é puro? mover para `src/domain/restTimer.ts` com testes
-- [ ] `RestTimerCard` retangular + remoção do `BottomAccessory`
+- [x] Cartão retangular + remoção do `BottomAccessory` (conferir posição acima da barra no iPhone)
 - [ ] Persistência em `settings` e restauração
 - [ ] Notificação local (agendar/cancelar/reagendar)
 - [ ] Verificação: simulador (claro/escuro), app em segundo plano, iPhone

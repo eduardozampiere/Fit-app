@@ -1,6 +1,6 @@
 # 13 — Treino em andamento: iniciar, não perder, cancelar
 
-**Status:** ⏳ a fazer (planejada em 06/11/2026)
+**Status:** 🟡 feito, falta verificar no iPhone (planejada e feita em 06/11/2026)
 
 ## Objetivo
 Hoje o treino "existe" quando a primeira série é marcada e a duração conta daí, mesmo dias depois (já apareceu
@@ -30,13 +30,29 @@ fechar o app e **poder cancelar** um treino no meio.
   da última série como fim), Continuar ou Descartar. Evita o "72h".
 - **Duração concluída** passa a ser `ended_at − started_at` (ou a última série), e não cresce depois de concluir.
 
+## Decisões do usuário (06/11/2026)
+- **Um treino por vez.** Iniciar ou marcar série em outro dia com um treino em andamento mostra o aviso "Já existe um treino em
+  andamento" (Ver treino, Descartar, Voltar). Concluído pode ser editado e reaberto sem conflito.
+- **Treino em andamento como no Hevy:** cartão flutuante acima da barra de abas, em todas as abas menos a Hoje: bolinha verde,
+  "Treino 34:12", nome do treino, seta para abrir e lixeira para descartar (`FloatingBars`).
+
+## O que foi feito
+- `src/domain/workout.ts` (`isActiveWorkout`, `workoutDurationSec`, `isStale`, `formatClock`) com testes.
+- Banco v7: `session_logs.started_at` / `ended_at`. Backfill: início = 1ª série, fim (concluídos) = última; treinos "em andamento"
+  sem série nas últimas 6 h voltam a "não iniciado" (as séries ficam; é só tocar em Iniciar de novo ou descartar).
+- `repo.ts`: `getActiveWorkout`, `startSession`, `finishSession`, `reopenSession`, `discardSession` (apaga séries e ajustes do dia),
+  `countSets`, `lastSetAt`. `AppData.activeWorkout`.
+- Cabeçalho da Hoje: **Iniciar** → **Concluir** (+ lixeira) → **Reabrir**. Concluir sem série pergunta se descarta. O primeiro
+  registro de série inicia o treino sozinho. Duração = fim − início; não cresce depois de concluir; "—" antes de iniciar.
+- Treino esquecido (> 6 h): a barra mostra "Ainda treinando?" (Continuar, Concluir com a hora da última série, Descartar).
+
 ## Plano de execução
-- [ ] Domínio: estado do treino (`naoIniciado | emAndamento | concluido`), `workoutDuration`, `isStale` (testes)
-- [ ] Banco v7 + `startSession`, `finishSession`, `discardSession`
-- [ ] Cabeçalho: Iniciar / Concluir desativado / ⋯ Descartar; faixa de treino em andamento nas abas
-- [ ] Reabrir treino concluído (já existe) mantém `started_at`
-- [ ] Verificação: simulador (fechar e reabrir o app no meio do treino), testes, tsc, lint
+- [x] Domínio (testes)
+- [x] Banco v7 + funções do repositório
+- [x] Cabeçalho Iniciar / Concluir / Reabrir + lixeira; barra flutuante nas abas; um treino por vez
+- [x] Reabrir mantém `started_at`
+- [x] Verificação no simulador (escuro): migração, Iniciar, aviso de segundo treino, "Ainda treinando?" → Concluir (fim = última série)
+- [ ] Não verificado: iPhone; fechar e reabrir o app no meio de um treino recente; Reabrir; Descartar pela barra; tema claro
 
 ## Perguntas em aberto
-- Treino de outro dia pode estar em andamento junto com o de hoje? Proposta: **só um** em andamento por vez (iniciar outro
-  pergunta se descarta ou conclui o atual).
+- (resolvida) Dois treinos ao mesmo tempo: **não**, só um por vez.

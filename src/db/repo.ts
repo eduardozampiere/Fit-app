@@ -65,10 +65,12 @@ type SessionLogRow = {
   date: string;
   status: SessionLog['status'];
   note: string | null;
+  started_at: string | null;
+  ended_at: string | null;
 };
 
 function toSessionLog(r: SessionLogRow): SessionLog {
-  return { id: r.id, cycleId: r.cycle_id, week: r.week, sessionId: r.session_id, date: r.date, status: r.status, note: r.note };
+  return { id: r.id, cycleId: r.cycle_id, week: r.week, sessionId: r.session_id, date: r.date, status: r.status, note: r.note, startedAt: r.started_at, endedAt: r.ended_at };
 }
 
 type SetLogRow = {
@@ -139,7 +141,7 @@ export async function ensureSessionLog(
 ): Promise<SessionLog> {
   const existing = await getSessionLog(db, cycleId, sessionId);
   if (existing) return existing;
-  const log: SessionLog = { id: newId(), cycleId, week, sessionId, date, status: 'in_progress', note: null };
+  const log: SessionLog = { id: newId(), cycleId, week, sessionId, date, status: 'in_progress', note: null, startedAt: null, endedAt: null };
   await db.runAsync(
     `INSERT INTO session_logs (id, cycle_id, week, session_id, date, status, note, created_at)
      VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
@@ -155,8 +157,48 @@ export async function ensureSessionLog(
   return log;
 }
 
-export async function setSessionStatus(db: SQLiteDatabase, id: string, status: SessionLog['status']) {
-  await db.runAsync('UPDATE session_logs SET status = ? WHERE id = ?', status, id);
+/** O treino em andamento (só um por vez, de qualquer ciclo): começou e não foi concluído. */
+export async function getActiveWorkout(db: SQLiteDatabase): Promise<SessionLog | null> {
+  const row = await db.getFirstAsync<SessionLogRow>(
+    "SELECT * FROM session_logs WHERE status = 'in_progress' AND started_at IS NOT NULL ORDER BY started_at DESC LIMIT 1",
+  );
+  return row ? toSessionLog(row) : null;
+}
+
+/** Inicia o treino (mantém o início se já havia). */
+export async function startSession(db: SQLiteDatabase, id: string, at: string = new Date().toISOString()) {
+  await db.runAsync("UPDATE session_logs SET status = 'in_progress', started_at = COALESCE(started_at, ?), ended_at = NULL WHERE id = ?", at, id);
+}
+
+/** Conclui o treino; a duração para de crescer. */
+export async function finishSession(db: SQLiteDatabase, id: string, at: string = new Date().toISOString()) {
+  await db.runAsync("UPDATE session_logs SET status = 'done', started_at = COALESCE(started_at, ?), ended_at = ? WHERE id = ?", at, at, id);
+}
+
+/** Reabre um treino concluído, mantendo a hora de início. */
+export async function reopenSession(db: SQLiteDatabase, id: string) {
+  await db.runAsync("UPDATE session_logs SET status = 'in_progress', ended_at = NULL WHERE id = ?", id);
+}
+
+/** Quantas séries (inclui aquecimento) o treino tem registradas. */
+export async function countSets(db: SQLiteDatabase, sessionLogId: string): Promise<number> {
+  const row = await db.getFirstAsync<{ n: number }>('SELECT COUNT(*) AS n FROM set_logs WHERE session_log_id = ?', sessionLogId);
+  return row?.n ?? 0;
+}
+
+/** Hora da última série do treino (ISO), ou null sem séries. */
+export async function lastSetAt(db: SQLiteDatabase, sessionLogId: string): Promise<string | null> {
+  const row = await db.getFirstAsync<{ at: string | null }>('SELECT MAX(done_at) AS at FROM set_logs WHERE session_log_id = ?', sessionLogId);
+  return row?.at ?? null;
+}
+
+/** Descarta o treino: apaga as séries e os ajustes do dia (ordem, séries a mais). Não dá para desfazer. */
+export async function discardSession(db: SQLiteDatabase, id: string) {
+  await db.withTransactionAsync(async () => {
+    await db.runAsync('DELETE FROM set_logs WHERE session_log_id = ?', id);
+    await db.runAsync('DELETE FROM session_logs WHERE id = ?', id);
+    await db.runAsync('DELETE FROM settings WHERE key IN (?, ?, ?)', setCountsKey(id), warmupCountsKey(id), exerciseOrderKey(id));
+  });
 }
 
 export async function setSessionDate(db: SQLiteDatabase, id: string, date: string) {

@@ -1,7 +1,7 @@
 import { router, useLocalSearchParams } from 'expo-router';
 import { useSQLiteContext } from 'expo-sqlite';
 import { useCallback, useEffect, useMemo, useState } from 'react';
-import { ActivityIndicator, Platform, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { ActivityIndicator, Alert, Platform, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { AlertCard } from '../../components/AlertCard';
 import { CheckinSummary } from '../../components/CheckinSummary';
@@ -15,7 +15,7 @@ import { RestTimerBar } from '../../components/RestTimerBar';
 import { SetEditor, type EditableSet } from '../../components/SetEditor';
 import type { SetInput, SetKind } from '../../components/SetTable';
 import { ActionMenu, BigButton, BottomSheet, Card, Chip, Divider, IconButton, type MenuOption } from '../../components/ui';
-import { WorkoutHeader } from '../../components/WorkoutHeader';
+import { WorkoutHeader, type WorkoutMode } from '../../components/WorkoutHeader';
 import { WorkoutStats } from '../../components/WorkoutStats';
 import {
   deleteSet,
@@ -32,7 +32,9 @@ import {
   retagSetLogs,
   setCountsKey,
   warmupCountsKey,
-  setSessionStatus,
+  startSession,
+  finishSession as finishLog,
+  reopenSession,
   setSetting,
   updateSet,
 } from '../../db/repo';
@@ -71,6 +73,8 @@ import {
 import { gripForSet, gripTip, hasRedFlags, sessionLocks } from '../../domain/rules';
 import type { Exercise, ItemKind, Lift, PrescribedItem, SessionLog, SetLog, SetType } from '../../domain/types';
 import { choiceOf, startsRest, type SetChoice } from '../../domain/setTypes';
+import { isActiveWorkout } from '../../domain/workout';
+import { confirmDiscard } from '../../state/workoutActions';
 import { SetTypeSheet } from '../../components/SetTypeSheet';
 import { useAppData } from '../../state/AppData';
 import { useRestTimer } from '../../state/RestTimer';
@@ -84,7 +88,7 @@ const GENERIC_NOTE = /^(% calculado|Registro:)/;
 export default function TodayScreen() {
   const t = useTheme();
   const db = useSQLiteContext();
-  const { cycle, maxes, gym, version, bump, updateCycle } = useAppData();
+  const { cycle, maxes, gym, version, bump, updateCycle, activeWorkout } = useAppData();
   const timer = useRestTimer();
   const coach = useCoach();
   const params = useLocalSearchParams<{ sessionId?: string; at?: string }>();
@@ -217,10 +221,38 @@ export default function TodayScreen() {
     [locks, loadOf, logsOf, planned, plannedCountOf],
   );
 
-  const ensureLog = useCallback(async () => {
+  // Só um treino em andamento por vez: marcar série em outro dia pede para concluir ou descartar o atual.
+  const warnBusy = useCallback(() => {
+    if (!activeWorkout || !cycle) return;
+    const title = findSession(cycle, activeWorkout.sessionId)?.session.title ?? 'outro treino';
+    Alert.alert('Já existe um treino em andamento', `Você está treinando "${title}". Conclua ou descarte esse antes de começar outro.`, [
+      { text: 'Ver treino', onPress: () => setSelectedId(activeWorkout.sessionId) },
+      {
+        text: 'Descartar',
+        style: 'destructive',
+        onPress: () => void confirmDiscard(db, activeWorkout, () => bump()),
+      },
+      { text: 'Voltar', style: 'cancel' },
+    ]);
+  }, [activeWorkout, cycle, db, bump]);
+
+  // O primeiro registro inicia o treino. Devolve null (e avisa) se já há outro em andamento.
+  const ensureLog = useCallback(async (): Promise<SessionLog | null> => {
     if (!cycle || !ref) throw new Error('sem sessão');
-    return sessionLog ?? (await ensureSessionLog(db, cycle.id, ref.week.number, ref.session.id, today));
-  }, [db, cycle, ref, sessionLog, today]);
+    if (sessionLog?.status === 'done') return sessionLog; // ajustar um treino já concluído
+    if (activeWorkout && activeWorkout.id !== sessionLog?.id) {
+      warnBusy();
+      return null;
+    }
+    const log = sessionLog ?? (await ensureSessionLog(db, cycle.id, ref.week.number, ref.session.id, today));
+    if (log.startedAt === null) {
+      const at = new Date().toISOString();
+      await startSession(db, log.id, at);
+      bump();
+      return { ...log, startedAt: at };
+    }
+    return log;
+  }, [db, cycle, ref, sessionLog, activeWorkout, today, warnBusy, bump]);
 
   const nextLabel = useCallback(
     (item: PrescribedItem, setIndex: number) => {
@@ -247,6 +279,7 @@ export default function TodayScreen() {
 
   const checkSet = async (kind: SetKind, item: PrescribedItem, idx: number, input: SetInput) => {
     const log = await ensureLog();
+    if (!log) return;
     const pendingKey = `${item.id}:${idx}`;
     const setType: SetType = kind === 'work' ? (pendingTypes[pendingKey] ?? 'normal') : 'normal';
     await insertSets(db, log.id, [{ ...draftFromInput(draftFor(kind, item, idx), input), setType }]);
@@ -278,6 +311,7 @@ export default function TodayScreen() {
   /** Número de linhas do dia por item: séries de trabalho ou de aquecimento. */
   const saveCount = async (kind: SetKind, item: PrescribedItem, count: number) => {
     const log = await ensureLog();
+    if (!log) return;
     const current = kind === 'warmup' ? warmupCounts : setCounts;
     const next = { ...current, [item.id]: Math.max(0, count) };
     await setSetting(db, kind === 'warmup' ? warmupCountsKey(log.id) : setCountsKey(log.id), next);
@@ -333,6 +367,7 @@ export default function TodayScreen() {
     const next = moveItem(blocks, from, to).map((b) => b[0].id);
     setExerciseOrder(next);
     const log = await ensureLog();
+    if (!log) return;
     await setSetting(db, exerciseOrderKey(log.id), next);
     bump();
   };
@@ -393,22 +428,39 @@ export default function TodayScreen() {
 
   const allAsPlanned = async (item: PrescribedItem) => {
     const log = await ensureLog();
+    if (!log) return;
     await insertSets(db, log.id, missingPlanned(item));
     bump();
   };
 
   const sessionAsPlanned = async () => {
     const log = await ensureLog();
+    if (!log) return;
     const drafts = items.flatMap((item) => missingPlanned(item));
     await insertSets(db, log.id, drafts);
-    await setSessionStatus(db, log.id, 'done');
+    await finishLog(db, log.id);
     timer.stop();
     bump();
   };
 
-  const finishSession = async () => {
-    const log = await ensureLog();
-    await setSessionStatus(db, log.id, sessionLog?.status === 'done' ? 'in_progress' : 'done');
+  // Iniciar / Concluir / Reabrir, conforme o estado do treino deste dia.
+  const primaryAction = async () => {
+    if (!sessionLog || sessionLog.startedAt === null) {
+      await ensureLog(); // inicia (ou avisa que há outro em andamento)
+      bump();
+      return;
+    }
+    if (sessionLog.status === 'done') {
+      if (activeWorkout && activeWorkout.id !== sessionLog.id) return warnBusy();
+      await reopenSession(db, sessionLog.id);
+    } else if (stats.sets === 0) {
+      // Treino iniciado sem nenhuma série: concluir seria guardar um treino vazio.
+      await confirmDiscard(db, sessionLog, () => bump());
+      return;
+    } else {
+      await finishLog(db, sessionLog.id);
+      timer.stop();
+    }
     bump();
   };
 
@@ -455,6 +507,7 @@ export default function TodayScreen() {
       await updateSet(db, { ...existing, ...s });
     } else {
       const log = await ensureLog();
+      if (!log) return;
       const { id: _id, ...draft } = s;
       await insertSets(db, log.id, [draft]);
       clearPending(editor.item.id);
@@ -466,6 +519,7 @@ export default function TodayScreen() {
 
   const toggleFailLock = async (unlocked: boolean) => {
     const log = await ensureLog();
+    if (!log) return;
     await setSetting(db, `unlock-fail:${log.id}`, unlocked);
     bump();
   };
@@ -487,6 +541,8 @@ export default function TodayScreen() {
   const isToday = ref.date === today;
   const plannedToday = sessionForDate(cycle, today);
   const done = sessionLog?.status === 'done';
+  const running = isActiveWorkout(sessionLog);
+  const mode: WorkoutMode = done ? 'reopen' : running ? 'finish' : 'start';
   const weekIdx = cycle.weeks.findIndex((w) => w.number === ref.week.number);
   const weekNotes = [ref.week.note, ...ref.week.notes.filter((n) => !GENERIC_NOTE.test(n))].filter(Boolean) as string[];
   const doneSessions = new Set(sessionLogs.filter((l) => l.status === 'done').map((l) => l.sessionId));
@@ -551,11 +607,12 @@ export default function TodayScreen() {
   return (
     <SafeAreaView edges={['top']} style={{ flex: 1, backgroundColor: t.bg }}>
       <WorkoutHeader
-        done={done}
+        mode={mode}
         hasNotes={weekNotes.length > 0}
         onNotes={() => setNotesOpen(true)}
         onTimer={() => setFreeTimer(true)}
-        onFinish={finishSession}
+        onPrimary={primaryAction}
+        onDiscard={sessionLog ? () => void confirmDiscard(db, sessionLog, () => bump()) : undefined}
       />
       <ScrollView
         contentContainerStyle={styles.body}
@@ -602,7 +659,7 @@ export default function TodayScreen() {
         </Text>
 
         {/* Ordem da tela: semana, dia, depois os números do treino do dia. */}
-        <WorkoutStats stats={stats} plannedSets={plannedSets} running={!done && stats.sets > 0} />
+        <WorkoutStats stats={stats} plannedSets={plannedSets} running={running} startedAt={sessionLog?.startedAt ?? null} endedAt={sessionLog?.endedAt ?? null} />
         <Divider />
 
         {redFlagToday ? (
@@ -669,8 +726,8 @@ export default function TodayScreen() {
         </Text>
       </ScrollView>
 
-      {/* No iOS o cronômetro fica no acessório da barra de abas (Liquid Glass). */}
-      {Platform.OS !== 'ios' ? <RestTimerBar /> : null}
+      {/* No celular o cronômetro é um cartão flutuante (FloatingBars); aqui só na prévia web. */}
+      {Platform.OS === 'web' ? <RestTimerBar /> : null}
 
       {editor ? (
         <SetEditor

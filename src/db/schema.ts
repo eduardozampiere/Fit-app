@@ -3,7 +3,7 @@ import bundledCycle from '../../assets/plan/ciclo_out26_jan27.json';
 import { DEFAULT_FAVORITES, DEFAULT_FOODS } from '../domain/nutrition';
 import type { Cycle } from '../domain/types';
 
-const DATABASE_VERSION = 6;
+const DATABASE_VERSION = 7;
 
 /** Migrações por PRAGMA user_version. Nunca editar uma migração já publicada: criar a próxima. */
 export async function migrateDbIfNeeded(db: SQLiteDatabase) {
@@ -170,6 +170,21 @@ CREATE INDEX IF NOT EXISTS idx_meal_entries_source ON meal_entries(source_key);
     // Tipo da série de trabalho: normal, até a falha ou drop set (aquecimento continua na coluna warmup).
     await db.execAsync(`ALTER TABLE set_logs ADD COLUMN set_type TEXT NOT NULL DEFAULT 'normal';`);
     version = 6;
+  }
+
+  if (version === 6) {
+    // Treino com início e fim de verdade (spec 13). Os já gravados ganham a hora da primeira e da última série.
+    await db.execAsync(`
+ALTER TABLE session_logs ADD COLUMN started_at TEXT;
+ALTER TABLE session_logs ADD COLUMN ended_at TEXT;
+UPDATE session_logs SET started_at = (SELECT MIN(done_at) FROM set_logs WHERE session_log_id = session_logs.id);
+UPDATE session_logs SET ended_at = (SELECT MAX(done_at) FROM set_logs WHERE session_log_id = session_logs.id) WHERE status = 'done';
+-- Só um treino pode estar em andamento: os abertos há mais de 6 h (esquecidos) voltam a "não iniciado"; o app
+-- guarda as séries e o treino pode ser iniciado de novo ou descartado.
+UPDATE session_logs SET started_at = NULL
+  WHERE status = 'in_progress' AND (julianday('now') - julianday((SELECT MAX(done_at) FROM set_logs WHERE session_log_id = session_logs.id))) * 24 > 6;
+`);
+    version = 7;
   }
 
   await db.execAsync(`PRAGMA user_version = ${DATABASE_VERSION}`);

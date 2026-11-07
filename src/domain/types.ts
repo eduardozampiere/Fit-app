@@ -147,4 +147,8 @@ export interface SessionLog {
   date: string; // data real em que o treino foi feito
   status: 'in_progress' | 'done';
   note: string | null;
+  /** quando o treino começou (ISO); nulo = ainda não iniciado */
+  startedAt: string | null;
+  /** quando foi concluído (ISO) */
+  endedAt: string | null;
 }

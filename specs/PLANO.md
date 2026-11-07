@@ -22,8 +22,8 @@ Legenda: ✅ feito · 🟡 feito, falta verificar no iPhone · 🔨 em andamento
 | 10 | Cabeçalho do treino, adicionar exercício e tela do exercício | 🟡 | [10-cabecalho-e-adicionar-exercicio](10-cabecalho-e-adicionar-exercicio/spec.md) |
 | 11 | Tipo de série, datas "05 nov" e folhas que fecham arrastando | 🟡 | [11-tipo-de-serie-datas-folhas](11-tipo-de-serie-datas-folhas/spec.md) |
 | 12 | Single dentro do principal, arraste livre das folhas, lixeira e tipo ao adicionar exercício | 🟡 | [12-single-na-tabela-e-arraste-livre](12-single-na-tabela-e-arraste-livre/spec.md) |
-| 13 | Treino em andamento: iniciar, não perder, cancelar; Concluir só com treino iniciado | ⏳ | [13-treino-em-andamento](13-treino-em-andamento/spec.md) |
-| 14 | Timer de descanso retangular, persistente, com notificação | ⏳ | [14-timer-de-descanso-e-notificacao](14-timer-de-descanso-e-notificacao/spec.md) |
+| 13 | Treino em andamento: iniciar, não perder, cancelar; Concluir só com treino iniciado | 🟡 | [13-treino-em-andamento](13-treino-em-andamento/spec.md) |
+| 14 | Timer de descanso retangular, persistente, com notificação | 🔨 | [14-timer-de-descanso-e-notificacao](14-timer-de-descanso-e-notificacao/spec.md) |
 | 15 | Exercício único: máximos, % e análises para qualquer exercício (formato v2) | ⏳ | [15-exercicio-unico](15-exercicio-unico/spec.md) |
 | 16 | Periodizações: várias, uma ativa; criar plano e treinos pela UI | ⏳ | [16-periodizacoes](16-periodizacoes/spec.md) |
 | 17 | Live Activity do timer na Dynamic Island (começa por teste de viabilidade) | ⏳ | [17-live-activity](17-live-activity/spec.md) |
@@ -89,4 +89,7 @@ Xcode 27.2, `npx expo run:ios`). O que foi verificado em cada feature está no `
 | 05/11/2026 | Ajustes visuais: pílulas, gráfico, botões de vidro, tabela | `e9f0e1d` |
 | 05/11/2026 | Tipo de série, datas, folhas sem Cancelar, cabeçalho enxuto, pílulas finas | `eb9dc3c` |
 | 05/11/2026 | Gráficos com a mesma moldura; tela Hoje em semana → dia → números | `1c67f4c` |
-| 06/11/2026 | Single dentro do principal, arraste livre das folhas, lixeira | este commit |
+| 06/11/2026 | Single dentro do principal, arraste livre das folhas, lixeira | `d7756f9` |
+| 06/11/2026 | Tipo ao adicionar exercício | `11d03e3` |
+| 06/11/2026 | Planejamento das specs 13 a 17 | `272b5b3` |
+| 06/11/2026 | Treino em andamento (spec 13), timer retangular e arraste do modal (spec 14) | este commit |

@@ -44,7 +44,7 @@ function set(item: PrescribedItem, setIndex: number, extra: Partial<SetLog> = {}
 function logged(w: number, weekday: number, build: (items: PrescribedItem[]) => SetLog[]): LoggedSession {
   const s = week(w).sessions.find((x) => x.weekday === weekday)!;
   return {
-    log: { id: `L${w}-${weekday}`, cycleId: cycle.id, week: w, sessionId: s.id, date: sessionDate(week(w), s), status: 'done', note: null },
+    log: { id: `L${w}-${weekday}`, cycleId: cycle.id, week: w, sessionId: s.id, date: sessionDate(week(w), s), status: 'done', note: null, startedAt: null, endedAt: null },
     sets: build(s.items),
   };
 }

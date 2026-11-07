@@ -18,6 +18,7 @@ export function GlassButton({
   accessibilityLabel,
   tint,
   color,
+  disabled = false,
 }: {
   label?: string;
   icon?: IconName;
@@ -26,6 +27,8 @@ export function GlassButton({
   tint?: string;
   /** cor do ícone/texto quando não há `tint` */
   color?: string;
+  /** sem efeito ao tocar; fica apagado */
+  disabled?: boolean;
 }) {
   const t = useTheme();
   const glass = isLiquidGlassAvailable();
@@ -36,7 +39,9 @@ export function GlassButton({
       accessibilityRole="button"
       accessibilityLabel={accessibilityLabel}
       onPress={onPress}
-      style={({ pressed }) => [styles.base, !label && styles.round, shape, { opacity: pressed ? 0.7 : 1 }]}
+      disabled={disabled}
+      accessibilityState={{ disabled }}
+      style={({ pressed }) => [styles.base, !label && styles.round, shape, { opacity: disabled ? 0.4 : pressed ? 0.7 : 1 }]}
     >
       {glass ? (
         <GlassView pointerEvents="none" style={[StyleSheet.absoluteFill, shape]} glassEffectStyle="regular" tintColor={tint} />

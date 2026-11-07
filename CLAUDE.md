@@ -58,6 +58,7 @@ generalize o que existe em vez de copiar. Ao precisar da mesma coisa em um segun
 | Folha de tipo de série (aquecimento, normal, falha, drop set) | `src/domain/setTypes.ts` + `src/components/SetTypeSheet.tsx` |
 | Botão em Liquid Glass (com reserva sem iOS 26) | `src/components/GlassButton.tsx` |
 | Cabeçalho do treino (duração, volume, séries) | `src/components/WorkoutHeader.tsx` + `WorkoutStats.tsx` |
+| Treino em andamento (início, fim, um por vez), cartão flutuante acima das abas | `src/domain/workout.ts`, `src/components/FloatingBars.tsx`, `getActiveWorkout`/`startSession`/`finishSession`/`discardSession` em `repo.ts` |
 | Folha de baixo para cima que fecha arrastando (menus, descanso, avisos). **Modais não têm botão Cancelar** | `BottomSheet` em `src/components/ui.tsx` (telas quase cheias: `Modal presentationStyle="pageSheet"` + `SheetHeader`) |
 | Catálogo de exercícios, busca e troca de exercício | `src/domain/catalog.ts` + `swapExercise` em `src/domain/adjustments.ts` |
 | Descanso (padrão, ajuste do usuário, limites) | `restSeconds`, `restOverride`, `withRestOverride` em `src/domain/plan.ts` |

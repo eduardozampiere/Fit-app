@@ -39,16 +39,21 @@ export function RestEditor({
   const start = nearestRestIndex(initialSec);
   const [index, setIndex] = useState(start);
   return (
-    <BottomSheet onClose={onClose}>
-      <View style={{ alignItems: 'center', gap: 2 }}>
-        <Text style={[styles.title, { color: t.text }]} accessibilityRole="header">
-          {title}
-        </Text>
-        <Text style={{ color: t.muted, fontSize: 15 }} numberOfLines={1}>
-          {name}
-        </Text>
-        {planText ? <Text style={{ color: t.muted, fontSize: 13 }}>No plano: {planText}</Text> : null}
-      </View>
+    <BottomSheet
+      onClose={onClose}
+      header={
+        // O título também arrasta a folha (a roda de tempos abaixo rola sozinha).
+        <View style={{ alignItems: 'center', gap: 2, paddingTop: 4 }}>
+          <Text style={[styles.title, { color: t.text }]} accessibilityRole="header">
+            {title}
+          </Text>
+          <Text style={{ color: t.muted, fontSize: 15 }} numberOfLines={1}>
+            {name}
+          </Text>
+          {planText ? <Text style={{ color: t.muted, fontSize: 13 }}>No plano: {planText}</Text> : null}
+        </View>
+      }
+    >
       <WheelPicker labels={labels} index={start} onChange={setIndex} label="Tempo de descanso" />
       {hasOverride ? (
         <Pressable accessibilityRole="button" onPress={onReset} style={styles.reset}>

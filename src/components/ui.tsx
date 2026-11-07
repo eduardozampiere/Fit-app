@@ -415,7 +415,19 @@ const SHEET_CLOSE_AT = 0.6;
  * (pela alça; com `dragAnywhere`, por qualquer ponto da folha) ou tocando no fundo escurecido, sem
  * botão de cancelar. Base do `ActionMenu`, do editor de descanso e da folha do tipo de série.
  */
-export function BottomSheet({ onClose, dragAnywhere = false, children }: { onClose: () => void; dragAnywhere?: boolean; children: ReactNode }) {
+export function BottomSheet({
+  onClose,
+  dragAnywhere = false,
+  header,
+  children,
+}: {
+  onClose: () => void;
+  /** a folha toda arrasta (só para conteúdo sem rolagem, como menus) */
+  dragAnywhere?: boolean;
+  /** conteúdo fixo no alto (ex.: título) que também arrasta a folha; o resto pode ter rolagem própria */
+  header?: ReactNode;
+  children: ReactNode;
+}) {
   const t = useTheme();
   const [y] = useState(() => new Animated.Value(SHEET_OFFSCREEN));
   useEffect(() => {
@@ -429,10 +441,9 @@ export function BottomSheet({ onClose, dragAnywhere = false, children }: { onClo
   const sheet = useMemo(() => {
     const g = { rest: 0, height: SHEET_OFFSCREEN }; // rest: pt abaixo da posição aberta
     const clamp = (v: number) => Math.max(0, Math.min(g.height, v));
-    const pan = PanResponder.create({
-      onMoveShouldSetPanResponder: (_, p) => Math.abs(p.dy) > 4 && Math.abs(p.dy) > Math.abs(p.dx),
-      onPanResponderMove: (_, p) => y.setValue(clamp(g.rest + p.dy)),
-      onPanResponderRelease: (_, p) => {
+    const handlers = {
+      onPanResponderMove: (_: unknown, p: { dy: number }) => y.setValue(clamp(g.rest + p.dy)),
+      onPanResponderRelease: (_: unknown, p: { dy: number; vy: number }) => {
         const to = clamp(g.rest + p.dy);
         if (p.vy > 1 || to > g.height * SHEET_CLOSE_AT) {
           close();
@@ -443,11 +454,18 @@ export function BottomSheet({ onClose, dragAnywhere = false, children }: { onClo
           g.rest = to;
         }
       },
-      onPanResponderTerminate: (_, p) => {
+      onPanResponderTerminate: (_: unknown, p: { dy: number }) => {
         g.rest = clamp(g.rest + p.dy);
       },
+    };
+    // Folha inteira (menus): assume o gesto quando o dedo anda na vertical. Um filho do Pressable que já está
+    // respondendo nunca recebe essa chance, por isso a alça/título (`grab`) responde logo no toque.
+    const pan = PanResponder.create({
+      ...handlers,
+      onMoveShouldSetPanResponder: (_, p) => Math.abs(p.dy) > 4 && Math.abs(p.dy) > Math.abs(p.dx),
     });
-    return { pan, setHeight: (h: number) => void (g.height = h) };
+    const grab = PanResponder.create({ ...handlers, onStartShouldSetPanResponder: () => true });
+    return { pan, grab, setHeight: (h: number) => void (g.height = h) };
   }, [y, close]);
   const pan = sheet.pan;
   return (
@@ -462,8 +480,9 @@ export function BottomSheet({ onClose, dragAnywhere = false, children }: { onClo
             {...(dragAnywhere ? pan.panHandlers : {})}
           >
             <Pressable onPress={() => {}} style={{ gap: space.sm }}>
-              <View {...(dragAnywhere ? {} : pan.panHandlers)} style={styles.grabZone} accessibilityElementsHidden importantForAccessibility="no">
-                <View style={[styles.grabber, { backgroundColor: t.separator }]} />
+              <View {...(dragAnywhere ? {} : sheet.grab.panHandlers)} style={styles.grabZone}>
+                <View style={[styles.grabber, { backgroundColor: t.separator }]} accessibilityElementsHidden importantForAccessibility="no" />
+                {header}
               </View>
               {children}
             </Pressable>

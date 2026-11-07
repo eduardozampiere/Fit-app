@@ -8,6 +8,8 @@ import { CheckinSummary } from '../../components/CheckinSummary';
 import { DragList } from '../../components/DragList';
 import { ExercisePicker } from '../../components/ExercisePicker';
 import { ExerciseCard } from '../../components/ExerciseCard';
+import { RecordBanner } from '../../components/RecordBanner';
+import { RecordSheet } from '../../components/RecordSheet';
 import { RestEditor } from '../../components/RestEditor';
 import { PlateCalculator } from '../../components/PlateCalculator';
 import { RedFlagModal } from '../../components/RedFlagModal';
@@ -77,9 +79,11 @@ import { choiceOf, startsRest, type SetChoice } from '../../domain/setTypes';
 import { isActiveWorkout } from '../../domain/workout';
 import { confirmDiscard } from '../../state/workoutActions';
 import { SetTypeSheet } from '../../components/SetTypeSheet';
+import { recordBannerText, recordTypesOf } from '../../domain/records';
 import { useAppData } from '../../state/AppData';
 import { useRestTimer } from '../../state/RestTimer';
 import { useCoach } from '../../state/useCoach';
+import { useRecordBook, useRecordNotices } from '../../state/useRecords';
 import { attachSingles, itemBlocks, moveItem, orderBlocks } from '../../domain/reorder';
 import { RPE_CHOICES } from '../../domain/rpe';
 import { font, space, useTheme } from '../../ui/theme';
@@ -89,7 +93,7 @@ const GENERIC_NOTE = /^(% calculado|Registro:)/;
 export default function TodayScreen() {
   const t = useTheme();
   const db = useSQLiteContext();
-  const { cycle, maxes, gym, version, bump, updateCycle, activeWorkout } = useAppData();
+  const { cycle, maxes, gym, version, bump, updateCycle, activeWorkout, recordPrefs } = useAppData();
   const timer = useRestTimer();
   const coach = useCoach();
   const params = useLocalSearchParams<{ sessionId?: string; at?: string }>();
@@ -149,6 +153,11 @@ export default function TodayScreen() {
     () => (ref ? sessionLogs.find((l) => l.sessionId === ref.session.id) ?? null : null),
     [sessionLogs, ref],
   );
+
+  // Recordes: o livro do histórico inteiro e a faixa de aviso (a série marcada nunca espera por isto).
+  const { book } = useRecordBook();
+  const notices = useRecordNotices(book, sessionLog?.id ?? null, recordPrefs);
+  const [recordSheet, setRecordSheet] = useState<string | null>(null);
 
   useEffect(() => {
     if (!cycle) return;
@@ -286,7 +295,8 @@ export default function TodayScreen() {
     if (!log) return;
     const pendingKey = `${item.id}:${idx}`;
     const setType: SetType = kind === 'work' ? (pendingTypes[pendingKey] ?? 'normal') : 'normal';
-    await insertSets(db, log.id, [{ ...draftFromInput(draftFor(kind, item, idx), input), setType }]);
+    const ids = await insertSets(db, log.id, [{ ...draftFromInput(draftFor(kind, item, idx), input), setType }]);
+    if (kind === 'work') notices.expectRecords(ids);
     clearPending(item.id);
     // Aquecimento e drop set não disparam o descanso: a próxima série vem logo.
     if (startsRest(kind === 'warmup' ? 'warmup' : setType)) startRest(item, idx);
@@ -309,6 +319,7 @@ export default function TodayScreen() {
     const next = draftFromInput(log, input);
     if (next.loadKg === log.loadKg && next.reps === log.reps && next.durationSec === log.durationSec) return;
     await updateSet(db, { ...log, ...next });
+    notices.expectRecords([log.id]);
     bump();
   };
 
@@ -348,7 +359,10 @@ export default function TodayScreen() {
     const toWarmup = choice === 'warmup';
     if ((kind === 'warmup') === toWarmup) {
       // Continua no mesmo grupo: só muda o tipo (gravado, ou guardado até registrar a série).
-      if (log) await updateSetType(db, log.id, choice as SetType);
+      if (log) {
+        await updateSetType(db, log.id, choice as SetType);
+        notices.expectRecords([log.id]);
+      }
       else setPendingTypes((p) => ({ ...p, [`${item.id}:${idx}`]: choice as SetType }));
       bump();
       return;
@@ -359,6 +373,7 @@ export default function TodayScreen() {
     const newIndex = rowsOfKind(toKind, item) + 1;
     const newType: SetType = toWarmup ? 'normal' : (choice as SetType);
     await moveSetToGroup(db, log?.id ?? null, { warmup: toWarmup, setIndex: newIndex, setType: newType }, renumberAfterRemoval(fromLogs, idx));
+    if (log && !toWarmup) notices.expectRecords([log.id]);
     await saveCount(kind, item, rowsOfKind(kind, item) - 1);
     await saveCount(toKind, item, newIndex);
     clearPending(item.id);
@@ -433,7 +448,7 @@ export default function TodayScreen() {
   const allAsPlanned = async (item: PrescribedItem) => {
     const log = await ensureLog();
     if (!log) return;
-    await insertSets(db, log.id, missingPlanned(item));
+    notices.expectRecords(await insertSets(db, log.id, missingPlanned(item)));
     bump();
   };
 
@@ -441,7 +456,7 @@ export default function TodayScreen() {
     const log = await ensureLog();
     if (!log) return;
     const drafts = items.flatMap((item) => missingPlanned(item));
-    await insertSets(db, log.id, drafts);
+    notices.expectRecords(await insertSets(db, log.id, drafts));
     await finishLog(db, log.id);
     timer.stop();
     bump();
@@ -470,6 +485,7 @@ export default function TodayScreen() {
 
   const setRpe = async (log: SetLog, rpe: number | null) => {
     await updateSet(db, { ...log, rpe });
+    notices.expectRecords([log.id]);
     bump();
   };
 
@@ -509,11 +525,13 @@ export default function TodayScreen() {
     const existing = setLogs.find((l) => l.id === s.id);
     if (existing) {
       await updateSet(db, { ...existing, ...s });
+      notices.expectRecords([existing.id]);
     } else {
       const log = await ensureLog();
       if (!log) return;
       const { id: _id, ...draft } = s;
-      await insertSets(db, log.id, [draft]);
+      const ids = await insertSets(db, log.id, [draft]);
+      if (!draft.warmup) notices.expectRecords(ids);
       clearPending(editor.item.id);
       if (startsRest(choiceOf(draft))) startRest(editor.item, s.setIndex);
     }
@@ -614,6 +632,8 @@ export default function TodayScreen() {
       pendingTypes: pendingOf(item),
       onMoveSet: (kind: SetKind, from: number, to: number) => moveSet(kind, item, from, to),
       onSetDrag: (on: boolean) => setDragging(on ? 'set' : null),
+      recordTypesOf: recordPrefs.medals ? (l: SetLog) => recordTypesOf(book, l.id) : undefined,
+      onRecord: (l: SetLog) => setRecordSheet(l.id),
     };
   };
 
@@ -831,6 +851,27 @@ export default function TodayScreen() {
       <RedFlagModal visible={redFlagToday && !redFlagSeen} onClose={() => setRedFlagSeen(true)} />
       {plates ? (
         <PlateCalculator visible initialKg={plates.kg} exerciseId={plates.exerciseId} onClose={() => setPlates(null)} />
+      ) : null}
+      {recordSheet && book.bySet.get(recordSheet) ? (
+        <RecordSheet
+          records={book.bySet.get(recordSheet)!}
+          onOpenExercise={() => {
+            const set = book.bySet.get(recordSheet)!.set;
+            router.push({ pathname: '/exercicio', params: { id: set.exerciseId, name: set.exerciseName } });
+          }}
+          onClose={() => setRecordSheet(null)}
+        />
+      ) : null}
+      {recordPrefs.alerts && notices.notice ? (
+        <RecordBanner
+          key={notices.seq}
+          text={recordBannerText(notices.notice, book)}
+          onPress={() => {
+            setRecordSheet(notices.notice!.setId);
+            notices.dismiss();
+          }}
+          onDismiss={notices.dismiss}
+        />
       ) : null}
     </SafeAreaView>
   );

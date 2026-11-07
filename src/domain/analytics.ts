@@ -4,7 +4,7 @@ import { kcalTarget, sumMacros, type MealEntry, type NutritionTargets } from './
 import { formatDate } from './format';
 import { e1rm } from './rpe';
 import type { CheckIn, LoggedSession } from './rules';
-import type { Cycle, ItemKind, Lift } from './types';
+import type { Cycle, ItemKind, Lift, SetType } from './types';
 import { sessionForDate } from './plan';
 
 export interface SetRow {
@@ -26,6 +26,9 @@ export interface SetRow {
   reps: number | null;
   rpe: number | null;
   failed: boolean;
+  setId: string;
+  setType: SetType;
+  doneAt: string;
 }
 
 /** Achata as séries de um ciclo, com o contexto do plano (semana, bloco, sessão, tipo). */
@@ -64,6 +67,9 @@ export function flattenSets(cycle: Cycle, logged: LoggedSession[], exerciseNames
         reps: s.reps,
         rpe: s.rpe,
         failed: s.failed,
+        setId: s.id,
+        setType: s.setType,
+        doneAt: s.doneAt,
       });
     }
   }

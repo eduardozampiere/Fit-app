@@ -1,13 +1,12 @@
 import { router, useLocalSearchParams } from 'expo-router';
-import { useSQLiteContext } from 'expo-sqlite';
-import { useEffect, useMemo, useState } from 'react';
+import { useMemo, useState } from 'react';
 import { Pressable, ScrollView, StyleSheet, Text, View, useWindowDimensions } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { ChartCard, LineChart } from '../components/charts';
 import { ExerciseImage } from '../components/ExerciseImage';
+import { RecordMedal } from '../components/RecordMedal';
+import { RecordSheet } from '../components/RecordSheet';
 import { Card, Chip, ChipRow, IconButton, ListRow, Section } from '../components/ui';
-import { listAllSetRows } from '../db/repo';
-import type { SetRow } from '../domain/analytics';
 import { findCatalogExercise, MUSCLE_LABEL, type Catalog } from '../domain/catalog';
 import { formatDate, formatKg, formatNumber } from '../domain/format';
 import {
@@ -18,7 +17,9 @@ import {
   STAT_METRIC_LABEL,
   type StatMetric,
 } from '../domain/exerciseStats';
+import { holderSubtitle, RECORD_LABEL, recordTypesOf, recordValueText, type RecordType } from '../domain/records';
 import { useAppData } from '../state/AppData';
+import { useRecordBook } from '../state/useRecords';
 import { font, space, TOUCH, useTheme } from '../ui/theme';
 import catalogJson from '../../assets/catalog/exercicios.json';
 
@@ -29,25 +30,20 @@ const TABS: { key: Tab; label: string }[] = [
   { key: 'historico', label: 'Histórico' },
 ];
 const METRICS = Object.keys(STAT_METRIC_LABEL) as StatMetric[];
+/** Ordem das linhas de recorde com valor (o volume de sessão, sem medalha, vem por último). */
+const RECORD_ROWS: readonly RecordType[] = ['maxLoad', 'oneRm', 'oneRmRpe', 'setVolume'];
 
 /** Tela do exercício (toque no cartão do treino): imagem, gráfico, recordes e histórico. */
 export default function ExerciseScreen() {
   const t = useTheme();
-  const db = useSQLiteContext();
   const { width } = useWindowDimensions();
-  const { cycle, version } = useAppData();
+  const { cycle, recordPrefs } = useAppData();
   const { id, name } = useLocalSearchParams<{ id: string; name?: string }>();
-  const [rows, setRows] = useState<SetRow[] | null>(null);
+  const { rows: allRows, book } = useRecordBook();
+  const rows = useMemo(() => (allRows ? exerciseRows(allRows, id) : null), [allRows, id]);
+  const [recordSheet, setRecordSheet] = useState<string | null>(null);
   const [tab, setTab] = useState<Tab>('resumo');
   const [metric, setMetric] = useState<StatMetric>('maxLoad');
-
-  useEffect(() => {
-    let alive = true;
-    listAllSetRows(db).then((all) => alive && setRows(exerciseRows(all, id)));
-    return () => {
-      alive = false;
-    };
-  }, [db, id, version]);
 
   const exercise = cycle?.exercises.find((e) => e.id === id);
   const title = exercise?.name ?? name ?? 'Exercício';
@@ -129,25 +125,25 @@ export default function ExerciseScreen() {
                   <Section title="Recordes pessoais">
                     {records.maxLoad ? (
                       <View>
+                        {recordPrefs.medals ? (
+                          <Text style={{ color: t.muted, fontSize: 13 }}>
+                            A medalha marca as séries que superaram todos os treinos anteriores.
+                          </Text>
+                        ) : null}
+                        {RECORD_ROWS.map((type) => {
+                          const holder = records[type];
+                          return (
+                            <ListRow
+                              key={type}
+                              title={RECORD_LABEL[type]}
+                              subtitle={holder ? holderSubtitle(type, holder) : undefined}
+                              value={holder ? recordValueText(type, holder.value) : '—'}
+                              onPress={holder?.hasMedal && recordPrefs.medals ? () => setRecordSheet(holder.set.setId) : undefined}
+                            />
+                          );
+                        })}
                         <ListRow
-                          title="Maior peso"
-                          subtitle={formatDate(records.maxLoad.date)}
-                          value={formatKg(records.maxLoad.kg)}
-                        />
-                        <ListRow
-                          title="Melhor 1RM (estimado)"
-                          subtitle={records.best1rm ? formatDate(records.best1rm.date) : undefined}
-                          value={records.best1rm ? formatKg(records.best1rm.kg) : '—'}
-                        />
-                        <ListRow
-                          title="Melhor volume de série"
-                          subtitle={records.bestSetVolume ? formatDate(records.bestSetVolume.date) : undefined}
-                          value={
-                            records.bestSetVolume ? `${formatKg(records.bestSetVolume.kg)} × ${records.bestSetVolume.reps}` : '—'
-                          }
-                        />
-                        <ListRow
-                          title="Melhor volume de sessão"
+                          title="Maior volume de sessão"
                           subtitle={records.bestSessionVolume ? formatDate(records.bestSessionVolume.date) : undefined}
                           value={records.bestSessionVolume ? formatKg(records.bestSessionVolume.kg) : '—'}
                           last
@@ -190,12 +186,15 @@ export default function ExerciseScreen() {
                   <Text style={{ color: t.text, fontSize: 17, fontWeight: '600' }}>{s.title}</Text>
                   <Text style={{ color: t.muted, fontSize: 13 }}>{formatDate(s.date)}</Text>
                   {s.sets.map((x) => (
-                    <View key={`${s.sessionLogId}-${x.setIndex}`} style={styles.setLine}>
+                    <View key={x.setId} style={styles.setLine}>
                       <Text style={[styles.setIdx, { color: t.muted }]}>{x.setIndex}</Text>
                       <Text style={{ color: t.text, fontSize: 16, flex: 1, fontVariant: ['tabular-nums'] }}>
                         {x.loadKg !== null ? formatKg(x.loadKg) : '—'} × {x.reps ?? '—'}
                         {x.rpe !== null ? ` · RPE ${formatNumber(x.rpe)}` : ''}
                       </Text>
+                      {recordPrefs.medals && recordTypesOf(book, x.setId).length > 0 ? (
+                        <RecordMedal types={recordTypesOf(book, x.setId)} onPress={() => setRecordSheet(x.setId)} />
+                      ) : null}
                       {x.failed ? <Text style={{ color: t.danger, fontSize: 14, fontWeight: '600' }}>falhou</Text> : null}
                     </View>
                   ))}
@@ -205,6 +204,9 @@ export default function ExerciseScreen() {
           </View>
         )}
       </ScrollView>
+      {recordSheet && book.bySet.get(recordSheet) ? (
+        <RecordSheet records={book.bySet.get(recordSheet)!} onClose={() => setRecordSheet(null)} />
+      ) : null}
     </SafeAreaView>
   );
 }

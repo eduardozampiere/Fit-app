@@ -25,10 +25,33 @@ Legenda: ✅ feito · 🟡 feito, falta verificar no iPhone · 🔨 em andamento
 | 12 | Single dentro do principal, arraste livre das folhas, lixeira e tipo ao adicionar exercício | 🟡 | [12-single-na-tabela-e-arraste-livre](12-single-na-tabela-e-arraste-livre/spec.md) |
 | 13 | Treino em andamento: iniciar, não perder, cancelar; Concluir só com treino iniciado | 🟡 | [13-treino-em-andamento](13-treino-em-andamento/spec.md) |
 | 14 | Timer de descanso retangular, persistente, com notificação | 🟡 | [14-timer-de-descanso-e-notificacao](14-timer-de-descanso-e-notificacao/spec.md) |
-| 15 | Exercício único e máximos próprios: lista de máximos, histórico do usuário, análises por exercício (formato v2) | ⏳ | [15-exercicio-unico](15-exercicio-unico/spec.md) |
-| 16 | Periodizações: várias, uma ativa; criar plano e treinos pela UI | ⏳ | [16-periodizacoes](16-periodizacoes/spec.md) |
-| 17 | Live Activity do timer na Dynamic Island (começa por teste de viabilidade) | ⏳ | [17-live-activity](17-live-activity/spec.md) |
-| 18 | Regras do treinador configuráveis pela interface (depende da 15) | ⏳ | [18-regras-configuraveis](18-regras-configuraveis/spec.md) |
+| 15 | Exercício único e máximos próprios (formato v2). **Detalhada nos PBIs 19 a 24**; a spec guarda as decisões | ⏳ | [15-exercicio-unico](15-exercicio-unico/spec.md) |
+| 16 | Periodizações: várias, uma ativa; criar plano e treinos pela UI (depende dos PBIs 19 e 24; usa os máximos 20/21 só se existirem) | ⏳ | [16-periodizacoes](16-periodizacoes/spec.md) |
+| 17 | Live Activity do timer na Dynamic Island (começa por teste de viabilidade; independente) | ⏳ | [17-live-activity](17-live-activity/spec.md) |
+| 18 | Regras do treinador configuráveis pela interface (módulo avançado; depende dos PBIs 19 e 20) | ⏳ | [18-regras-configuraveis](18-regras-configuraveis/spec.md) |
+| 19 | Modelo de treino v2: máximos com nome + séries com tipo dentro do exercício (single de ativação, back-off, walkout), cópia de segurança, regras por máximo, "Agacho" vira "Agachamento" (parte 1 da 15) | ⏳ | [19-formato-v2](19-formato-v2/pbi.md) |
+| 20 | Máximos próprios: criar máximos, "Carga baseada em" em qualquer exercício, sem pergunta de movimento (recurso avançado; parte 2 da 15; depende da 19) | ⏳ | [20-maximos-proprios](20-maximos-proprios/pbi.md) |
+| 21 | Histórico de máximos: toda mudança registrada e visível na folha do máximo (parte 3 da 15; depende da 20) | ⏳ | [21-historico-de-maximos](21-historico-de-maximos/pbi.md) |
+| 22 | Análises por exercício principal: uma linha por principal, seletor de até 3 (parte 4 da 15; depende da 19) | ⏳ | [22-analises-por-exercicio](22-analises-por-exercicio/pbi.md) |
+| 23 | Evolução dos máximos: gráfico e passado (estimativa dos treinos + valores lançados); a sugestão de máximo pelo e1RM está **em aberto**, a redefinir com o usuário (depende de 21 e 22; fatias 23a, 23b) | ⏳ | [23-evolucao-dos-maximos](23-evolucao-dos-maximos/pbi.md) |
+| 24 | Séries com tipo: montar e editar grupos de séries do exercício (Normal, Aquecimento, Single de ativação, Back-off, Walkout) no Plano e na tela Hoje (depende da 19; logo depois dela, antes da 16) | ⏳ | [24-series-com-tipo](24-series-com-tipo/pbi.md) |
+| 25 | Recordes com medalha: aviso na hora e medalha dourada na série que bateu maior peso, maior volume de série, maior 1RM (estimado sem RPE) ou maior 1RM com RPE (serve a qualquer usuário; 25a não depende de nada e pode sair antes da 19; 25b, resumo ao concluir o treino, depois da 24) | 🚧 25a feita; falta iPhone | [25-recordes-com-medalha](25-recordes-com-medalha/pbi.md) |
+
+### Ordem recomendada (visão de 06/11/2026: o app também para quem só faz academia normal)
+
+1. **25a** Recordes com medalha (pedido de 07/11/2026): **primeiro**, antes da 19. Valor alto para qualquer usuário (feedback na hora de bater um recorde, hoje inexistente), esforço baixo e risco baixo: é cálculo derivado do histórico, **sem migração e sem dado novo**
+   (só dois interruptores em Ajustes), e entrega um motivo concreto para o primeiro teste no iPhone. Não depende da 19: antes dela, single/walkout/back-off/duplas são exercícios à parte e simplesmente não recebem medalha. Quando a 19 chegar, as medalhas se recalculam sozinhas e entram os CPs "(depois do PBI 19)"
+   (back-off conta no principal; single que vira Normal ganha a medalha). Se o usuário preferir não mexer em nada antes da 19, a 25a pode ir logo depois dela, sem perda; o que não vale é atrasá-la para depois da 16.
+2. **19** Modelo de treino v2: a base (uma migração só, com cópia de segurança). Maior risco; quase tudo depende dela.
+3. **24** Séries com tipo: devolve a criação de grupos pela tela e é o editor que a 16 vai usar. **25b** (resumo "Você bateu N recordes" ao concluir o treino) cabe aqui, pois é pequena e já conta com os tipos de série finais.
+4. **16** Periodizações: criar plano e treinos pela interface, sem planilha. É o maior valor para quem só faz academia normal.
+5. **22** Análises por exercício principal (serve a todos; depende só da 19) e **20** Máximos próprios (recurso avançado; pode ir antes da 22). A 22 e a 25 compartilham a mesma conta de e1RM com RPE (RTS, RPE 10 assumido sem RPE): quem vier primeiro cria a função, o outro reutiliza (DRY). O "Maior 1RM" da 25 usa Epley, sem RPE, como a tela do exercício.
+6. **21** Histórico de máximos logo depois da 20 (só acumula daqui para a frente).
+7. **23** Evolução dos máximos (a, b); a sugestão pelo e1RM fica em aberto.
+8. **18** Regras configuráveis (módulo avançado, só depois de 19 e 20 e de entrevista de escopo).
+9. **17** Live Activity: independente; o teste de viabilidade pode ser feito a qualquer hora; acabamento, não essencial.
+- **Opcional por usuário (interruptor "Recursos avançados", a confirmar):** máximos e % do máximo (20, 21, 23), regras do treinador (18), integração com o Claude e importação de planilha (tela Dados), check-in de dor lombar e seus alertas.
+- **Precisa mudar para outra pessoa usar (ainda sem PBI; depende das perguntas abertas de distribuição):** o plano pessoal embutido (`ciclo_out26_jan27`) não pode ir para os outros; primeira abertura vazia/onboarding; textos específicos de powerlifting e de lombar; imagens e catálogo de terceiros; como instalar para mais de uma pessoa.
 
 Nada foi testado num iPhone de verdade ainda. Em 03/11/2026 o app rodou no simulador do iOS 27.2 (Mac,
 Xcode 27.2, `npx expo run:ios`). O que foi verificado em cada feature está no `spec.md` dela.
@@ -48,7 +71,18 @@ Xcode 27.2, `npx expo run:ios`). O que foi verificado em cada feature está no `
 | Escolher do catálogo também no editor da aba Plano | feature 09 | O `ItemEditor` ainda tem só campo de texto para o nome. |
 | Figura do corpo com os músculos trabalhados (como no cabeçalho do Hevy) | feature 10 | Precisa do desenho do corpo e do mapa exercício → músculo; as imagens do catálogo já mostram os músculos em vermelho. |
 | Imagem para os exercícios que só têm vídeo no catálogo (222) | feature 10 | Tirar o primeiro quadro de cada mp4 (ffmpeg já instalado no Mac) e embutir no app. Exige baixar ~223 vídeos (~93 MB) do bucket de terceiros e guardar ~8 MB de imagens no repositório. Decidido em 06/11/2026: **só quando o app estiver pronto**, não agora. |
-| Evolução dos máximos nas Análises (usa `max_history`) | feature 15 | O histórico do usuário é gravado na spec 15; a tela fica para depois. |
+| Linha de meta por máximo (ex.: meta de dez/2027) no gráfico de evolução | PBI 23 | Precisa guardar a meta de cada máximo; o gráfico de evolução, o passado e a sugestão pelo e1RM já estão no [PBI 23](23-evolucao-dos-maximos/pbi.md). |
+| Versão para outras pessoas: primeira abertura sem plano, onboarding, plano pessoal fora do app, recursos avançados opcionais, textos genéricos | visão de 06/11/2026 | **Bloqueado por decisão do usuário** sobre distribuição (conta paga da Apple, plataformas, dados e imagens de terceiros, idioma). Ver "Decisões em aberto". |
+| Sugerir trocar um single para Normal quando ele supera o recorde do exercício | PBI 19/24 | Ideia do PM (07/11/2026); a troca manual de tipo já resolve. Nada mudaria sozinho. Possível fatia 25c do [PBI 25](25-recordes-com-medalha/pbi.md) (medalha apagada no single; pergunta P5). |
+| Recordes por repetições com medalha (maior carga com N repetições) | PBI 25 | Hoje só na lista da tela do exercício, sem medalha. |
+| Recordes de exercícios sem carga: repetições (peso corporal) e duração (prancha) | PBI 25 | Hoje esses exercícios não geram recorde; precisa de métrica própria. |
+| Medalha para o "Maior volume de sessão" (o exercício no treino inteiro) | PBI 25 | Fica só na lista; o aviso pode entrar no resumo do treino. |
+| Juntar "Maior 1RM" (Epley) e "Maior 1RM com RPE" (RTS) numa linha só, se a divergência confundir | PBI 25 | O usuário pediu os dois tipos (07/11/2026); só reavaliar se, na prática, os dois números confundirem. |
+| Medalhas/recordes no CSV exportado e no pacote para o Claude | PBI 25 | Fora do escopo; derivados, podem ser calculados na hora de exportar. |
+| Sugestão de máximo pelo e1RM | PBI 23 | Em aberto: o usuário quer decidir melhor (onde aparece, séries sem RPE, relação com a revisão do treinador). Sem aviso na aba Hoje por enquanto. |
+| Atalho "Desligar máximo em todos os treinos" ao apagar máximo em uso | PBI 20 | Só se desligar item por item incomodar. |
+| Sugerir o máximo pelo nome do exercício ao adicionar principal/variação | PBI 20 | Só se ligar "Carga baseada em" à mão incomodar. |
+| Mais de 3 linhas por vez nos gráficos por exercício (ampliar a paleta) | PBI 22 | A paleta atual tem 3 cores. |
 | Recolocar o single removido pela lixeira | feature 12 | A linha "S" não tem botão de adicionar; hoje só pelo Plano/Claude. |
 | Volume por grupo muscular nas Análises | feature 09 | O catálogo já traz músculo principal e secundário; falta ligar o exercício do ciclo ao catálogo pelo nome. |
 | Validar com um export real do Hevy | feature 07 | O parser segue o formato documentado; ajustar se o arquivo real for diferente. |
@@ -58,6 +92,11 @@ Xcode 27.2, `npx expo run:ios`). O que foi verificado em cada feature está no `
 | Fase 2 do prompt original: CloudKit, HealthKit, widgets | prompt original | ⛔ Exigem a conta paga da Apple. |
 
 ## Decisões em aberto (o usuário pode querer revisar)
+
+**Visão de produto de 06/11/2026 (precisa de resposta do usuário; ver CONTEXTO quando atualizado):** o app, hoje só dele, deve servir a várias pessoas, inclusive quem só faz academia normal. Perguntas: como distribuir (conta paga da Apple/TestFlight, só amigos com Apple ID gratuito, Android?), para quantas pessoas,
+dados e imagens de terceiros numa versão pública, o que acontece com o plano pessoal e com a integração com o Claude, idioma (só pt-BR?), check-in de dor lombar para todos ou só para ele. Enquanto não responder, a ordem acima vale e nada é construído para distribuição.
+
+**Séries com tipo (PBIs 19 e 24):** respondido em 07/11/2026: walkout é tipo de série (W); back-off conta como série normal; single de ativação é só tonelagem e os gráficos usam só séries Normais (um single que bate recorde vira Normal pela troca de tipo). Restam para confirmar: (a) as 3 "duplas de volume" do plano atual viram Back-off com esse nome; (b) o walkout continua contando na série "n/m" do treino, com volume zero (proposta, como hoje).
 
 1. Freio dispara com RPE **≥** alvo + 1 (com alvo 7, RPE 8 já dispara).
 2. Revisão dos máximos compara com o **meio** da faixa de RPE alvo.

@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react';
 import { getSetting, setSetting } from '../db/repo';
 import { Alert, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { BigButton, Card, Chip, SectionTitle, Stepper } from '../components/ui';
+import { BigButton, Card, Chip, SectionTitle, Stepper, SwitchRow } from '../components/ui';
 import { formatKg, formatNumber } from '../domain/format';
 import { LIFT_LABEL, LIFTS } from '../domain/plan';
 import { ALL_BARS_KG, ALL_PLATES_KG, barChoices } from '../domain/plates';
@@ -15,7 +15,7 @@ import { useTheme } from '../ui/theme';
 
 export default function SettingsScreen() {
   const t = useTheme();
-  const { cycle, maxes, gym, setGym, targets } = useAppData();
+  const { cycle, maxes, gym, setGym, targets, recordPrefs, setRecordPrefs } = useAppData();
   if (!cycle || !maxes) return null;
 
   const testNotification = async () => {
@@ -103,6 +103,24 @@ export default function SettingsScreen() {
             O aviso chega por notificação mesmo com a tela bloqueada. Teste uma vez na academia com o celular no silencioso.
           </Text>
           <BigButton label="Testar notificação (5 s)" variant="neutral" onPress={testNotification} />
+        </Card>
+
+        <SectionTitle>Recordes</SectionTitle>
+        <Card>
+          <SwitchRow
+            title="Mostrar medalhas nas séries"
+            help="Marca com uma medalha a série que bateu um recorde do exercício."
+            value={recordPrefs.medals}
+            // Religar as medalhas religa também o aviso (o padrão); desligá-las desliga os dois.
+            onChange={(medals) => void setRecordPrefs({ medals, alerts: medals })}
+          />
+          <SwitchRow
+            title="Avisar ao bater um recorde"
+            help="Mostra uma faixa e vibra por um instante. Não toca som."
+            value={recordPrefs.alerts}
+            disabled={!recordPrefs.medals}
+            onChange={(alerts) => void setRecordPrefs({ medals: recordPrefs.medals, alerts })}
+          />
         </Card>
 
         <Text style={{ color: t.muted, fontSize: 13, textAlign: 'center' }}>

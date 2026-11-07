@@ -8,6 +8,7 @@ import type { PrescribedItem, Range, SetLog, SetType } from '../domain/types';
 import { font, radius, space, useTheme } from '../ui/theme';
 import type { SetDraft } from '../domain/logging';
 import type { DragHandleProps } from './DragList';
+import type { RecordType } from '../domain/records';
 import { SetTable, type SetInput, type SetKind } from './SetTable';
 import { IconButton } from './ui';
 
@@ -66,6 +67,8 @@ export function ExerciseCard({
   collapsed,
   rowsOnly = false,
   before,
+  recordTypesOf,
+  onRecord,
 }: {
   item: PrescribedItem;
   load: Range | null;
@@ -109,6 +112,8 @@ export function ExerciseCard({
   rowsOnly?: boolean;
   /** Linhas do single de ativação, entre o aquecimento e as séries de trabalho. */
   before?: ReactNode;
+  recordTypesOf?: (log: SetLog) => readonly RecordType[];
+  onRecord?: (log: SetLog) => void;
 }) {
   const t = useTheme();
   const prescription = prescriptionLine(item, load);
@@ -143,6 +148,8 @@ export function ExerciseCard({
       onDragChange={onSetDrag}
       single={rowsOnly}
       beforeWork={before}
+      recordTypesOf={recordTypesOf}
+      onRecord={onRecord}
     />
   );
 

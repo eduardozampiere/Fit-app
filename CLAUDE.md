@@ -8,8 +8,11 @@ português; nomes de variáveis, funções e tipos em inglês (como já está no
 ## 1. Antes de começar
 
 1. Leia `specs/CONTEXTO.md` (contexto, restrições, decisões) e `specs/PLANO.md` (status e próximo passo).
-2. Feature nova: copie `specs/_modelo/` para `specs/NN-nome/` e adicione a linha na tabela do `PLANO.md`
-   **antes** de codar. A pasta tem dois documentos, cada um com um dono:
+2. **Ajuste, correção ou feature pequena:** faça direto (`/dev`), sem PBI. Registre no Andamento da feature
+   afetada ou numa linha do backlog do `PLANO.md`.
+   **Feature grande e nova** (telas ou dados novos, vários dias de trabalho): copie `specs/_modelo/` para
+   `specs/NN-nome/` e adicione a linha na tabela do `PLANO.md` **antes** de codar. A pasta tem dois
+   documentos curtos (juntos, ~4–6 KB, como as specs antigas), cada um com um dono:
    - `pbi.md`: produto, o quê e por quê (objetivo, escopo, comportamento, critérios de pronto CP1…,
      verificação). Escrito pelo agente `product-manager` (`/pm`).
    - `tech-plan.md`: técnico, o como (passos por camada, arquivos, dados, testes, rastreabilidade com os

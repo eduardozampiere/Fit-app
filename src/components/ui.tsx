@@ -9,6 +9,7 @@ import {
   Pressable,
   ScrollView,
   StyleSheet,
+  Switch,
   Text,
   TextInput,
   View,
@@ -247,6 +248,38 @@ export function Section({
         ) : null}
       </View>
       {children}
+    </View>
+  );
+}
+
+/** Linha com interruptor (Ajustes). Desabilitada, fica acinzentada. */
+export function SwitchRow({
+  title,
+  help,
+  value,
+  disabled,
+  onChange,
+}: {
+  title: string;
+  help?: string;
+  value: boolean;
+  disabled?: boolean;
+  onChange: (v: boolean) => void;
+}) {
+  const t = useTheme();
+  return (
+    <View style={[styles.switchRow, { opacity: disabled ? 0.5 : 1 }]}>
+      <View style={{ flex: 1, gap: 2 }}>
+        <Text style={[styles.rowTitle, { color: t.text }]}>{title}</Text>
+        {help ? <Text style={[styles.rowSub, { color: t.muted }]}>{help}</Text> : null}
+      </View>
+      <Switch
+        value={value}
+        disabled={disabled}
+        onValueChange={onChange}
+        accessibilityLabel={title}
+        trackColor={{ true: t.accent, false: t.separator }}
+      />
     </View>
   );
 }
@@ -610,6 +643,7 @@ const styles = StyleSheet.create({
   sectionHeader: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginTop: space.sm },
   sectionHeading: { ...font.headline },
   link: { fontSize: 15, fontWeight: '500' },
+  switchRow: { minHeight: TOUCH, flexDirection: 'row', alignItems: 'center', gap: space.md, paddingVertical: space.sm },
   listRow: { minHeight: 52, flexDirection: 'row', alignItems: 'center', gap: space.md, paddingVertical: space.sm + 2 },
   rowTitle: { ...font.body },
   rowSub: { fontSize: 13 },

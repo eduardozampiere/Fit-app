@@ -5,9 +5,11 @@ import { formatNumber, formatRange } from '../domain/format';
 import type { SetDraft } from '../domain/logging';
 import type { SetLock } from '../domain/rules';
 import type { PrescribedItem, SetLog, SetType } from '../domain/types';
+import { type RecordType } from '../domain/records';
 import { radius, space, useTheme } from '../ui/theme';
 import { choiceOf, setRowLabel } from '../domain/setTypes';
 import { DragList, type DragHandleProps } from './DragList';
+import { RecordMedal } from './RecordMedal';
 import { setChoiceColor } from './SetTypeSheet';
 import { SwipeToDelete } from './SwipeToDelete';
 import { BigButton } from './ui';
@@ -54,6 +56,8 @@ export function SetTable({
   onDragChange,
   single = false,
   beforeWork,
+  recordTypesOf,
+  onRecord,
 }: {
   item: PrescribedItem;
   plannedLoad: number | null;
@@ -84,6 +88,10 @@ export function SetTable({
   single?: boolean;
   /** Linhas extras entre o aquecimento e as séries de trabalho (o single do principal). */
   beforeWork?: ReactNode;
+  /** Recordes que a série registrada bateu (vazio = sem medalha). Aquecimento e single nunca recebem. */
+  recordTypesOf?: (log: SetLog) => readonly RecordType[];
+  /** Tocou na medalha da série. */
+  onRecord?: (log: SetLog) => void;
 }) {
   const t = useTheme();
   const isDuration = !!item.durationSec && !item.reps;
@@ -171,6 +179,8 @@ export function SetTable({
                 isDuration={isDuration}
                 rpeColumn={showRpe ? 'rpe' : 'none'}
                 rpePending={pendingRpeIndex === idx}
+                recordTypes={!single && log && recordTypesOf ? recordTypesOf(log) : undefined}
+                onRecord={onRecord}
                 handle={handle}
                 onCheck={(input) => onCheck('work', idx, input)}
                 onUncheck={onUncheck}
@@ -221,6 +231,8 @@ function SetRow({
   isDuration,
   rpeColumn,
   rpePending,
+  recordTypes,
+  onRecord,
   handle,
   onCheck,
   onUncheck,
@@ -239,6 +251,8 @@ function SetRow({
   /** 'blank' mantém a coluna alinhada nas linhas sem RPE (aquecimento). */
   rpeColumn: 'rpe' | 'blank' | 'none';
   rpePending: boolean;
+  recordTypes?: readonly RecordType[];
+  onRecord?: (log: SetLog) => void;
   /** Segurar o número para arrastar. */
   handle: DragHandleProps;
   onCheck: (input: SetInput) => void;
@@ -274,6 +288,9 @@ function SetRow({
       <Text style={[styles.planned, styles.flex, { color: t.muted }]} numberOfLines={1}>
         {plannedText}
       </Text>
+      {log && recordTypes && recordTypes.length > 0 && onRecord ? (
+        <RecordMedal types={recordTypes} onPress={() => onRecord(log)} />
+      ) : null}
       <TextInput
         value={load}
         onChangeText={setLoad}

@@ -3,6 +3,7 @@ import { createContext, useCallback, useContext, useEffect, useState, type React
 import { getActiveCycle, getActiveWorkout, getMaxes, getSetting, maxesKey, saveCycleData, setSetting } from '../db/repo';
 import { DEFAULT_BAR_KG, DEFAULT_BARS_KG, DEFAULT_PLATES_KG } from '../domain/plates';
 import { DEFAULT_TARGETS, type NutritionTargets } from '../domain/nutrition';
+import { DEFAULT_RECORD_PREFS, normalizeRecordPrefs, type RecordPrefs } from '../domain/records';
 import type { Cycle, Maxes, SessionLog } from '../domain/types';
 
 export interface GymSettings {
@@ -20,6 +21,9 @@ interface AppDataValue {
   maxes: Maxes | null;
   gym: GymSettings;
   targets: NutritionTargets;
+  /** Medalhas de recorde e aviso ao bater um (Ajustes → Recordes). */
+  recordPrefs: RecordPrefs;
+  setRecordPrefs: (p: RecordPrefs) => Promise<void>;
   setTargets: (t: NutritionTargets) => Promise<void>;
   /** O treino em andamento (só um por vez); null quando não há. */
   activeWorkout: SessionLog | null;
@@ -43,6 +47,7 @@ export function AppDataProvider({ children }: { children: ReactNode }) {
   const [gym, setGymState] = useState<GymSettings>(DEFAULT_GYM);
   const [version, setVersion] = useState(0);
   const [targets, setTargetsState] = useState<NutritionTargets>(DEFAULT_TARGETS);
+  const [recordPrefs, setRecordPrefsState] = useState<RecordPrefs>(DEFAULT_RECORD_PREFS);
   const [reloadKey, setReloadKey] = useState(0);
   const [activeWorkout, setActiveWorkout] = useState<SessionLog | null>(null);
 
@@ -54,6 +59,7 @@ export function AppDataProvider({ children }: { children: ReactNode }) {
       // Ajustes gravados antes de existir a lista de barras não têm `bars`.
       setGymState({ ...DEFAULT_GYM, ...(await getSetting(db, 'gym', DEFAULT_GYM)) });
       setTargetsState({ ...DEFAULT_TARGETS, ...(await getSetting(db, 'nutritionTargets', DEFAULT_TARGETS)) });
+      setRecordPrefsState(normalizeRecordPrefs(await getSetting<Partial<RecordPrefs> | null>(db, 'records-prefs', null)));
     })();
   }, [db, reloadKey]);
 
@@ -88,6 +94,15 @@ export function AppDataProvider({ children }: { children: ReactNode }) {
     [db],
   );
 
+  const setRecordPrefs = useCallback(
+    async (p: RecordPrefs) => {
+      const next = normalizeRecordPrefs(p);
+      await setSetting(db, 'records-prefs', next);
+      setRecordPrefsState(next);
+    },
+    [db],
+  );
+
   const reload = useCallback(() => {
     setReloadKey((k) => k + 1);
     setVersion((v) => v + 1);
@@ -103,7 +118,7 @@ export function AppDataProvider({ children }: { children: ReactNode }) {
   );
 
   return (
-    <Ctx.Provider value={{ cycle, maxes, gym, targets, setTargets, activeWorkout, version, bump, setMaxes, setGym, updateCycle, reload }}>{children}</Ctx.Provider>
+    <Ctx.Provider value={{ cycle, maxes, gym, targets, recordPrefs, setRecordPrefs, setTargets, activeWorkout, version, bump, setMaxes, setGym, updateCycle, reload }}>{children}</Ctx.Provider>
   );
 }
 

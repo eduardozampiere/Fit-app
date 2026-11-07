@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import type { SetRow } from '../analytics';
-import { epley1rm, exerciseHistory, exerciseRows, exerciseSeries, personalRecords } from '../exerciseStats';
+import { epley1rm } from '../rpe';
+import { exerciseHistory, exerciseRows, exerciseSeries, personalRecords } from '../exerciseStats';
 
 let n = 0;
 const row = (p: Partial<SetRow>): SetRow => ({
@@ -22,6 +23,9 @@ const row = (p: Partial<SetRow>): SetRow => ({
   reps: 5,
   rpe: null,
   failed: false,
+  setId: `id${n}`,
+  setType: 'normal',
+  doneAt: '2026-11-02T10:00:00.000Z',
   ...p,
 });
 
@@ -63,9 +67,11 @@ describe('tela do exercício', () => {
 
   it('recordes pessoais', () => {
     const r = personalRecords(mine);
-    expect(r.maxLoad).toEqual({ kg: 110, reps: 3, date: '2026-11-02' });
-    expect(r.best1rm).toEqual({ kg: 123, date: '2026-11-05' });
-    expect(r.bestSetVolume).toEqual({ kg: 105, reps: 5, date: '2026-11-05' });
+    expect([r.maxLoad?.value.value, r.maxLoad?.set.reps, r.maxLoad?.set.date]).toEqual([110, 3, '2026-11-02']);
+    expect([r.oneRm?.value.value, r.oneRm?.set.date]).toEqual([123, '2026-11-05']);
+    expect([r.setVolume?.value.value, r.setVolume?.set.date]).toEqual([525, '2026-11-05']);
+    // sem RPE vale RPE 10: 105 kg × 5 → 105 / 0,863 = 121,7
+    expect([r.oneRmRpe?.value.value, r.oneRmRpe?.value.rpeAssumed]).toEqual([121.7, true]);
     expect(r.bestSessionVolume).toEqual({ kg: 945, date: '2026-11-05' });
     // mais pesado com pelo menos N repetições: 1→110, 2→110, 3→110, 4→105, 5→105
     expect(r.byReps.map((x) => [x.reps, x.kg])).toEqual([
@@ -79,7 +85,7 @@ describe('tela do exercício', () => {
 
   it('sem séries com carga e repetições, tudo vazio', () => {
     const r = personalRecords([row({ loadKg: null, reps: 12 })]);
-    expect(r).toEqual({ maxLoad: null, best1rm: null, bestSetVolume: null, bestSessionVolume: null, byReps: [] });
+    expect(r).toEqual({ maxLoad: null, oneRm: null, oneRmRpe: null, setVolume: null, bestSessionVolume: null, byReps: [] });
     expect(exerciseSeries([row({ loadKg: null })], 'maxLoad')).toEqual([]);
   });
 

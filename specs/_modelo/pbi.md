@@ -1,9 +1,11 @@
 # NN — Nome da feature · PBI
 
-> **Produto: o quê e por quê.** Dono: `product-manager` (`/pm`). O como fica em [tech-plan.md](tech-plan.md),
+> **Produto: o quê e por quê.** Dono: `product-manager` (`/pm`). Até ~30 linhas. O como fica em [tech-plan.md](tech-plan.md),
 > do `tech-planner` (`/planejar`).
 > Copie esta pasta para `specs/NN-nome-curto/` (NN = próximo número) e adicione uma linha na tabela do
 > [PLANO.md](../PLANO.md) apontando para a pasta.
+
+> **Resumo:** uma frase, até ~20 palavras, dizendo o que vai ser feito.
 
 **Status:** ⏳ a fazer · 🔨 em andamento · 🟡 feito, falta verificar no iPhone · ✅ feito · ⛔ bloqueado
 **Depende de:** — (outras features, se houver)

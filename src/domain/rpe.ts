@@ -30,6 +30,28 @@ export function e1rm(loadKg: number, reps: number, rpe: number): number | null {
   return Math.round((loadKg / (pct / 100)) * 10) / 10;
 }
 
+/** RPE considerado quando a série não tem RPE informado (esforço máximo, o mais conservador). */
+export const ASSUMED_RPE = 10;
+
+/** 1RM estimado pela fórmula de Epley (vale para qualquer série; não usa RPE). */
+export function epley1rm(loadKg: number, reps: number): number {
+  return Math.round(reps === 1 ? loadKg : loadKg * (1 + reps / 30));
+}
+
+/**
+ * e1RM pela tabela RTS; sem RPE, calcula como RPE 10 (nunca grava esse RPE). `null` fora da tabela
+ * (repetições fora de 1–10, RPE inválido ou carga ≤ 0).
+ */
+export function e1rmWithAssumedRpe(
+  loadKg: number,
+  reps: number,
+  rpe: number | null,
+): { kg: number; rpe: number; assumed: boolean } | null {
+  const used = rpe ?? ASSUMED_RPE;
+  const kg = e1rm(loadKg, reps, used);
+  return kg === null ? null : { kg, rpe: used, assumed: rpe === null };
+}
+
 /** Melhor e1RM de uma lista de séries (ignora séries sem RPE ou falhadas). */
 export function bestE1rm(
   sets: { loadKg: number | null; reps: number | null; rpe: number | null; failed?: boolean }[],

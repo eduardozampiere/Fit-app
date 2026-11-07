@@ -234,11 +234,11 @@ export default function TodayScreen() {
       {
         text: 'Descartar',
         style: 'destructive',
-        onPress: () => void confirmDiscard(db, activeWorkout, () => bump()),
+        onPress: () => void confirmDiscard(db, activeWorkout, () => { timer.stop(); bump(); }),
       },
       { text: 'Voltar', style: 'cancel' },
     ]);
-  }, [activeWorkout, cycle, db, bump]);
+  }, [activeWorkout, cycle, db, bump, timer]);
 
   // O primeiro registro inicia o treino. Devolve null (e avisa) se já há outro em andamento.
   const ensureLog = useCallback(async (): Promise<SessionLog | null> => {
@@ -459,7 +459,7 @@ export default function TodayScreen() {
       await reopenSession(db, sessionLog.id);
     } else if (stats.sets === 0) {
       // Treino iniciado sem nenhuma série: concluir seria guardar um treino vazio.
-      await confirmDiscard(db, sessionLog, () => bump());
+      await confirmDiscard(db, sessionLog, () => { timer.stop(); bump(); });
       return;
     } else {
       await finishLog(db, sessionLog.id);
@@ -625,7 +625,7 @@ export default function TodayScreen() {
         onNotes={() => setNotesOpen(true)}
         onTimer={() => setFreeTimer(true)}
         onPrimary={primaryAction}
-        onDiscard={sessionLog ? () => void confirmDiscard(db, sessionLog, () => bump()) : undefined}
+        onDiscard={sessionLog ? () => void confirmDiscard(db, sessionLog, () => { timer.stop(); bump(); }) : undefined}
       />
       <ScrollView
         contentContainerStyle={styles.body}

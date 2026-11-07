@@ -1,6 +1,6 @@
 # 14 — Timer de descanso: janela retangular, que sobrevive ao app e avisa
 
-**Status:** 🔨 em andamento — cartão retangular e arraste do modal feitos em 06/11/2026; falta persistir e notificar
+**Status:** 🟡 feito, falta verificar no iPhone (06/11/2026)
 
 ## Objetivo
 (1) A janela do timer deve ser **retangular como a do Hevy**, não oval. (2) O timer não pode morrer ao trocar de app ou
@@ -9,8 +9,9 @@ fechá-lo. (3) Avisar quando o descanso acaba, com o app em segundo plano.
 ## Situação atual
 - No iOS o timer é o `NativeTabs.BottomAccessory`: o **sistema** desenha a cápsula de vidro e a forma não é configurável.
   Fora do iOS existe `RestTimerBar` (retangular, faixa de progresso, −30/+30/✕).
-- `RestTimer` (`src/state/RestTimer.tsx`) é só memória: fechar o app apaga o timer.
-- `expo-notifications` já está instalado (`src/state/reminders.ts`).
+- `RestTimer` (`src/state/RestTimer.tsx`) era só memória: fechar o app apagava o timer.
+- **A notificação local de fim do descanso já existia** (agendada ao iniciar, cancelada ao parar e reagendada em ±30 s) — a spec
+  original estava errada nesse ponto.
 
 ## Decisões propostas
 - **Trocar o acessório do sistema por um cartão próprio** acima da barra de abas, nas cinco abas: retângulo de cantos
@@ -29,12 +30,20 @@ fechá-lo. (3) Avisar quando o descanso acaba, com o app em segundo plano.
   `Pressable` que já respondia ao toque (um filho nunca assume o gesto de quem está respondendo). Agora a alça e o título
   respondem logo no toque (`BottomSheet` com `header`), e a roda de tempos continua rolando sozinha.
 
+- **Timer persistente:** `rest-timer` em `settings` guarda `endAt`, `totalSec` e `label`; ao abrir o app o timer é restaurado
+  **só se ainda não acabou** (se acabou com o app fechado, a notificação já avisou). Lógica pura em `src/domain/restTimer.ts`
+  (`restoreTimer`, `remainingSeconds`) com testes. A notificação passou a ter **id fixo** (`rest-timer`), então dá para
+  cancelá-la depois de restaurar.
+- **Descartar/concluir o treino** (cabeçalho ou barra) também encerra o descanso que estava rodando.
+- Conferido no simulador: iniciar o timer livre, fechar o app (`simctl terminate`), reabrir → cartão de volta com o tempo certo
+  e a barra de progresso.
+
 ## Plano de execução
-- [ ] Domínio: cálculo de `endAt`/restante já é puro? mover para `src/domain/restTimer.ts` com testes
+- [x] Domínio: `src/domain/restTimer.ts` com testes
 - [x] Cartão retangular + remoção do `BottomAccessory` (conferir posição acima da barra no iPhone)
-- [ ] Persistência em `settings` e restauração
-- [ ] Notificação local (agendar/cancelar/reagendar)
-- [ ] Verificação: simulador (claro/escuro), app em segundo plano, iPhone
+- [x] Persistência em `settings` e restauração
+- [x] Notificação local (já existia; id fixo)
+- [ ] Verificação: simulador (feito, escuro), **iPhone: notificação com o app em segundo plano e tela bloqueada**, tema claro
 
 ## Relação com a spec 17
 A Live Activity mostra o mesmo timer na Dynamic Island; esta spec é a base (estado persistido + notificação) e é o

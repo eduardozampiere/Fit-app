@@ -35,6 +35,12 @@ function WorkoutBar() {
   const db = useSQLiteContext();
   const pathname = usePathname();
   const { activeWorkout, cycle, bump } = useAppData();
+  const timer = useRestTimer();
+  // Descartar ou concluir o treino também encerra o descanso que estava rodando.
+  const afterEnd = () => {
+    timer.stop();
+    bump();
+  };
   const [now, setNow] = useState(() => Date.now());
   useEffect(() => {
     if (!activeWorkout) return;
@@ -48,7 +54,7 @@ function WorkoutBar() {
   const stale = isStale(activeWorkout, now);
   const title = cycle ? (findSession(cycle, activeWorkout.sessionId)?.session.title ?? 'Treino') : 'Treino';
   const open = () => router.navigate({ pathname: '/', params: { sessionId: activeWorkout.sessionId, at: String(Date.now()) } });
-  const onPress = stale ? () => askStillTraining(db, activeWorkout, Math.round(elapsed / 3600), bump, open) : open;
+  const onPress = stale ? () => askStillTraining(db, activeWorkout, Math.round(elapsed / 3600), afterEnd, open) : open;
 
   return (
     <View style={[styles.bar, { backgroundColor: t.card, borderColor: t.separator }]}>
@@ -74,7 +80,7 @@ function WorkoutBar() {
       <Pressable
         accessibilityRole="button"
         accessibilityLabel="Descartar treino"
-        onPress={() => void confirmDiscard(db, activeWorkout, bump)}
+        onPress={() => void confirmDiscard(db, activeWorkout, afterEnd)}
         style={[styles.icon, { backgroundColor: t.dangerBg }]}
       >
         <Ionicons name="trash-outline" size={22} color={t.danger} />

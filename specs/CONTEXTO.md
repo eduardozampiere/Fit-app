@@ -77,6 +77,13 @@ Princípios:
 - **Máximos (spec 15):** lista de máximos própria (id estável + nome), por periodização, com **histórico do usuário** gravado a cada
   mudança (`max_history`); o item do treino escolhe "carga baseada em" um máximo. Apagar máximo em uso é bloqueado. Gráfico de
   carga: uma linha por exercício principal. Regras configuráveis pela interface ficam na spec 18.
+- **Spec 15 dividida em PBIs 19 a 23** (06/11/2026): 19 formato v2 (base invisível) → 20 máximos próprios → 21 histórico de máximos, com o
+  22 (análises por exercício) logo depois do 19 e o 23 (evolução dos máximos) depois do 21 e do 22. **Cópia de segurança obrigatória**
+  antes de migrar os dados (sem cópia, sem migração); ela fica no aparelho até o usuário apagar.
+- **Nome do primeiro máximo: "Agachamento"** (e "Supino", "Terra"), pedido do usuário; o id continua `squat`.
+- **Dor e sinais de alarme dos check-ins não são opcionais:** seguem ativos, com limites padrão, mesmo numa periodização sem regras.
+- **Gráficos por exercício principal ou por máximo: até 3 linhas por vez** (paleta do tema), com seletor. As origens do histórico de
+  máximos são extensíveis (manual, Claude, regra, importado, nova periodização, sugestão do e1RM, lançado depois).
 - **Plano = periodização:** o app comporta várias periodizações, **uma ativa**; criar e editar periodizações, semanas e treinos
   é pela interface, sem importação (spec 16). As regras do treinador são **opcionais por periodização**.
 - **Treino em andamento é um estado de verdade** (início, fim, descartar), não um efeito de ter marcado uma série (spec 13).

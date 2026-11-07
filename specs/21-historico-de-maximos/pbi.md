@@ -27,8 +27,9 @@ ação dele.
   - O histórico entra no backup completo e é restaurado com ele.
   - Disponibilizar para o resto do app "o último valor de cada máximo" (usado pela spec 16 ao criar periodização nova).
 - **Não entra:**
-  - Gráfico ou tela de "Evolução dos máximos" nas Análises (backlog: "Evolução dos máximos nas Análises").
-  - Reconstruir o passado (os valores que o atleta teve antes da instalação desta versão não existem em lugar nenhum).
+  - Gráfico de "Evolução dos máximos" (o atleta quer; vai para o [PBI 23](../23-evolucao-dos-maximos/pbi.md), que usa este histórico).
+  - Reconstruir o passado a partir dos treinos e sugerir máximo pelo e1RM (também no PBI 23). O PBI 23 acrescenta duas origens ("Sugestão do e1RM" e "Lançado depois", para valores passados lançados à mão); por isso
+    a lista de origens deste PBI não pode ser fechada de um jeito que impeça novos valores.
   - Editar ou apagar registros do histórico à mão.
   - Registrar mudança de **nome** (só mudança de valor).
   - Sugerir máximo a partir de e1RM.
@@ -114,3 +115,4 @@ Regras do produto: o registro nunca bloqueia nem atrasa a ação do atleta (muda
 | Data | Nota |
 |---|---|
 | 06/11/2026 | PBI criado a partir da fatia "histórico" da spec 15 (decisão 2 e parte do item 15g). |
+| 06/11/2026 | Atleta quer o gráfico de evolução, o histórico retroativo e a sugestão pelo e1RM: criado o PBI 23; as origens do histórico precisam aceitar novos valores. |

@@ -29,10 +29,11 @@ Legenda: ✅ feito · 🟡 feito, falta verificar no iPhone · 🔨 em andamento
 | 16 | Periodizações: várias, uma ativa; criar plano e treinos pela UI (depende dos PBIs 20 e 21) | ⏳ | [16-periodizacoes](16-periodizacoes/spec.md) |
 | 17 | Live Activity do timer na Dynamic Island (começa por teste de viabilidade) | ⏳ | [17-live-activity](17-live-activity/spec.md) |
 | 18 | Regras do treinador configuráveis pela interface (depende dos PBIs 19 e 20) | ⏳ | [18-regras-configuraveis](18-regras-configuraveis/spec.md) |
-| 19 | Formato v2 do ciclo: base invisível, plano atual idêntico, cópia de segurança, regras por máximo (parte 1 da 15) | ⏳ | [19-formato-v2](19-formato-v2/pbi.md) |
+| 19 | Formato v2 do ciclo: base quase invisível (única mudança visível: "Agacho" vira "Agachamento"), cópia de segurança, regras por máximo (parte 1 da 15) | ⏳ | [19-formato-v2](19-formato-v2/pbi.md) |
 | 20 | Máximos próprios: criar máximos, "Carga baseada em" em qualquer exercício, sem pergunta de movimento (parte 2 da 15; depende da 19) | ⏳ | [20-maximos-proprios](20-maximos-proprios/pbi.md) |
 | 21 | Histórico de máximos: toda mudança registrada e visível na folha do máximo (parte 3 da 15; depende da 20) | ⏳ | [21-historico-de-maximos](21-historico-de-maximos/pbi.md) |
 | 22 | Análises por exercício principal: uma linha por principal, seletor de até 3 (parte 4 da 15; depende da 19) | ⏳ | [22-analises-por-exercicio](22-analises-por-exercicio/pbi.md) |
+| 23 | Evolução dos máximos: gráfico, passado (estimativa dos treinos + valores lançados) e sugestão de máximo pelo e1RM (depende de 21 e 22; fatias 23a, 23b, 23c) | ⏳ | [23-evolucao-dos-maximos](23-evolucao-dos-maximos/pbi.md) |
 
 Nada foi testado num iPhone de verdade ainda. Em 03/11/2026 o app rodou no simulador do iOS 27.2 (Mac,
 Xcode 27.2, `npx expo run:ios`). O que foi verificado em cada feature está no `spec.md` dela.
@@ -52,8 +53,8 @@ Xcode 27.2, `npx expo run:ios`). O que foi verificado em cada feature está no `
 | Escolher do catálogo também no editor da aba Plano | feature 09 | O `ItemEditor` ainda tem só campo de texto para o nome. |
 | Figura do corpo com os músculos trabalhados (como no cabeçalho do Hevy) | feature 10 | Precisa do desenho do corpo e do mapa exercício → músculo; as imagens do catálogo já mostram os músculos em vermelho. |
 | Imagem para os exercícios que só têm vídeo no catálogo (222) | feature 10 | Tirar o primeiro quadro de cada mp4 (ffmpeg já instalado no Mac) e embutir no app. Exige baixar ~223 vídeos (~93 MB) do bucket de terceiros e guardar ~8 MB de imagens no repositório. Decidido em 06/11/2026: **só quando o app estiver pronto**, não agora. |
-| Evolução dos máximos nas Análises (usa `max_history`) | feature 15 / PBI 21 | O histórico do usuário é gravado e listado na folha do máximo (PBI 21); o gráfico fica para depois. |
-| Lançar histórico retroativo de máximos à mão | PBI 21 | O "Valor inicial" tem a data da instalação, não a real. |
+| Linha de meta por máximo (ex.: meta de dez/2027) no gráfico de evolução | PBI 23 | Precisa guardar a meta de cada máximo; o gráfico de evolução, o passado e a sugestão pelo e1RM já estão no [PBI 23](23-evolucao-dos-maximos/pbi.md). |
+| Renomear exercícios do plano que começam com "Agacho" (ex.: "Agacho back-off") para "Agachamento" | PBI 19 | Pergunta aberta ao usuário; mexe em dados do plano e nos registros antigos. |
 | Atalho "Desligar máximo em todos os treinos" ao apagar máximo em uso | PBI 20 | Só se desligar item por item incomodar. |
 | Sugerir o máximo pelo nome do exercício ao adicionar principal/variação | PBI 20 | Só se ligar "Carga baseada em" à mão incomodar. |
 | Mais de 3 linhas por vez nos gráficos por exercício (ampliar a paleta) | PBI 22 | A paleta atual tem 3 cores. |

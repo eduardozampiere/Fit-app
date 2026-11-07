@@ -13,11 +13,13 @@
 Hoje o app trata agacho, supino e terra como "levantamentos" fixos, e só eles têm máximo, carga em % e gráfico. Para que
 **qualquer exercício** possa ter isso (PBIs 20 a 22), o jeito como o plano é guardado precisa mudar: máximos com nome e id
 próprios, cada item dizendo em qual máximo se baseia, single ligado ao seu principal. Este PBI faz **só essa troca de base** e
-entrega uma coisa: o app continua **exatamente igual** para o plano atual, e os dados do atleta (treinos, séries, RPE, check-ins,
-máximos ajustados, ordem dos exercícios) passam pela atualização **sem perda**, com uma cópia de segurança antes.
+entrega uma coisa: o app continua **igual** para o plano atual, com **uma única diferença visível pedida pelo atleta: onde a tela
+hoje diz "Agacho" passa a dizer "Agachamento"**. Os dados do atleta (treinos, séries, RPE, check-ins, máximos ajustados, ordem dos
+exercícios) passam pela atualização **sem perda**, com uma cópia de segurança antes.
 
-Quem usa: o atleta, durante o treino, com uma mão, entre séries. Para ele, o sucesso é **não perceber nada**: abrir o app depois da
-atualização e achar o mesmo Hoje, o mesmo Plano, as mesmas cargas, os mesmos alertas e as mesmas Análises. Por que um PBI sozinho:
+Quem usa: o atleta, durante o treino, com uma mão, entre séries. Para ele, o sucesso é **não perceber nada além da palavra nova**:
+abrir o app depois da atualização e achar o mesmo Hoje, o mesmo Plano, as mesmas cargas, os mesmos alertas (com "agachamento" no
+lugar de "agacho") e as mesmas Análises. Por que um PBI sozinho:
 é a etapa de maior risco (uma atualização de dados que não tem volta) e de menor valor visível; isolada, pode ser conferida no
 banco real antes de qualquer tela nova existir.
 
@@ -28,8 +30,11 @@ banco real antes de qualquer tela nova existir.
   - **Cópia de segurança automática** antes da atualização, com aviso único e atalho para compartilhar o arquivo.
   - Teste "dourado" do plano atual (alertas, cargas do dia, séries das Análises, e1RM) escrito **antes** de mexer em qualquer regra e
     que tem de passar idêntico ao final.
-  - Máximos passam a ter **id estável e nome** (`squat` "Agacho", `bench` "Supino", `deadlift` "Terra" — os mesmos rótulos de hoje,
-    ids iguais aos de hoje). Cada item do treino passa a apontar **o máximo em que se baseia** (ou nenhum = carga fixa em kg).
+  - Máximos passam a ter **id estável e nome** (`squat` "Agachamento", `bench` "Supino", `deadlift` "Terra"; ids iguais aos de hoje).
+    Cada item do treino passa a apontar **o máximo em que se baseia** (ou nenhum = carga fixa em kg).
+  - **Troca da palavra "Agacho" por "Agachamento"** em todos os textos que hoje usam o nome do movimento (lista abaixo, em Comportamento).
+    Pedido do atleta em 06/11/2026.
+  - **Alertas de dor e sinais de alarme dos check-ins continuam ativos em ciclo sem regras**, com limites padrão (decisão confirmada).
   - **Single de ativação / back-off / duplas ligados ao principal pelo próprio item** (e não mais "pelo movimento"): na tela Hoje a linha "S"
     continua dentro do principal certo.
   - **Regras do treinador por máximo**: os parâmetros que hoje são "do agacho / supino / terra" passam a ser "do máximo `squat` /
@@ -61,22 +66,37 @@ banco real antes de qualquer tela nova existir.
 - Abrir o app uma segunda vez (ou várias) não muda nada: a atualização é feita uma única vez por dado.
 - Offline: tudo é local; não há diferença com ou sem internet.
 
-**O que o atleta vê depois (tudo igual a antes)**
+**O que o atleta vê depois (tudo igual a antes, exceto "Agacho" → "Agachamento")**
 - Hoje: mesmos treinos, mesmas cargas por série, mesma ordem dos exercícios (inclusive a ordem que ele mudou arrastando), single de ativação
   dentro do principal, pegada do terra, estados de cada dia.
 - Plano: mesmos itens, mesmas faixas, mesmas cargas; editar um item continua funcionando.
-- Alertas do treinador: os mesmos, nos mesmos dias, com o mesmo texto (portão liberado/fechado, freio, fadiga do single, revisão de máximo,
-  4ª série e falha do terra, pegada, deload).
+- Alertas do treinador: os mesmos, nos mesmos dias, com o mesmo texto, exceto a palavra (portão liberado/fechado, freio, fadiga do single,
+  revisão de máximo, 4ª série e falha do terra, pegada, deload).
 - Análises: os mesmos números e linhas (carga dos principais, e1RM, termômetro do single, planejado × feito).
 - Ajustes: "Máximos de referência" mostra os mesmos três valores, inclusive os que o atleta já havia alterado, e "Voltar aos máximos do
   plano" continua funcionando.
 - Dados: o pacote para o Claude, a exportação CSV/JSON e o backup completo funcionam como antes.
 
+**Onde a palavra muda (levantado no código em 06/11/2026; o plano técnico deve rechecar com `grep`)**
+| Onde | Antes | Depois |
+|---|---|---|
+| Ajustes → "Máximos de referência": rótulo do primeiro campo | "Agacho" | "Agachamento" |
+| Ajustes → texto "Plano original: agacho 200 · supino … · terra …" | "agacho" | "agachamento" |
+| Hoje → resumo "Máximos: agacho 205 · supino 170 · terra 240" | "agacho" | "agachamento" |
+| Hoje → folha "Principal: qual movimento?" (some no PBI 20) | "Agacho" | "Agachamento" |
+| Análises → legenda das linhas de Carga dos principais, e1RM e Termômetro do single | "Agacho" | "Agachamento" (o PBI 22 troca por nomes de exercício) |
+| Alertas: "Portão liberado: Agacho 200", "Portão fechado: Agacho vai para …", texto "Agacho 200 saiu em RPE …" | "Agacho" | "Agachamento" |
+| Alertas: "Portão/Freio: repetir agacho 200", "Última série do agacho em RPE …", "Sinal de cansaço no single de agacho", "Revisão: … no máximo do agacho" | "agacho" | "agachamento" |
+| Alerta da regra das 24 h: "reduzir agacho e terra hoje" (título e texto) | "agacho" | "agachamento" |
+| Pacote/relatório para o Claude: "Máximos de referência atuais: agacho …", "e1RM agacho: …" | "agacho" | "agachamento" |
+| Pré-visualização de ajustes do Claude ("… do agacho", "agacho principal com …") | "agacho" | "agachamento" |
+- **Não muda:** nomes de exercícios do plano (ex.: "Agacho back-off", "Agacho — duplas de volume"); ver P1 nas perguntas abertas.
+
 **Ciclo sem regras (para a spec 16 e para o Claude)**
 - Um ciclo v2 com as regras do treinador ausentes abre sem erro em Hoje, Plano e Análises. Não gera nenhum alerta de portão, freio,
   fadiga do single, revisão de máximo, 4ª série, falha do terra nem pegada. O arredondamento de cargas usa o padrão do app (2,5 kg).
-- **Recomendação a confirmar (P1):** os alertas de **dor e sinais de alarme** dos check-ins seguem ativos com limites padrão mesmo sem
-  regras, por causa do histórico lombar do atleta.
+- **Decisão confirmada:** os alertas de **dor e sinais de alarme** dos check-ins (regra das 24 h, sinais de alarme) **continuam ativos com limites
+  padrão** mesmo sem regras, por causa do histórico lombar do atleta. Os limites padrão são os mesmos do plano atual.
 
 **Claude / importação**
 - Importar um ciclo `fitapp.cycle/v1` (como o gerado pela planilha ou por um Claude antigo): é convertido e entra como hoje.
@@ -92,8 +112,13 @@ banco real antes de qualquer tela nova existir.
   PBI único com tudo (dezenas de critérios, uma verificação só no final, difícil de testar e de reverter).
 - **Os ids dos três máximos atuais continuam `squat`, `bench` e `deadlift`** (decisão 1 da spec 15). Motivo: ajustes antigos do Claude, relatórios e
   o histórico seguem válidos sem tradução.
-- **Os nomes iniciais são os rótulos de hoje** ("Agacho", "Supino", "Terra"). O atleta pode renomear no PBI 20. Alternativa descartada: trocar
-  para "Agachamento" agora (mudaria texto na interface sem ninguém pedir).
+- **Nomes iniciais dos máximos: "Agachamento", "Supino" e "Terra"** — o atleta pediu (06/11/2026) que o nome do primeiro seja "Agachamento", não
+  "Agacho". A mesma palavra vale em todos os textos que usam o nome do movimento (tabela em Comportamento). O atleta pode renomear no PBI 20.
+  Alternativa descartada: manter "Agacho" (rótulo de hoje) e mudar só o nome do máximo, o que deixaria a tela com duas palavras para a mesma coisa.
+- **Alertas de dor e sinais de alarme não são opcionais** (resposta do atleta, 06/11/2026): em ciclo sem regras seguem ativos com limites padrão.
+  Alternativa descartada: "sem regras = sem nenhum alerta" (tiraria a proteção lombar de periodizações novas).
+- **A cópia de segurança automática fica até o atleta apagar**; o app não apaga sozinho (resposta "tanto faz", adotada a recomendação). Motivo:
+  é um arquivo pequeno e é a rede de segurança dos dados reais.
 - **Single ligado ao principal pelo próprio item** (decisão 5): na conversão, cada single/back-off/duplas aponta para o principal seguinte da
   mesma sessão e do mesmo movimento — exatamente o que a regra "pelo movimento" faz hoje. Alternativa descartada: manter o pareamento por
   movimento (impede o single de um exercício que não é um dos três).
@@ -111,7 +136,8 @@ banco real antes de qualquer tela nova existir.
 - **CP1 — Rede de segurança.** Existe um teste automático do plano atual (`assets/plan/ciclo_out26_jan27.json`) que registra alertas por regra,
   cargas de cada dia, séries das Análises e e1RM, escrito e verde **antes** da mudança, e que passa idêntico no final.
 - **CP2 — Conversão do plano atual.** Depois da atualização, o plano atual em v2 tem os mesmos itens, ids, ordem, séries e cargas de antes; os
-  três máximos têm ids `squat`, `bench`, `deadlift` e nomes "Agacho", "Supino", "Terra"; os 21 exercícios continuam existindo com o mesmo nome.
+  três máximos têm ids `squat`, `bench`, `deadlift` e nomes "Agachamento", "Supino", "Terra"; os 21 exercícios continuam existindo com o mesmo nome
+  (inclusive os que começam com "Agacho").
 - **CP3 — Dados preservados.** Número de treinos, séries registradas (com carga, reps, RPE, tipo de série), check-ins, pesos, refeições e
   ajustes (descanso, ordem, máximos alterados, timer) é o mesmo antes e depois; nenhum registro perde o vínculo com seu item.
 - **CP4 — Máximos alterados preservados.** Se o atleta tinha mudado um máximo (valor atual diferente do do plano), o valor atual e o do plano
@@ -122,14 +148,20 @@ banco real antes de qualquer tela nova existir.
   "Tentar de novo".
 - **CP7 — Idempotência.** Abrir o app duas ou mais vezes depois da atualização não altera nenhum dado nem repete o aviso; converter duas vezes
   o mesmo ciclo dá o mesmo resultado (teste).
-- **CP8 — Telas idênticas.** Hoje, Plano, Análises, Ajustes e Dados mostram os mesmos números e textos de antes (conferência lado a lado
-  antes × depois, roteiro abaixo).
+- **CP8 — Telas iguais, menos a palavra.** Hoje, Plano, Análises, Ajustes e Dados mostram os mesmos números e textos de antes, com uma única
+  diferença: onde estava "Agacho"/"agacho" aparece "Agachamento"/"agachamento" (todas as linhas da tabela "Onde a palavra muda"); busca por "Agacho"
+  como palavra isolada nesses textos não encontra mais nada (os nomes de exercícios do plano ficam como estão). Conferência lado a lado antes × depois,
+  roteiro abaixo.
 - **CP9 — Single no lugar.** Na tela Hoje, a linha "S" do single de ativação aparece dentro do mesmo principal de antes, nas três famílias; a
   ordem arrastada pelo atleta é mantida.
 - **CP10 — Regras iguais.** Os alertas do treinador do plano atual (portões, freio, fadiga do single, revisão de máximo, 4ª série e falha do
-  terra, pegada, deload) são os mesmos de antes para o histórico real do atleta.
-- **CP11 — Ciclo sem regras.** Um ciclo v2 sem regras abre sem erro em Hoje, Plano e Análises, sem alertas do treinador, com arredondamento de
-  2,5 kg (teste e importação manual de um arquivo de exemplo).
+  terra, pegada, deload) são os mesmos de antes para o histórico real do atleta: mesmos dias, mesmas semanas, mesmas cargas e mesmos números;
+  o texto é o mesmo exceto "Agacho" → "Agachamento". O teste dourado compara o texto depois de aplicar essa troca de palavra (ou compara tipo,
+  semana e valores, e o texto à parte).
+- **CP11 — Ciclo sem regras.** Um ciclo v2 sem regras abre sem erro em Hoje, Plano e Análises, sem alertas de portão, freio, single, revisão de
+  máximo, 4ª série, falha do terra ou pegada, com arredondamento de 2,5 kg (teste e importação manual de um arquivo de exemplo).
+- **CP11b — Segurança sem regras.** Nesse mesmo ciclo sem regras, um check-in com dor pior que o anterior ou com sinal de alarme continua gerando o
+  alerta de dor/sinal de alarme, com os limites padrão (teste e roteiro manual).
 - **CP12 — Claude e importação.** Importar um ciclo v1 e um v2 funciona; `set_max` com `lift` antigo e com `maxId` aplicam a mesma mudança;
   o pacote para o Claude lista id e nome de cada máximo; `docs/formato-ciclo.md` e `docs/claude-treinador.md` descrevem o v2 e dizem que o
   v1 continua aceito.
@@ -147,11 +179,12 @@ banco real antes de qualquer tela nova existir.
      mudar a ordem de um exercício arrastando. Anotar: cargas do dia, alertas da aba Hoje, números das quatro Análises, valores dos máximos.
   2. Instalar a **versão nova** por cima, sem apagar o app. Abrir. Deve aparecer "Dados atualizados" uma vez. Tocar "Compartilhar cópia" e
      conferir que o arquivo é gerado. Tocar "Ok".
-  3. Repetir as anotações do passo 1 e comparar: tudo igual (CP3, CP4, CP8, CP9, CP10).
+  3. Repetir as anotações do passo 1 e comparar: tudo igual, exceto "Agacho" → "Agachamento" (CP3, CP4, CP8, CP9, CP10).
   4. Fechar e abrir o app de novo: sem aviso, sem mudanças (CP7).
   5. Em Dados, restaurar a cópia do passo 2 e conferir que os dados voltam ao de antes (CP5). Restaurar também um backup JSON gerado pela versão
      anterior (CP13).
-  6. Importar o arquivo de exemplo de ciclo v2 sem regras e abrir Hoje, Plano e Análises (CP11). Colar no campo do Claude um ajuste antigo
+  6. Importar o arquivo de exemplo de ciclo v2 sem regras e abrir Hoje, Plano e Análises (CP11); fazer um check-in com dor pior que o anterior e ver o
+     alerta de dor (CP11b). Colar no campo do Claude um ajuste antigo
      (`set_max` com `lift`) e um novo (`maxId`) e aplicar (CP12).
   7. Simular falha da cópia (por exemplo, preenchendo o armazenamento do simulador ou usando o modo de teste que o plano técnico definir) e
      conferir a tela com "Tentar de novo" (CP6).
@@ -166,12 +199,17 @@ banco real antes de qualquer tela nova existir.
   o teste dourado deve registrar quais exercícios são principais.
 - **Risco:** itens órfãos (single sem principal na sessão). A conversão deve deixá-los sem principal em vez de falhar; o plano atual não deve
   ter nenhum (conferir no teste).
-- **P1 (não bloqueia este PBI, bloqueia a spec 16/18):** num ciclo sem regras, os alertas de dor e sinais de alarme seguem ativos com limites
-  padrão? **Recomendação: sim**, a segurança da lombar não deve ser opcional. A decisão 7 da spec 15 diz "sem alertas do treinador"; só você diz
-  se isso inclui a dor.
-- **P2:** a cópia automática deve ser apagada sozinha depois de um tempo? Recomendação: não, é um arquivo pequeno; fica até você apagar.
+- **Risco (baixo):** a troca "Agacho" → "Agachamento" mexe em textos fixos espalhados (rótulo do movimento, regra das 24 h, relatório, pré-visualização do
+  Claude). Se algum ficar de fora, a tela mistura as duas palavras; o CP8 e o `grep` do plano técnico cobrem isso.
+- **P1 (não bloqueia):** os nomes de exercícios do plano que começam com "Agacho" ("Agacho back-off", "Agacho — duplas de volume") devem virar
+  "Agachamento back-off" e "Agachamento — duplas de volume"? Hoje ficam como estão (o pedido foi o nome do máximo e do movimento). Recomendação: sim,
+  renomear, mas é uma mudança de dados do plano e dos registros antigos, então só com o seu "ok".
+
+**Respondidas em 06/11/2026 (viraram decisões):** dor e sinais de alarme continuam ativos em ciclo sem regras (antiga P1); a cópia automática fica até
+o atleta apagar (antiga P2); nome do primeiro máximo é "Agachamento".
 
 ## Andamento
 | Data | Nota |
 |---|---|
 | 06/11/2026 | PBI criado a partir da fatia "base" da spec 15 (itens 15a, 15b, 15d e a conversão de dados do 15g). |
+| 06/11/2026 | Respostas do atleta: "Agacho" vira "Agachamento" (tabela dos textos afetados, CP2, CP8, CP10); dor e sinais de alarme seguem ativos sem regras (CP11b); cópia fica até o atleta apagar. |

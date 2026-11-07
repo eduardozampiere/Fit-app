@@ -8,8 +8,8 @@
 **Depende de:** [19 — Formato v2](../19-formato-v2/pbi.md) (single ligado ao principal pelo próprio item). Não depende do 20 nem do 21; pode ser feito antes ou depois deles.
 
 ## Objetivo
-As Análises de treino têm três gráficos presos a "agacho / supino / terra": **Carga dos principais**, **Máximo estimado (e1RM)** e **Termômetro: single de ativação**. Se o
-atleta trocar o principal do agacho (ex.: de "Agachamento (High Bar)" para "Agachamento Low Bar") ou criar um principal que não é um dos três (ex.: "Supino inclinado"),
+As Análises de treino têm três gráficos presos a "agachamento / supino / terra": **Carga dos principais**, **Máximo estimado (e1RM)** e **Termômetro: single de ativação**. Se o
+atleta trocar o principal do agachamento (ex.: de "Agachamento (High Bar)" para "Agachamento Low Bar") ou criar um principal que não é um dos três (ex.: "Supino inclinado"),
 o gráfico não acompanha. Depois deste PBI, **cada exercício marcado como Principal vira uma linha**, qualquer que seja ele, e o atleta escolhe quais ver. Uso: ao fechar a
 semana ou o ciclo, abrindo a aba Análises para ver se a carga e o e1RM estão subindo.
 
@@ -37,7 +37,7 @@ o nome do novo exercício, sem sumir o histórico da antiga.
 - Cada linha é um exercício diferente cujo item no treino é do tipo Principal e que tem pelo menos uma série registrada. Valor: o top set de cada sessão (kg), como hoje.
   Legenda com o nome do exercício e a cor na ordem fixa da paleta.
 - **Plano atual:** continuam 3 linhas (os três principais de hoje: "Agachamento (High Bar)", "Supino (competição, pausa)" e "Terra (convencional, hook)"), com os mesmos pontos de antes. O que
-  muda é só o texto da legenda (de "Agacho / Supino / Terra" para o nome do exercício). Nomes longos são cortados com reticências, sem quebrar o gráfico.
+  muda é só o texto da legenda (de "Agachamento / Supino / Terra", que é como o PBI 19 deixa a legenda, para o nome do exercício). Nomes longos são cortados com reticências, sem quebrar o gráfico.
 - **Troca de principal:** se o atleta trocar o exercício principal de um treino (ou promover outro exercício a Principal), o novo exercício vira uma linha própria a partir do primeiro treino
   registrado; a linha do exercício antigo continua com o histórico que tem.
 - **Muitas linhas:** com mais de 3 exercícios principais registrados, mostra os **3 com registro mais recente**. Abaixo do gráfico, o chip **"Exercícios (3 de 5)"** abre uma folha de baixo para cima
@@ -99,10 +99,12 @@ Regras do produto: gráficos com um eixo só, cor pela entidade (ordem fixa da p
 ## Riscos e perguntas abertas
 - **Risco de UX:** o atleta que troca o principal a cada ciclo acumula linhas; o seletor resolve, mas "as 3 mais recentes" pode esconder um exercício que ele queira comparar. Mitigação: a escolha fica salva.
 - **Risco:** exercícios com nomes quase iguais (um principal criado duas vezes pelo catálogo) viram duas linhas. Aceitável nesta etapa; unir exercícios é backlog.
-- **P1 (não bloqueia):** três linhas por vez basta? Se você usa mais de 3 principais ao mesmo tempo (ex.: agacho, supino, terra e um quarto), precisamos ampliar a paleta de cores. Recomendação: começar com 3.
-- **P2 (não bloqueia):** os dados do plano atual têm um principal por movimento hoje; confirmar no teste dourado que ninguém marcou outro exercício como Principal por engano (aparece como linha extra).
+- **Respondida em 06/11/2026:** 3 linhas por vez bastam (decisão acima); ampliar a paleta só entra se isso mudar.
+- **Verificação pendente (não é pergunta ao atleta):** os dados do plano atual têm um principal por movimento; confirmar no teste dourado que ninguém marcou outro exercício como Principal por engano (aparece como linha extra).
+- O gráfico de **evolução dos máximos** (um ponto por mudança de máximo) não é este: está no [PBI 23](../23-evolucao-dos-maximos/pbi.md).
 
 ## Andamento
 | Data | Nota |
 |---|---|
 | 06/11/2026 | PBI criado a partir da fatia "análises" da spec 15 (item 15e). |
+| 06/11/2026 | Atleta confirmou: 3 linhas por vez bastam. Nomes ajustados para "Agachamento". |
